@@ -3,9 +3,8 @@ using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.CustomControls;
 using Robust.Client.UserInterface.XAML;
 using Robust.Client.ResourceManagement;
-using Robust.Client.Graphics;
-using System.Linq;
 using Robust.Shared.Utility;
+using System.Linq;
 
 namespace Content.Client._NC.Trade;
 
@@ -21,6 +20,7 @@ public sealed class TraderMenu : DefaultWindow
     {
         _res = res;
         RobustXamlLoader.Load(this);
+
     }
 
     public void UpdateListings(Dictionary<string, TraderListingData> listings, int balance)
@@ -29,9 +29,9 @@ public sealed class TraderMenu : DefaultWindow
         foreach (var (id, data) in listings)
             _listings[id] = data;
 
-        this.GetChild<Label>("BalanceLabel").Text = $"Баланс: {balance}";
-        var categoryContainer = this.GetChild<BoxContainer>("CategoryContainer");
+        this.GetChild<Label>("BalanceLabel").Text = $"CapCoin: {balance}";
 
+        var categoryContainer = this.GetChild<BoxContainer>("CategoryContainer");
         categoryContainer.DisposeAllChildren();
 
         var categories = _listings.Values
@@ -68,7 +68,8 @@ public sealed class TraderMenu : DefaultWindow
         foreach (var listing in _listings.Values.Where(l => l.Category == cat))
         {
             var texturePath = listing.Icon ?? "/Textures/Interface/Nano/item-default.png";
-            var texture = (Texture)_res.GetResource(typeof(Texture), new ResPath(texturePath));
+            var textureRes = _res.GetResource<TextureResource>(new ResPath(texturePath));
+            var texture = textureRes.Texture;
 
             var control = new TraderListingControl(listing, texture);
             control.OnClick += () => OnClickItem?.Invoke(listing.Id);

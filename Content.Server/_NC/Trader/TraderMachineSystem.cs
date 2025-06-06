@@ -8,6 +8,9 @@ using Content.Shared.Popups;
 using Robust.Server.GameObjects;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Player;
+using Robust.Shared.Containers;
+using Robust.Shared.GameStates;
+using Robust.Shared.Timing;
 
 namespace Content.Server._NC.Trader;
 
@@ -27,6 +30,11 @@ public sealed class TraderMachineSystem : EntitySystem
         SubscribeLocalEvent<TraderMachineComponent, MapInitEvent>(OnMapInit);
         SubscribeLocalEvent<TraderMachineComponent, ActivateInWorldEvent>(OnActivate);
         SubscribeLocalEvent<TraderMachineComponent, BuyItemMessage>(OnBuyRequest);
+
+        // Слежение за CapCoin
+        SubscribeLocalEvent<CurrencyItemComponent, EntInsertedIntoContainerMessage>(OnCurrencyChanged);
+        SubscribeLocalEvent<CurrencyItemComponent, EntRemovedFromContainerMessage>(OnCurrencyChanged);
+        SubscribeLocalEvent<CurrencyItemComponent, ComponentShutdown>(OnCurrencyChanged);
     }
 
     private void OnMapInit(EntityUid uid, TraderMachineComponent comp, MapInitEvent args)
@@ -64,7 +72,8 @@ public sealed class TraderMachineSystem : EntitySystem
                     Name = proto.Name,
                     Price = price,
                     Category = category,
-                    Icon = iconPath
+                    Icon = iconPath,
+                    SpawnResultId = id
                 };
             }
         }
@@ -78,11 +87,17 @@ public sealed class TraderMachineSystem : EntitySystem
         var session = actor.PlayerSession;
         _ui.OpenUi(uid, TraderUiKey.Key, session);
 
-        // Нет GetUi → не обновляем UI вручную
+        SendUpdate(uid, comp, args.User);
     }
 
     private void OnBuyRequest(EntityUid uid, TraderMachineComponent comp, BuyItemMessage msg)
     {
+        if (msg.ProductId == "refresh")
+        {
+            SendUpdate(uid, comp, msg.Sender);
+            return;
+        }
+
         if (!_entMan.EntityExists(msg.Sender) || !TryComp<ActorComponent>(msg.Sender, out var actor))
             return;
 
@@ -95,8 +110,6 @@ public sealed class TraderMachineSystem : EntitySystem
             TrySellItem(buyer, comp, listing, uid);
         else
             TryBuyItem(buyer, comp, listing, uid);
-
-        // Без GetUi → UI не обновляем
     }
 
     private void TryBuyItem(EntityUid buyer, TraderMachineComponent comp, TraderListingData listing, EntityUid machine)
@@ -110,9 +123,17 @@ public sealed class TraderMachineSystem : EntitySystem
         foreach (var ent in toConsume)
             _entMan.DeleteEntity(ent);
 
-        var spawned = Spawn(listing.Id, Transform(buyer).Coordinates);
+        if (listing.SpawnResultId is not { } resultId)
+        {
+            _popup.PopupEntity("Ошибка: невозможно купить этот товар.", machine, buyer);
+            return;
+        }
+
+        var spawned = Spawn(resultId, Transform(buyer).Coordinates);
         _hands.PickupOrDrop(buyer, spawned);
         _popup.PopupEntity($"Куплено {listing.Name} за {listing.Price}.", machine, buyer);
+
+        SendUpdate(machine, comp, buyer);
     }
 
     private void TrySellItem(EntityUid seller, TraderMachineComponent comp, TraderListingData listing, EntityUid machine)
@@ -140,9 +161,55 @@ public sealed class TraderMachineSystem : EntitySystem
         }
 
         _entMan.DeleteEntity(found);
-        comp.StoredCurrency += listing.Price;
-        _popup.PopupEntity($"Продано {listing.Name} за {listing.Price}.", machine, seller);
+
+        for (int i = 0; i < listing.Price; i++)
+        {
+            var coin = Spawn("CapCoin", Transform(seller).Coordinates);
+            _hands.PickupOrDrop(seller, coin);
+        }
+
+        _popup.PopupEntity($"Продано {listing.Name} за {listing.Price} CapCoin.", machine, seller);
+
+        comp.Listings.Remove(listing.Id);
+        SendUpdate(machine, comp, seller);
     }
+
+    private void SendUpdate(EntityUid machine, TraderMachineComponent comp, EntityUid player)
+    {
+        var balance = 0;
+        if (TryGetCurrency(player, comp.CurrencyAccepted, int.MaxValue, out var coins))
+        {
+            foreach (var coin in coins)
+                if (IsCurrency(coin, comp.CurrencyAccepted, out var val))
+                    balance += val;
+        }
+
+        _ui.SetUiState(machine, TraderUiKey.Key, new TraderUpdateState(comp.Listings, balance));
+    }
+
+    private void OnCurrencyChanged(EntityUid uid, CurrencyItemComponent comp, EntityEventArgs args)
+    {
+        if (!_entMan.TryGetComponent<TransformComponent>(uid, out var xform))
+            return;
+
+        var nearbySessions = Filter.Pvs(xform.Coordinates, 5f, _entMan);
+
+        foreach (var session in nearbySessions.Recipients)
+        {
+            var playerEnt = session.AttachedEntity;
+            if (playerEnt == null)
+                continue;
+
+            foreach (var machine in EntityQuery<TraderMachineComponent>())
+            {
+                if (playerEnt == null || !_ui.IsUiOpen(machine.Owner, TraderUiKey.Key, playerEnt.Value))
+                    continue;
+
+                SendUpdate(machine.Owner, machine, playerEnt.Value);
+            }
+        }
+    }
+
 
     private bool TryGetCurrency(EntityUid player, string currencyType, int amount, out List<EntityUid> found)
     {

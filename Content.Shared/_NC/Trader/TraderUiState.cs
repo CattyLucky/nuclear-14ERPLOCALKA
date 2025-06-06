@@ -23,5 +23,6 @@ public sealed class TraderListingData
     public int Price;
     public string Category = string.Empty;
     public string Name = string.Empty;
-    public string? Icon = null; // ID спрайта прототипа
+    public string? Icon = null;
+    public string? SpawnResultId = null; // <-- вот это!
 }

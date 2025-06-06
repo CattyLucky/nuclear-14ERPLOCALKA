@@ -8,8 +8,8 @@ public sealed class TraderBoundUserInterface : BoundUserInterface
 {
     private TraderMenu? _menu;
 
-    [Dependency] private readonly IPlayerManager _playerManager = default!;
-    [Dependency] private readonly IResourceCache _res = default!;
+    [Dependency] private readonly IPlayerManager _playerManager = null!;
+    [Dependency] private readonly IResourceCache _res = null!;
 
     public TraderBoundUserInterface(EntityUid owner, Enum key) : base(owner, key)
     {
@@ -24,8 +24,16 @@ public sealed class TraderBoundUserInterface : BoundUserInterface
         _menu.OnClickItem += id =>
         {
             var sender = _playerManager.LocalSession?.AttachedEntity;
-            if (sender != null)
-                SendMessage(new BuyItemMessage(id, sender.Value));
+            if (sender == null)
+                return;
+
+            if (id == "refresh")
+            {
+                SendMessage(new BuyItemMessage("refresh", sender.Value));
+                return;
+            }
+
+            SendMessage(new BuyItemMessage(id, sender.Value));
         };
 
         _menu.OnClose += Close;
