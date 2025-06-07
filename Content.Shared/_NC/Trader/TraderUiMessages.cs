@@ -6,14 +6,11 @@ namespace Content.Shared._NC.Trader;
 public sealed class BuyItemMessage : BoundUserInterfaceMessage
 {
     public string ProductId;
-    public EntityUid Sender;
     public int Amount;
 
-    public BuyItemMessage(string productId, EntityUid sender, int amount = 1)
+    public BuyItemMessage(string productId, int amount)
     {
         ProductId = productId;
-        Sender = sender;
         Amount = amount;
     }
 }
-

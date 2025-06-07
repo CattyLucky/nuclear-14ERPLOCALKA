@@ -23,15 +23,11 @@ public sealed class TraderBoundUserInterface : BoundUserInterface
         _menu = new TraderMenu(_res);
         _menu.OnClickItem += data =>
         {
-            var sender = _playerManager.LocalSession?.AttachedEntity;
-            if (sender == null)
-                return;
-
             var split = data.Split('|');
             var id = split[0];
             var amount = split.Length > 1 && int.TryParse(split[1], out var amt) ? amt : 1;
 
-            SendMessage(new BuyItemMessage(id, sender.Value, amount));
+            SendMessage(new BuyItemMessage(id, amount));
         };
 
         _menu.OnClose += Close;

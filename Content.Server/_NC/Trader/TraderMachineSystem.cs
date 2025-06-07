@@ -87,17 +87,17 @@ public sealed class TraderMachineSystem : EntitySystem
         var session = actor.PlayerSession;
         _ui.OpenUi(uid, TraderUiKey.Key, session);
         SendUpdate(uid, comp, args.User);
+
+        comp.LastUser = args.User;
     }
 
     private void OnBuyRequest(EntityUid uid, TraderMachineComponent comp, BuyItemMessage msg)
     {
-        if (!TryComp<ActorComponent>(msg.Sender, out var actor))
+        if (comp.LastUser is not { } buyer || !_entMan.EntityExists(buyer))
             return;
 
-        if (!_ui.IsUiOpen(uid, TraderUiKey.Key, msg.Sender))
+        if (!_ui.IsUiOpen(uid, TraderUiKey.Key, buyer))
             return;
-
-        var buyer = msg.Sender;
 
         if (msg.ProductId == "refresh")
         {
@@ -310,3 +310,4 @@ public sealed class TraderMachineSystem : EntitySystem
         return true;
     }
 }
+

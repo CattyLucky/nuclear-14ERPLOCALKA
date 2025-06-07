@@ -3,10 +3,10 @@ using Content.Shared._NC.Trader;
 
 namespace Content.Server._NC.Trader;
 
-[RegisterComponent, NetworkedComponent, AutoGenerateComponentState,]
+[RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
 public sealed partial class TraderMachineComponent : Component
 {
-    [DataField("currencyAccepted"), AutoNetworkedField,]
+    [DataField("currencyAccepted"), AutoNetworkedField]
     public string CurrencyAccepted = "CapCoin";
 
     // YAML-структура: Категория -> Прототип -> Цена
@@ -19,4 +19,11 @@ public sealed partial class TraderMachineComponent : Component
 
     [ViewVariables(VVAccess.ReadWrite)]
     public int StoredCurrency = 0;
+
+    /// <summary>
+    /// Последний игрок, активировавший интерфейс автомата.
+    /// Используется на сервере при получении BuyItemMessage.
+    /// </summary>
+    [ViewVariables]
+    public EntityUid? LastUser;
 }

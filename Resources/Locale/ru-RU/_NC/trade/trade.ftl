@@ -12,3 +12,5 @@ trader-sold = Продано { $name } x{ $amount } за { $cost } { $currency }
 trader-buy-tooltip = Нажмите, чтобы купить или продать
 trader-currency-tooltip = Тип валюты
 trader-no-items-available = У вас нет предметов для продажи.
+ui-yes = "Да"
+ui-no = "Нет"

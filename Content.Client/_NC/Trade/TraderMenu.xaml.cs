@@ -12,6 +12,7 @@ using Content.Shared.Inventory;
 using Content.Shared.Hands.Components;
 using System.Linq;
 
+
 namespace Content.Client._NC.Trade;
 
 public sealed class TraderMenu : DefaultWindow
@@ -166,7 +167,13 @@ public sealed class TraderMenu : DefaultWindow
                 int.TryParse(text.Trim(), out var amount) &&
                 amount > 0 && amount <= max)
             {
-                onConfirm(amount);
+                var confirm = new ConfirmDialog(
+                    Loc.GetString("trader-confirm-title"),
+                    Loc.GetString("trader-confirm-message", ("name", title), ("amount", amount))
+                );
+
+                confirm.OnConfirmed += () => onConfirm(amount);
+                confirm.OpenCentered();
             }
         };
 
