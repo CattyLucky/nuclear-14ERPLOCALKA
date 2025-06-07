@@ -1,8 +1,6 @@
 using Robust.Client.UserInterface;
 
-
 namespace Content.Client._NC.Trade;
-
 
 public static class UiHelpers
 {

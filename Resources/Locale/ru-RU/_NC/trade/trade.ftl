@@ -1,0 +1,14 @@
+trader-title = Торговый автомат
+trader-buy = Покупка
+trader-sell = Продажа
+trader-buy-prompt = Введите количество для покупки { $item } (макс: { $max })
+trader-sell-prompt = Введите количество для продажи { $item } (макс: { $max })
+trader-balance = Баланс: { $amount }
+trader-error-no-currency = Недостаточно средств.
+trader-error-no-items = Нет подходящего предмета.
+trader-buy-error = Ошибка: невозможно купить этот товар.
+trader-bought = Куплено { $name } x{ $amount } за { $cost } { $currency }.
+trader-sold = Продано { $name } x{ $amount } за { $cost } { $currency }.
+trader-buy-tooltip = Нажмите, чтобы купить или продать
+trader-currency-tooltip = Тип валюты
+trader-no-items-available = У вас нет предметов для продажи.

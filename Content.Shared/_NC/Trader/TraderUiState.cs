@@ -2,27 +2,23 @@
 
 namespace Content.Shared._NC.Trader;
 
-/// <summary>
-/// Сервер отправляет клиенту: список товаров и баланс.
-/// </summary>
-[Serializable, NetSerializable,]
-public sealed class TraderUpdateState(Dictionary<string, TraderListingData> inventory, int balance)
+[Serializable, NetSerializable]
+public sealed class TraderUpdateState(Dictionary<string, TraderListingData> inventory, int balance, string currencyAccepted)
     : BoundUserInterfaceState
 {
     public readonly Dictionary<string, TraderListingData> Inventory = inventory;
     public readonly int Balance = balance;
+    public readonly string CurrencyAccepted = currencyAccepted;
 }
 
-/// <summary>
-/// Описание одного товара в UI автомата.
-/// </summary>
-[Serializable, NetSerializable,]
+[Serializable, NetSerializable]
 public sealed class TraderListingData
 {
     public string Id = string.Empty;
+    public string ProtoId = string.Empty;
     public int Price;
     public string Category = string.Empty;
     public string Name = string.Empty;
     public string? Icon = null;
-    public string? SpawnResultId = null; // <-- вот это!
+    public string? Description = null;
 }

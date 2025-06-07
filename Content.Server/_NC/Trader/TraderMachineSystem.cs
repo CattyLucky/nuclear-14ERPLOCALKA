@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Content.Shared._NC.Trader;
+﻿using Content.Shared._NC.Trader;
 using Content.Shared.Hands.EntitySystems;
 using Content.Shared.Hands.Components;
 using Content.Shared.Interaction;
@@ -9,8 +8,7 @@ using Robust.Server.GameObjects;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Player;
 using Robust.Shared.Containers;
-using Robust.Shared.GameStates;
-using Robust.Shared.Timing;
+using System.Linq;
 
 namespace Content.Server._NC.Trader;
 
@@ -31,7 +29,6 @@ public sealed class TraderMachineSystem : EntitySystem
         SubscribeLocalEvent<TraderMachineComponent, ActivateInWorldEvent>(OnActivate);
         SubscribeLocalEvent<TraderMachineComponent, BuyItemMessage>(OnBuyRequest);
 
-        // Слежение за CapCoin
         SubscribeLocalEvent<CurrencyItemComponent, EntInsertedIntoContainerMessage>(OnCurrencyChanged);
         SubscribeLocalEvent<CurrencyItemComponent, EntRemovedFromContainerMessage>(OnCurrencyChanged);
         SubscribeLocalEvent<CurrencyItemComponent, ComponentShutdown>(OnCurrencyChanged);
@@ -45,21 +42,23 @@ public sealed class TraderMachineSystem : EntitySystem
         {
             foreach (var (id, price) in entries)
             {
+                if (id == "refresh")
+                    continue;
+
                 if (!_prototypes.TryIndex<EntityPrototype>(id, out var proto))
                     continue;
 
                 var key = category == TraderCategory.Sell ? $"sell/{id}" : id;
 
                 string? iconPath = null;
+                var description = proto.Description ?? string.Empty;
 
                 if (proto.Components.TryGetValue("Sprite", out var spriteComp) &&
                     spriteComp is IDictionary<string, object> dict)
                 {
-                    if (dict.TryGetValue("sprite", out var spriteVal) &&
-                        spriteVal is string spriteStr)
+                    if (dict.TryGetValue("sprite", out var spriteVal) && spriteVal is string spriteStr)
                     {
-                        if (dict.TryGetValue("state", out var stateVal) &&
-                            stateVal is string stateStr)
+                        if (dict.TryGetValue("state", out var stateVal) && stateVal is string stateStr)
                             iconPath = $"{spriteStr}/{stateStr}.png";
                         else
                             iconPath = $"{spriteStr}/icon.png";
@@ -69,11 +68,12 @@ public sealed class TraderMachineSystem : EntitySystem
                 comp.Listings[key] = new TraderListingData
                 {
                     Id = key,
+                    ProtoId = id,
                     Name = proto.Name,
                     Price = price,
                     Category = category,
                     Icon = iconPath,
-                    SpawnResultId = id
+                    Description = description
                 };
             }
         }
@@ -86,91 +86,132 @@ public sealed class TraderMachineSystem : EntitySystem
 
         var session = actor.PlayerSession;
         _ui.OpenUi(uid, TraderUiKey.Key, session);
-
         SendUpdate(uid, comp, args.User);
     }
 
     private void OnBuyRequest(EntityUid uid, TraderMachineComponent comp, BuyItemMessage msg)
     {
+        if (!TryComp<ActorComponent>(msg.Sender, out var actor))
+            return;
+
+        if (!_ui.IsUiOpen(uid, TraderUiKey.Key, msg.Sender))
+            return;
+
+        var buyer = msg.Sender;
+
         if (msg.ProductId == "refresh")
         {
-            SendUpdate(uid, comp, msg.Sender);
+            SendUpdate(uid, comp, buyer);
             return;
         }
-
-        if (!_entMan.EntityExists(msg.Sender) || !TryComp<ActorComponent>(msg.Sender, out var actor))
-            return;
-
-        var buyer = actor.Owner;
 
         if (!comp.Listings.TryGetValue(msg.ProductId, out var listing))
             return;
 
+        var clampedAmount = Math.Clamp(msg.Amount, 1, 1000);
+
         if (listing.Category == TraderCategory.Sell)
-            TrySellItem(buyer, comp, listing, uid);
+            TrySellItem(buyer, comp, listing, uid, clampedAmount);
         else
-            TryBuyItem(buyer, comp, listing, uid);
+            TryBuyItem(buyer, comp, listing, uid, clampedAmount);
     }
 
-    private void TryBuyItem(EntityUid buyer, TraderMachineComponent comp, TraderListingData listing, EntityUid machine)
+    private void TryBuyItem(EntityUid buyer, TraderMachineComponent comp, TraderListingData listing, EntityUid machine, int amount)
     {
-        if (!TryGetCurrency(buyer, comp.CurrencyAccepted, listing.Price, out var toConsume))
+        var totalCost = listing.Price * amount;
+        if (!TryGetCurrency(buyer, comp.CurrencyAccepted, totalCost, out var toConsume))
         {
-            _popup.PopupEntity("Недостаточно средств.", machine, buyer);
+            _popup.PopupEntity(Loc.GetString("trader-error-no-currency"), machine, buyer);
             return;
         }
 
         foreach (var ent in toConsume)
             _entMan.DeleteEntity(ent);
 
-        if (listing.SpawnResultId is not { } resultId)
+        if (listing.ProtoId is not { } resultId)
         {
-            _popup.PopupEntity("Ошибка: невозможно купить этот товар.", machine, buyer);
+            _popup.PopupEntity(Loc.GetString("trader-buy-error"), machine, buyer);
             return;
         }
 
-        var spawned = Spawn(resultId, Transform(buyer).Coordinates);
-        _hands.PickupOrDrop(buyer, spawned);
-        _popup.PopupEntity($"Куплено {listing.Name} за {listing.Price}.", machine, buyer);
+        for (int i = 0; i < amount; i++)
+        {
+            var spawned = Spawn(resultId, Transform(buyer).Coordinates);
+            _hands.PickupOrDrop(buyer, spawned);
+        }
+
+        _popup.PopupEntity(Loc.GetString("trader-bought",
+            ("name", listing.Name),
+            ("amount", amount),
+            ("cost", totalCost),
+            ("currency", comp.CurrencyAccepted)), machine, buyer);
 
         SendUpdate(machine, comp, buyer);
     }
 
-    private void TrySellItem(EntityUid seller, TraderMachineComponent comp, TraderListingData listing, EntityUid machine)
+    private void TrySellItem(EntityUid seller, TraderMachineComponent comp, TraderListingData listing, EntityUid machine, int amount)
     {
-        var realId = listing.Id.Replace("sell/", "");
+        var realId = listing.ProtoId;
+        var heldItems = new List<EntityUid>();
 
-        if (!_entMan.TryGetComponent(seller, out HandsComponent? hands) ||
-            !_entMan.TryGetComponent(seller, out InventoryComponent? _))
+        if (_entMan.TryGetComponent(seller, out HandsComponent? hands))
         {
-            _popup.PopupEntity("Нет подходящего предмета.", machine, seller);
+            foreach (var ent in _hands.EnumerateHeld(seller, hands))
+            {
+                if (_entMan.TryGetComponent(ent, out MetaDataComponent? meta) &&
+                    meta.EntityPrototype?.ID == realId)
+                {
+                    heldItems.Add(ent);
+                    if (heldItems.Count >= amount)
+                        break;
+                }
+            }
+        }
+
+        if (_entMan.TryGetComponent(seller, out InventoryComponent? inv))
+        {
+            foreach (var slot in _inventory.EnumerateAllSlots(seller, inv))
+            {
+                if (_inventory.TryGetSlotEntity(seller, slot.Id, out var ent) &&
+                    _entMan.TryGetComponent(ent.Value, out MetaDataComponent? meta) &&
+                    meta.EntityPrototype?.ID == realId)
+                {
+                    heldItems.Add(ent.Value);
+                    if (heldItems.Count >= amount)
+                        break;
+                }
+            }
+        }
+
+        if (heldItems.Count == 0)
+        {
+            _popup.PopupEntity(Loc.GetString("trader-error-no-items"), machine, seller);
             return;
         }
 
-        var heldItems = _hands.EnumerateHeld(seller, hands)
-            .Concat(GetHeldInventoryItems(seller))
-            .ToList();
-
-        var found = heldItems
-            .FirstOrDefault(e => _entMan.GetComponent<MetaDataComponent>(e).EntityPrototype?.ID == realId);
-
-        if (found == default)
+        var totalCoins = amount * listing.Price;
+        var maxCoinsAllowed = 200;
+        if (totalCoins > maxCoinsAllowed)
         {
-            _popup.PopupEntity("Нет подходящего предмета.", machine, seller);
-            return;
+            amount = maxCoinsAllowed / listing.Price;
+            totalCoins = amount * listing.Price;
         }
 
-        _entMan.DeleteEntity(found);
+        foreach (var item in heldItems.Take(amount))
+            _entMan.DeleteEntity(item);
 
-        for (int i = 0; i < listing.Price; i++)
+        for (int i = 0; i < totalCoins; i++)
         {
-            var coin = Spawn("CapCoin", Transform(seller).Coordinates);
+            var coin = Spawn(comp.CurrencyAccepted, Transform(seller).Coordinates);
             _hands.PickupOrDrop(seller, coin);
         }
 
-        _popup.PopupEntity($"Продано {listing.Name} за {listing.Price} CapCoin.", machine, seller);
+        _popup.PopupEntity(Loc.GetString("trader-sold",
+            ("name", listing.Name),
+            ("amount", amount),
+            ("cost", totalCoins),
+            ("currency", comp.CurrencyAccepted)), machine, seller);
 
-        comp.Listings.Remove(listing.Id);
         SendUpdate(machine, comp, seller);
     }
 
@@ -184,7 +225,8 @@ public sealed class TraderMachineSystem : EntitySystem
                     balance += val;
         }
 
-        _ui.SetUiState(machine, TraderUiKey.Key, new TraderUpdateState(comp.Listings, balance));
+        _ui.SetUiState(machine, TraderUiKey.Key,
+            new TraderUpdateState(comp.Listings, balance, comp.CurrencyAccepted));
     }
 
     private void OnCurrencyChanged(EntityUid uid, CurrencyItemComponent comp, EntityEventArgs args)
@@ -196,20 +238,28 @@ public sealed class TraderMachineSystem : EntitySystem
 
         foreach (var session in nearbySessions.Recipients)
         {
-            var playerEnt = session.AttachedEntity;
-            if (playerEnt == null)
+            var attached = session.AttachedEntity;
+            if (attached == null || !_entMan.EntityExists(attached.Value))
                 continue;
 
-            foreach (var machine in EntityQuery<TraderMachineComponent>())
+            var playerUid = attached.Value;
+            var playerCoords = Transform(playerUid).Coordinates;
+
+            foreach (var ent in EntityQuery<TraderMachineComponent>())
             {
-                if (playerEnt == null || !_ui.IsUiOpen(machine.Owner, TraderUiKey.Key, playerEnt.Value))
+                var machineUid = ent.Owner;
+                var machineComp = ent;
+
+                if (!Transform(machineUid).Coordinates.InRange(_entMan, playerCoords, 3f))
                     continue;
 
-                SendUpdate(machine.Owner, machine, playerEnt.Value);
+                if (!_ui.IsUiOpen(machineUid, TraderUiKey.Key, playerUid))
+                    continue;
+
+                SendUpdate(machineUid, machineComp, playerUid);
             }
         }
     }
-
 
     private bool TryGetCurrency(EntityUid player, string currencyType, int amount, out List<EntityUid> found)
     {
@@ -228,27 +278,23 @@ public sealed class TraderMachineSystem : EntitySystem
                 }
         }
 
-        if (_entMan.TryGetComponent(player, out InventoryComponent? _))
+        if (_entMan.TryGetComponent(player, out InventoryComponent? inv))
         {
-            foreach (var item in GetHeldInventoryItems(player))
-                if (IsCurrency(item, currencyType, out var val))
+            foreach (var slot in _inventory.EnumerateAllSlots(player, inv))
+            {
+                if (_inventory.TryGetSlotEntity(player, slot.Id, out var ent) &&
+                    IsCurrency(ent.Value, currencyType, out var val))
                 {
-                    found.Add(item);
+                    found.Add(ent.Value);
                     total += val;
                     if (total >= amount)
                         return true;
                 }
+            }
         }
 
+        found.Clear();
         return false;
-    }
-
-    private IEnumerable<EntityUid> GetHeldInventoryItems(EntityUid uid)
-    {
-        var slots = new[] { "pocket1", "pocket2", "belt", "back", "gloves", "shoes", "id", };
-        foreach (var slot in slots)
-            if (_inventory.TryGetSlotEntity(uid, slot, out var item))
-                yield return item.Value;
     }
 
     private bool IsCurrency(EntityUid uid, string currencyType, out int value)

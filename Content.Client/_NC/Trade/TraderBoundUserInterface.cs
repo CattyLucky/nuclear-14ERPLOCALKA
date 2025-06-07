@@ -21,19 +21,17 @@ public sealed class TraderBoundUserInterface : BoundUserInterface
         base.Open();
 
         _menu = new TraderMenu(_res);
-        _menu.OnClickItem += id =>
+        _menu.OnClickItem += data =>
         {
             var sender = _playerManager.LocalSession?.AttachedEntity;
             if (sender == null)
                 return;
 
-            if (id == "refresh")
-            {
-                SendMessage(new BuyItemMessage("refresh", sender.Value));
-                return;
-            }
+            var split = data.Split('|');
+            var id = split[0];
+            var amount = split.Length > 1 && int.TryParse(split[1], out var amt) ? amt : 1;
 
-            SendMessage(new BuyItemMessage(id, sender.Value));
+            SendMessage(new BuyItemMessage(id, sender.Value, amount));
         };
 
         _menu.OnClose += Close;
@@ -45,7 +43,7 @@ public sealed class TraderBoundUserInterface : BoundUserInterface
         if (_menu == null || state is not TraderUpdateState s)
             return;
 
-        _menu.UpdateListings(s.Inventory, s.Balance);
+        _menu.UpdateListings(s.Inventory, s.Balance, s.CurrencyAccepted);
     }
 
     protected override void Dispose(bool disposing)

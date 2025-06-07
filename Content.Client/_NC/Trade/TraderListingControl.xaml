@@ -1,14 +1,31 @@
 <Control xmlns="https://spacestation14.io">
-    <BoxContainer Margin="8,8,8,8" Orientation="Vertical">
-        <BoxContainer Orientation="Horizontal">
-            <TextureRect Name="StoreItemTexture" MinSize="32,32" Margin="0,0,8,0" Stretch="KeepAspectCentered"/>
-            <Label Name="StoreItemName" HorizontalExpand="True"/>
-            <Label Name="DiscountSubText" HorizontalAlignment="Right"/>
-            <Button Name="StoreItemBuyButton" MinWidth="64" HorizontalAlignment="Right" Access="Public"/>
+    <PanelContainer StyleClasses="ItemFrame" Margin="2">
+        <BoxContainer Orientation="Vertical" Margin="4">
+            <BoxContainer Orientation="Horizontal" SeparationOverride="8" VerticalAlignment="Top">
+                <TextureRect Name="StoreItemTexture" MinSize="32,32" Stretch="KeepAspectCentered"/>
+
+                <BoxContainer Orientation="Vertical" HorizontalExpand="true">
+                    <Label Name="StoreItemName" StyleClasses="bold"/>
+                    <RichTextLabel Name="StoreItemDescription" MaxWidth="260"/>
+                </BoxContainer>
+
+                <Button Name="StoreItemBuyButton" MinWidth="80" HorizontalAlignment="Right" VerticalAlignment="Top" Access="Public">
+                    <Tooltip>
+                        <Label Name="BuyTooltipLabel" />
+                    </Tooltip>
+                </Button>
+            </BoxContainer>
+
+            <BoxContainer Orientation="Horizontal" Margin="4,2,0,0" SeparationOverride="4">
+                <TextureRect Name="CurrencyIcon" MinSize="16,16" Stretch="KeepAspectCentered">
+                    <Tooltip>
+                        <Label Name="CurrencyTooltipLabel" />
+                    </Tooltip>
+                </TextureRect>
+                <Label Name="StoreItemPrice"/>
+            </BoxContainer>
+
+            <PanelContainer StyleClasses="HighDivider" Margin="0,4,0,0"/>
         </BoxContainer>
-        <PanelContainer StyleClasses="HighDivider"/>
-        <BoxContainer HorizontalExpand="True" Orientation="Horizontal">
-            <RichTextLabel Name="StoreItemDescription"/>
-        </BoxContainer>
-    </BoxContainer>
+    </PanelContainer>
 </Control>

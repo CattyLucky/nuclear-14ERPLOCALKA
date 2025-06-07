@@ -1,11 +1,13 @@
 <Control xmlns="https://spacestation14.io">
     <BoxContainer Orientation="Vertical" SeparationOverride="4" Margin="4,4,4,4">
-        <Label Name="BalanceLabel" Text="Баланс: 0" />
+        <BoxContainer Orientation="Horizontal" SeparationOverride="4">
+            <Label Name="BalanceLabel" />
+            <TextureRect Name="BalanceIcon" MinSize="16,16" Margin="4,0,0,0" Stretch="KeepAspectCentered"/>
+        </BoxContainer>
         <BoxContainer Orientation="Horizontal" SeparationOverride="4" Margin="0,4,0,0">
             <PanelContainer MinWidth="120" MaxWidth="160" StyleClasses="StorePanel">
                 <BoxContainer Name="CategoryContainer" Orientation="Vertical" SeparationOverride="4" />
             </PanelContainer>
-
             <ScrollContainer Name="ListingsScroll" VerticalExpand="True" HorizontalExpand="True">
                 <BoxContainer Name="ListingsContainer" Orientation="Vertical" SeparationOverride="4" />
             </ScrollContainer>
