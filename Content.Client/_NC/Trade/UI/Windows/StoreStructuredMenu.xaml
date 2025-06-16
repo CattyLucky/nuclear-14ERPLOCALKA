@@ -1,0 +1,11 @@
+<DefaultWindow
+    xmlns="https://spacestation14.io"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Content.Client._NC.Trade.UI.Windows.StoreStructuredMenu"
+    Title="Магазин" MinSize="300,350">
+
+    <BoxContainer Orientation="Vertical">
+        <Label Name="BalanceValue" Margin="0,8,0,8"/>
+        <ScrollContainer Name="BuyList" VerticalExpand="True"/>
+    </BoxContainer>
+</DefaultWindow>
