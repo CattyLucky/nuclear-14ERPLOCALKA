@@ -49,19 +49,18 @@
 
             CurrencyRegistry.Register(this);
         }
+
+        public bool CanAfford(EntityUid owner, int amount)
+        {
+            return GetBalance(owner) >= amount;
+        }
         private int GetContainerSlotLimit(BaseContainer container)
         {
-            // Для предметного слота — всегда 1
             if (container is ContainerSlot)
                 return 1;
-
-            // Для контейнеров с компонентом StorageComponent (рюкзаки, коробки, ящики)
             if (_ents.TryGetComponent(container.Owner, out StorageComponent? storage))
                 return storage.Grid.GetArea(); // StorageHelpers.GetArea
 
-            // Можно добавить любые другие компоненты вместимости (BluespaceLocker, и др.)
-
-            // Fallback — бесконечный лимит
             return int.MaxValue;
         }
         public int GetBalance(EntityUid owner)
@@ -116,7 +115,6 @@
                 return CurrencyOpResult.Invalid;
             }
 
-            // Исполняем транзакцию
             foreach (var (item, take, isStack) in plan)
                 if (isStack)
                 {
@@ -144,7 +142,6 @@
             var coords = _ents.GetComponent<TransformComponent>(owner).Coordinates;
             var left = FillPartialStacks(owner, amount);
 
-            // Проверяем наличие хотя бы одного контейнера, слота или руки
             if (!HasAvailableSlotOrContainer(owner))
             {
                 Sawmill.Warning($"[Credit] Нет места для получения валюты у {ToPrettyString(owner)} (нет ни контейнера, ни инвентаря, ни рук)");
@@ -157,10 +154,7 @@
             if (_stackProto != null)
             {
                 if (left > 0)
-                {
-                    // Спавним и пытаемся выдать в инвентарь, контейнер, руки, или на пол
                     fail = !TryInsertOrDrop(owner, _stackProto, left, spawnedEntities, coords);
-                }
             }
             else
             {
@@ -170,7 +164,6 @@
                     spawnedEntities.Add(ent);
                     if (!TryInsertIntoBestSlot(owner, ent))
                     {
-                        // Если не удалось — спавним у ног владельца
                         _ents.System<SharedTransformSystem>().SetCoordinates(ent, coords);
                         Sawmill.Warning($"[Credit] Валюта {ent} выдана на пол, так как не удалось вставить в контейнер/руки {ToPrettyString(owner)}");
                     }
@@ -189,12 +182,9 @@
             return CurrencyOpResult.Success;
         }
 
-        /// <summary>
-        /// Проверяет, есть ли свободное место в любом контейнере, инвентаре или руке
-        /// </summary>
+
         private bool HasAvailableSlotOrContainer(EntityUid owner)
         {
-            // 1. Предметные/модульные слоты
             if (_ents.TryGetComponent(owner, out ItemSlotsComponent? itemSlots))
             {
                 foreach (var slot in itemSlots.Slots.Values)
@@ -202,7 +192,6 @@
                         return true;
             }
 
-            // 2. Inventory (рюкзак, пояс, одежда)
             if (_ents.TryGetComponent(owner, out InventoryComponent? inventory))
             {
                 foreach (var slot in inventory.Slots)
@@ -210,7 +199,6 @@
                         return true;
             }
 
-            // 3. Контейнеры (ящики, рюкзаки, коробки)
             if (_ents.TryGetComponent(owner, out ContainerManagerComponent? containers))
             {
                 foreach (var container in containers.Containers.Values)
@@ -221,7 +209,6 @@
                 }
             }
 
-            // 4. Руки
             if (_ents.TryGetComponent(owner, out HandsComponent? hands))
             {
                 foreach (var hand in _hands.EnumerateHands(owner, hands))
@@ -234,32 +221,23 @@
 
 
 
-        /// <summary>
-        /// Пытается вставить stack в любой доступный контейнер, руку, или кидает на пол
-        /// </summary>
+
         private bool TryInsertOrDrop(EntityUid owner, StackPrototype stackProto, int amount, List<EntityUid> spawnedEntities, EntityCoordinates coords)
         {
-            // Сначала спавним stack
             var spawned = _stacks.Spawn(amount, stackProto, coords);
             spawnedEntities.Add(spawned);
 
-            // Пробуем вставить
             if (TryInsertIntoBestSlot(owner, spawned))
                 return true;
 
-            // Если не удалось — предмет спавнится на полу
             _ents.GetComponent<TransformComponent>(spawned);
             _ents.System<SharedTransformSystem>().SetCoordinates(spawned, coords);
             Sawmill.Warning($"[Credit] Stack {spawned} выдан на пол, не удалось вставить в контейнер/руки {ToPrettyString(owner)}");
-            return true; // В любом случае операция не fail — просто предмет на полу
+            return true;
         }
 
-        /// <summary>
-        /// Пытается вставить сущность в инвентарь, контейнер или руки (поочередно)
-        /// </summary>
         private bool TryInsertIntoBestSlot(EntityUid owner, EntityUid entity)
         {
-            // 1. ItemSlotsComponent — предметные и модульные слоты
             if (_ents.TryGetComponent(owner, out ItemSlotsComponent? itemSlots))
             {
                 foreach (var slot in itemSlots.Slots.Values)

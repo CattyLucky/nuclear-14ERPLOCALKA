@@ -1,14 +1,19 @@
 using Robust.Shared.GameStates;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
 
-namespace Content.Shared._NC.Currency;
-
-[RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
-public sealed partial class CurrencyItemComponent : Component
+namespace Content.Shared._NC.Currency
 {
-    [DataField(required: true,
-         customTypeSerializer: typeof(PrototypeIdSerializer<CurrencyPrototype>)),
-     AutoNetworkedField] public string Currency = default!;
+    [RegisterComponent, NetworkedComponent]
+    public sealed partial class CurrencyItemComponent : Component
+    {
+        [DataField("currency", required: true, customTypeSerializer: typeof(PrototypeIdSerializer<CurrencyPrototype>))]
+        public string Currency = default!;
 
-    [DataField, AutoNetworkedField] public int Amount = 1;
+        [DataField("amount")]
+        public int Amount = 1;
+
+        [DataField("stackable")]
+        public bool Stackable = false;
+
+    }
 }

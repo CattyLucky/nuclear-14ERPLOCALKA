@@ -1,16 +1,24 @@
 using Robust.Shared.Prototypes;
-using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
+using Robust.Shared.Utility;
 
-namespace Content.Shared._NC.Currency;
-
-[Prototype("NcCurrency")]
-public sealed partial class CurrencyPrototype : IPrototype
+namespace Content.Shared._NC.Currency
 {
-    [IdDataField] public string ID { get; private set; } = string.Empty;
+    [Prototype("currency")]
+    public sealed class CurrencyPrototype : IPrototype
+    {
+        [IdDataField]
+        public string ID { get; private set; } = default!;
 
-    [DataField(
-        "entity",
-        required: true,
-        customTypeSerializer: typeof(PrototypeIdSerializer<EntityPrototype>))]
-    public string Entity { get; private set; } = string.Empty;
+        [DataField("entity", required: true)]
+        public string Entity { get; private set; } = default!;
+
+        [DataField("maxStack")]
+        public int? MaxStack { get; private set; }
+
+        [DataField("icon")]
+        public SpriteSpecifier? Icon { get; private set; }
+
+        [DataField("displayName")]
+        public string? DisplayName { get; private set; }
+    }
 }

@@ -19,7 +19,7 @@ public sealed class StoreStructuredBoundUi(EntityUid owner, Enum uiKey, IPrototy
 
     protected override void UpdateState(BoundUserInterfaceState state)
     {
-        base.UpdateState(state); // обязательно вызываем базовый метод!
+        base.UpdateState(state);
 
         if (_menu == null || state is not StoreUiState s)
             return;
