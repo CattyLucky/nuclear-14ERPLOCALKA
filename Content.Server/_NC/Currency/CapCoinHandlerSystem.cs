@@ -1,287 +1,308 @@
-    using Content.Shared._NC.Currency;
-    using Content.Server.Stack;
-    using Content.Shared.Containers.ItemSlots;
-    using Content.Shared.Stacks;
-    using Content.Shared.Inventory;
-    using Content.Shared.Hands.Components;
-    using Content.Shared.Hands.EntitySystems;
-    using Content.Shared.Storage;
-    using Robust.Shared.Prototypes;
-    using Robust.Shared.Containers;
-    using Robust.Shared.Map;
+using Content.Server.Stack;
+using Content.Shared._NC.Currency;
+using Content.Shared.Containers.ItemSlots;
+using Content.Shared.Hands.Components;
+using Content.Shared.Hands.EntitySystems;
+using Content.Shared.Inventory;
+using Content.Shared.Stacks;
+using Content.Shared.Storage;
+using Robust.Shared.Containers;
+using Robust.Shared.Map;
+using Robust.Shared.Prototypes;
 
+namespace Content.Server._NC.Currency;
 
-    namespace Content.Server._NC.Currency;
+/// <summary>
+///     Server‑side currency handler for <c>CapCoin</c>.
+///     Works with both stack‑based coins and individual coin entities.
+/// </summary>
+public sealed class CapCoinHandlerSystem : EntitySystem, ICurrencyHandler
+{
+    #region Dependencies
 
-    public sealed class CapCoinHandlerSystem : EntitySystem, ICurrencyHandler
+    [Dependency] private readonly IEntityManager _entities = default!;
+    [Dependency] private readonly IPrototypeManager _prototypes = default!;
+    [Dependency] private readonly StackSystem _stacks = default!;
+    [Dependency] private readonly InventorySystem _inventory = default!;
+    [Dependency] private readonly SharedHandsSystem _hands = default!;
+    [Dependency] private readonly ItemSlotsSystem _itemSlots = default!;
+
+    #endregion
+
+    public string Id => "CapCoin";
+
+    private string _coinPrototypeId = default!;
+    private string? _stackTypeId;
+    private StackPrototype? _stackPrototype;
+
+    #region Initialization
+
+    public override void Initialize()
     {
-        [Dependency] private readonly IEntityManager _ents = default!;
-        [Dependency] private readonly IPrototypeManager _protos = default!;
-        [Dependency] private readonly StackSystem _stacks = default!;
-        [Dependency] private readonly InventorySystem _inventory = default!;
-        [Dependency] private readonly SharedHandsSystem _hands = default!;
-        [Dependency] private readonly ItemSlotsSystem _itemSlots = default!;
+        base.Initialize();
 
-        private static readonly ISawmill Sawmill = Logger.GetSawmill("capcoin");
+        // Load currency prototype.
+        if (!_prototypes.TryIndex<CurrencyPrototype>(Id, out var currencyProto))
+            return;
 
+        _coinPrototypeId = currencyProto.Entity;
 
-        public string Id => "CapCoin";
-        private string _entityProto = default!;
-        private string? _stackType;
-        private StackPrototype? _stackProto;
-
-        public override void Initialize()
+        // Detect if the coin entity is a stack and cache its StackPrototype.
+        if (_prototypes.TryIndex<EntityPrototype>(_coinPrototypeId, out var entityProto) &&
+            entityProto.TryGetComponent(out StackComponent? stackComp, IoCManager.Resolve<IComponentFactory>()))
         {
-            base.Initialize();
+            _stackTypeId = stackComp.StackTypeId;
+            _prototypes.TryIndex(_stackTypeId, out _stackPrototype);
+        }
 
-            if (!_protos.TryIndex<CurrencyPrototype>(Id, out var proto))
-                return;
+        CurrencyRegistry.Register(this);
+    }
 
-            _entityProto = proto.Entity;
+    #endregion
 
-            if (_protos.TryIndex<EntityPrototype>(_entityProto, out var entProto) &&
-                entProto.TryGetComponent(out StackComponent? stack, IoCManager.Resolve<IComponentFactory>()))
+    #region ICurrencyHandler implementation
+
+    public bool CanAfford(EntityUid owner, int amount) => GetBalance(owner) >= amount;
+
+    public int GetBalance(EntityUid owner)
+    {
+        var total = 0;
+
+        foreach (var item in CurrencyHelpers.EnumerateDeepItemsUnique(owner, _entities))
+            if (_entities.TryGetComponent(item, out CurrencyItemComponent? coin) && coin.Currency == Id)
+                total += coin.Amount;
+            else if (_stackTypeId != null &&
+                _entities.TryGetComponent(item, out StackComponent? stack) &&
+                stack.StackTypeId == _stackTypeId)
+                total += stack.Count;
+
+        return total;
+    }
+
+    public CurrencyOpResult Debit(EntityUid owner, int amount)
+    {
+        if (amount <= 0)
+            return CurrencyOpResult.Invalid;
+        if (!CanAfford(owner, amount))
+            return CurrencyOpResult.InsufficientFunds;
+
+        var plan = new List<(EntityUid entity, int take, bool isStack)>();
+        var remaining = amount;
+
+        foreach (var entity in CurrencyHelpers.EnumerateDeepItemsUnique(owner, _entities))
+        {
+            if (remaining <= 0)
+                break;
+
+            if (_entities.TryGetComponent(entity, out CurrencyItemComponent? coin) && coin.Currency == Id)
             {
-                _stackType = stack.StackTypeId;
-                if (_protos.TryIndex<StackPrototype>(_stackType, out var stackProto))
-                    _stackProto = stackProto;
+                var take = Math.Min(coin.Amount, remaining);
+                plan.Add((entity, take, false));
+                remaining -= take;
             }
-
-            CurrencyRegistry.Register(this);
-        }
-
-        public bool CanAfford(EntityUid owner, int amount)
-        {
-            return GetBalance(owner) >= amount;
-        }
-        private int GetContainerSlotLimit(BaseContainer container)
-        {
-            if (container is ContainerSlot)
-                return 1;
-            if (_ents.TryGetComponent(container.Owner, out StorageComponent? storage))
-                return storage.Grid.GetArea(); // StorageHelpers.GetArea
-
-            return int.MaxValue;
-        }
-        public int GetBalance(EntityUid owner)
-        {
-            var total = 0;
-            foreach (var item in CurrencyHelpers.EnumerateDeepItems(owner, _ents))
-                if (_ents.TryGetComponent(item, out CurrencyItemComponent? coin) && coin.Currency == Id)
-                    total += coin.Amount;
-                else if (_stackType != null &&
-                    _ents.TryGetComponent(item, out StackComponent? st) &&
-                    st.StackTypeId == _stackType)
-                    total += st.Count;
-            return total;
-        }
-
-        public CurrencyOpResult Debit(EntityUid owner, int amount)
-        {
-            if (amount <= 0)
-                return CurrencyOpResult.Invalid;
-
-            if (GetBalance(owner) < amount)
-                return CurrencyOpResult.InsufficientFunds;
-
-            // Планируем удаление
-            var plan = new List<(EntityUid item, int take, bool isStack)>();
-            var left = amount;
-
-            foreach (var item in CurrencyHelpers.EnumerateDeepItems(owner, _ents))
+            else if (_stackTypeId != null &&
+                     _entities.TryGetComponent(entity, out StackComponent? stack) &&
+                     stack.StackTypeId == _stackTypeId)
             {
-                if (left <= 0)
-                    break;
-
-                if (_ents.TryGetComponent(item, out CurrencyItemComponent? coin) && coin.Currency == Id)
-                {
-                    var take = Math.Min(coin.Amount, left);
-                    plan.Add((item, take, false));
-                    left -= take;
-                }
-                else if (_stackType != null &&
-                         _ents.TryGetComponent(item, out StackComponent? st) &&
-                         st.StackTypeId == _stackType)
-                {
-                    var take = Math.Min(st.Count, left);
-                    plan.Add((item, take, true));
-                    left -= take;
-                }
+                var take = Math.Min(stack.Count, remaining);
+                plan.Add((entity, take, true));
+                remaining -= take;
             }
-
-            if (left > 0)
-            {
-                Sawmill.Warning($"[Debit] Не смогли покрыть сумму {amount} для {ToPrettyString(owner)}");
-                return CurrencyOpResult.Invalid;
-            }
-
-            foreach (var (item, take, isStack) in plan)
-                if (isStack)
-                {
-                    var stack = _ents.GetComponent<StackComponent>(item);
-                    _stacks.SetCount(item, stack.Count - take, stack);
-                    if (stack.Count - take == 0)
-                        _ents.DeleteEntity(item);
-                }
-                else
-                {
-                    var coin = _ents.GetComponent<CurrencyItemComponent>(item);
-                    coin.Amount -= take;
-                    if (coin.Amount == 0)
-                        _ents.DeleteEntity(item);
-                }
-
-            return CurrencyOpResult.Success;
         }
 
-        public CurrencyOpResult Credit(EntityUid owner, int amount)
+        if (remaining > 0)
         {
-            if (amount <= 0)
-                return CurrencyOpResult.Invalid;
+            Log.Warning($"[Debit] Unable to cover {amount} for {ToPrettyString(owner)}");
+            return CurrencyOpResult.Invalid;
+        }
 
-            var coords = _ents.GetComponent<TransformComponent>(owner).Coordinates;
-            var left = FillPartialStacks(owner, amount);
-
-            if (!HasAvailableSlotOrContainer(owner))
+        foreach (var (entity, take, isStack) in plan)
+            if (isStack)
             {
-                Sawmill.Warning($"[Credit] Нет места для получения валюты у {ToPrettyString(owner)} (нет ни контейнера, ни инвентаря, ни рук)");
-                return CurrencyOpResult.Invalid;
-            }
-
-            var fail = false;
-            var spawnedEntities = new List<EntityUid>();
-
-            if (_stackProto != null)
-            {
-                if (left > 0)
-                    fail = !TryInsertOrDrop(owner, _stackProto, left, spawnedEntities, coords);
+                var stack = _entities.GetComponent<StackComponent>(entity);
+                _stacks.SetCount(entity, stack.Count - take, stack);
+                if (stack.Count - take == 0)
+                    _entities.DeleteEntity(entity);
             }
             else
             {
-                for (var i = 0; i < left; i++)
-                {
-                    var ent = _ents.SpawnEntity(_entityProto, coords);
-                    spawnedEntities.Add(ent);
-                    if (!TryInsertIntoBestSlot(owner, ent))
-                    {
-                        _ents.System<SharedTransformSystem>().SetCoordinates(ent, coords);
-                        Sawmill.Warning($"[Credit] Валюта {ent} выдана на пол, так как не удалось вставить в контейнер/руки {ToPrettyString(owner)}");
-                    }
-                }
+                var coin = _entities.GetComponent<CurrencyItemComponent>(entity);
+                coin.Amount -= take;
+                if (coin.Amount == 0)
+                    _entities.DeleteEntity(entity);
             }
 
-            if (fail)
-            {
-                foreach (var ent in spawnedEntities)
-                    if (_ents.EntityExists(ent))
-                        _ents.DeleteEntity(ent);
-                Sawmill.Error($"[Credit] Не удалось выдать всю сумму {amount} для {ToPrettyString(owner)}, возможна потеря валюты!");
-                return CurrencyOpResult.Invalid;
-            }
-
-            return CurrencyOpResult.Success;
-        }
-
-
-        private bool HasAvailableSlotOrContainer(EntityUid owner)
-        {
-            if (_ents.TryGetComponent(owner, out ItemSlotsComponent? itemSlots))
-            {
-                foreach (var slot in itemSlots.Slots.Values)
-                    if (!slot.Locked && !slot.HasItem)
-                        return true;
-            }
-
-            if (_ents.TryGetComponent(owner, out InventoryComponent? inventory))
-            {
-                foreach (var slot in inventory.Slots)
-                    if (!_inventory.TryGetSlotEntity(owner, slot.Name, out _))
-                        return true;
-            }
-
-            if (_ents.TryGetComponent(owner, out ContainerManagerComponent? containers))
-            {
-                foreach (var container in containers.Containers.Values)
-                {
-                    int limit = GetContainerSlotLimit(container);
-                    if (container.ContainedEntities.Count < limit)
-                        return true;
-                }
-            }
-
-            if (_ents.TryGetComponent(owner, out HandsComponent? hands))
-            {
-                foreach (var hand in _hands.EnumerateHands(owner, hands))
-                    if (hand.HeldEntity == null)
-                        return true;
-            }
-            return false;
-        }
-
-
-
-
-
-        private bool TryInsertOrDrop(EntityUid owner, StackPrototype stackProto, int amount, List<EntityUid> spawnedEntities, EntityCoordinates coords)
-        {
-            var spawned = _stacks.Spawn(amount, stackProto, coords);
-            spawnedEntities.Add(spawned);
-
-            if (TryInsertIntoBestSlot(owner, spawned))
-                return true;
-
-            _ents.GetComponent<TransformComponent>(spawned);
-            _ents.System<SharedTransformSystem>().SetCoordinates(spawned, coords);
-            Sawmill.Warning($"[Credit] Stack {spawned} выдан на пол, не удалось вставить в контейнер/руки {ToPrettyString(owner)}");
-            return true;
-        }
-
-        private bool TryInsertIntoBestSlot(EntityUid owner, EntityUid entity)
-        {
-            if (_ents.TryGetComponent(owner, out ItemSlotsComponent? itemSlots))
-            {
-                foreach (var slot in itemSlots.Slots.Values)
-                {
-                    if (slot.Locked || slot.HasItem)
-                        continue;
-                    if (_itemSlots.TryInsert(owner, slot, entity, owner))
-                        return true;
-                }
-            }
-
-            // 2. Inventory (рюкзак, пояс, слоты одежды)
-            if (_ents.TryGetComponent(owner, out InventoryComponent? inventory))
-            {
-                foreach (var slot in inventory.Slots)
-                    if (_inventory.TryEquip(owner, owner, entity, slot.Name, false, false, false, inventory))
-                        return true;
-            }
-
-            // 3. Руки
-            if (_ents.TryGetComponent(owner, out HandsComponent? _))
-            {
-                if (_hands.TryPickupAnyHand(owner, entity, false))
-                    return true;
-            }
-
-            // 4. — никуда не вставилось, предмет останется лежать на полу (coords = под владельцем)
-            return false;
-        }
-
-        private int FillPartialStacks(EntityUid owner, int amount)
-        {
-            foreach (var item in CurrencyHelpers.EnumerateDeepItems(owner, _ents))
-                if (_ents.TryGetComponent(item, out StackComponent? stack) &&
-                    stack.StackTypeId == _stackType &&
-                    stack.Count < _stackProto!.MaxCount.GetValueOrDefault(int.MaxValue))
-                {
-                    var maxCount = _stackProto.MaxCount.GetValueOrDefault(int.MaxValue);
-                    var space = maxCount - stack.Count;
-                    var toAdd = Math.Min(space, amount);
-                    _stacks.SetCount(item, stack.Count + toAdd, stack);
-                    amount -= toAdd;
-                }
-            return amount;
-        }
+        return CurrencyOpResult.Success;
     }
 
+    public CurrencyOpResult Credit(EntityUid owner, int amount)
+    {
+        if (amount <= 0)
+            return CurrencyOpResult.Invalid;
+
+        var coords = _entities.GetComponent<TransformComponent>(owner).Coordinates;
+        var remaining = FillPartialStacks(owner, amount);
+
+        if (!HasFreeSlot(owner))
+        {
+            Log.Warning($"[Credit] No space to receive currency for {ToPrettyString(owner)}");
+            return CurrencyOpResult.Invalid;
+        }
+
+        var spawned = new List<EntityUid>();
+        var failed  = false;
+
+        if (_stackPrototype != null)
+        {
+            if (remaining > 0)
+                failed = !SpawnAndInsertStack(owner, _stackPrototype, remaining, spawned, coords);
+        }
+        else
+        {
+            for (var i = 0; i < remaining; i++)
+            {
+                var coin = _entities.SpawnEntity(_coinPrototypeId, coords);
+                spawned.Add(coin);
+
+                if (!TryInsertIntoBestSlot(owner, coin))
+                {
+                    _entities.System<SharedTransformSystem>().SetCoordinates(coin, coords);
+                    Log.Warning($"[Credit] {coin} dropped on ground (no slot) for {ToPrettyString(owner)}");
+                }
+            }
+        }
+
+        if (failed)
+        {
+            foreach (var ent in spawned)
+                if (_entities.EntityExists(ent))
+                    _entities.DeleteEntity(ent);
+
+            Log.Error($"[Credit] Potential currency loss on credit {amount} to {ToPrettyString(owner)}");
+            return CurrencyOpResult.Invalid;
+        }
+
+        return CurrencyOpResult.Success;
+    }
+
+    #endregion
+
+    #region Helpers
+
+    private int FillPartialStacks(EntityUid owner, int amount)
+    {
+        if (_stackTypeId == null || _stackPrototype == null)
+            return amount;
+
+        foreach (var entity in CurrencyHelpers.EnumerateDeepItemsUnique(owner, _entities))
+        {
+            if (!_entities.TryGetComponent(entity, out StackComponent? stack) || stack.StackTypeId != _stackTypeId)
+                continue;
+
+            var max   = _stackPrototype.MaxCount.GetValueOrDefault(int.MaxValue);
+            var space = Math.Max(0, max - stack.Count);
+            var add   = Math.Min(space, amount);
+
+            if (add <= 0)
+                continue;
+
+            _stacks.SetCount(entity, stack.Count + add, stack);
+            amount -= add;
+
+            if (amount == 0)
+                break;
+        }
+
+        return amount;
+    }
+
+    private bool SpawnAndInsertStack(EntityUid owner, StackPrototype proto, int amount, ICollection<EntityUid> spawned, EntityCoordinates coords)
+    {
+        var stack = _stacks.Spawn(amount, proto, coords);
+        spawned.Add(stack);
+
+        if (TryInsertIntoBestSlot(owner, stack))
+            return true;
+
+        _entities.System<SharedTransformSystem>().SetCoordinates(stack, coords);
+        Log.Warning($"[Credit] Stack {stack} dropped (no slot) for {ToPrettyString(owner)}");
+        return true; // не критично: предмет лежит под ногами
+    }
+
+    private bool TryInsertIntoBestSlot(EntityUid owner, EntityUid entity)
+    {
+        // Item‑slots first.
+        if (_entities.TryGetComponent(owner, out ItemSlotsComponent? itemSlots))
+        {
+            foreach (var slot in itemSlots.Slots.Values)
+            {
+                if (slot.Locked || slot.HasItem)
+                    continue;
+
+                if (_itemSlots.TryInsert(owner, slot, entity, owner))
+                    return true;
+            }
+        }
+
+        // Inventory slots.
+        if (_entities.TryGetComponent(owner, out InventoryComponent? inventory))
+        {
+            foreach (var slot in inventory.Slots)
+                if (_inventory.TryEquip(owner, owner, entity, slot.Name, false, false, false, inventory))
+                    return true;
+        }
+
+        // Hands.
+        return _entities.TryGetComponent(owner, out HandsComponent? _) &&
+               _hands.TryPickupAnyHand(owner, entity, false);
+    }
+
+    private bool HasFreeSlot(EntityUid owner)
+    {
+        // Item‑slots.
+        if (_entities.TryGetComponent(owner, out ItemSlotsComponent? itemSlots))
+        {
+            foreach (var slot in itemSlots.Slots.Values)
+                if (!slot.Locked && !slot.HasItem)
+                    return true;
+        }
+
+        // Inventory.
+        if (_entities.TryGetComponent(owner, out InventoryComponent? inventory))
+        {
+            foreach (var slot in inventory.Slots)
+                if (!_inventory.TryGetSlotEntity(owner, slot.Name, out _))
+                    return true;
+        }
+
+        // Containers.
+        if (_entities.TryGetComponent(owner, out ContainerManagerComponent? containers))
+        {
+            foreach (var container in containers.Containers.Values)
+                if (container.ContainedEntities.Count < GetContainerLimit(container))
+                    return true;
+        }
+
+        // Hands.
+        if (_entities.TryGetComponent(owner, out HandsComponent? hands))
+        {
+            foreach (var hand in _hands.EnumerateHands(owner, hands))
+                if (hand.HeldEntity == null)
+                    return true;
+        }
+
+        return false;
+    }
+
+    private static int GetContainerLimit(BaseContainer container) =>
+        container switch
+    {
+        ContainerSlot => 1,
+        { Owner: { } owner, } when IoCManager.Resolve<IEntityManager>()
+                                .TryGetComponent(owner, out StorageComponent? storage)
+            => storage.Grid.GetArea(),
+        _ => int.MaxValue
+    };
+
+    #endregion
+}
