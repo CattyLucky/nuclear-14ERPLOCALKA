@@ -34,6 +34,7 @@
   - CaesarLegion #Corvax-Legion
   - HostileRobot
   - Feral
+  - BrotherhoodWest #Corvax-West
 
 - type: npcFaction
   id: BrotherhoodWashington
@@ -63,6 +64,7 @@
   - HostileRobot
   - Feral
   - CaesarLegion #Corvax-Legion
+  - BrotherhoodWest #Corvax-West
 
 - type: npcFaction
   id: CaravanCompany
@@ -90,6 +92,7 @@
   - HostileRobot
   - Feral
   - CaesarLegion #Corvax-Legion
+  - BrotherhoodWest #Corvax-West
 
 - type: npcFaction
   id: NCR
@@ -117,6 +120,7 @@
   - HostileRobot
   - Feral
   - CaesarLegion #Corvax-Legion
+  - BrotherhoodWest #Corvax-West
 
 - type: npcFaction
   id: Rangers
@@ -175,6 +179,7 @@
   - HostileRobot
   - Feral
   - CaesarLegion #Corvax-Legion
+  - BrotherhoodWest #Corvax-West
 
 - type: npcFaction
   id: Zetan
@@ -194,6 +199,7 @@
   - HostileRobot
   - Feral
   - CaesarLegion #Corvax-Legion
+  - BrotherhoodWest #Corvax-West
 
 - type: npcFaction
   id: Raider
@@ -215,6 +221,7 @@
   - HostileRobot
   - Feral
   - CaesarLegion #Corvax-Legion
+  - BrotherhoodWest #Corvax-West
 
 - type: npcFaction
   id: Feral
@@ -236,6 +243,7 @@
   - HostileRobot
   - Raider
   - CaesarLegion #Corvax-Legion
+  - BrotherhoodWest #Corvax-West
 
 - type: npcFaction
   id: WastelandAnimal
@@ -256,6 +264,7 @@
   - HostileRobot
   - Feral
   - CaesarLegion #Corvax-Legion
+  - BrotherhoodWest #Corvax-West
 
 - type: npcFaction
   id: WastelandInsect
@@ -276,6 +285,7 @@
   - HostileRobot
   - Feral
   - CaesarLegion #Corvax-Legion
+  - BrotherhoodWest #Corvax-West
 
 - type: npcFaction
   id: HostileRobot
@@ -296,3 +306,4 @@
   - WastelandAnimal
   - Feral
   - CaesarLegion #Corvax-Legion
+  - BrotherhoodWest #Corvax-West

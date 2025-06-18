@@ -14,11 +14,6 @@
     - !type:CharacterPlaytimeRequirement # Corvax-Add
       tracker: BoSWestPaladin
       min: 43200 # 12 hours
-    - !type:CharacterLogicOrRequirement
-      requirements:
-        - !type:CharacterSpeciesRequirement
-          species:
-            - Human
   startingGear: BoSWestElderCommanderGear
   alwaysUseSpawner: true
   icon: "JobIconBosMCommander" # Corvax-Change

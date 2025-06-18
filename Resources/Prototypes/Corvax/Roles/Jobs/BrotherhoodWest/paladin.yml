@@ -11,11 +11,6 @@
     - !type:CharacterDepartmentTimeRequirement
       department: BrotherhoodWest
       min: 108000 # 30 hours
-    - !type:CharacterLogicOrRequirement
-      requirements:
-        - !type:CharacterSpeciesRequirement
-          species:
-            - Human
   startingGear: BoSWestPaladinGear
   alwaysUseSpawner: true
   icon: "JobIconBosMPaladin" # Corvax-Change
