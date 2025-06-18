@@ -7,6 +7,9 @@
     <controls:BoxContainer Orientation="Horizontal" SeparationOverride="4" Margin="2">
         <controls:TextureRect Name="Icon" MinSize="32,32" Stretch="KeepAspectCentered"/>
         <controls:Label Name="NameLabel" Margin="4,0" HorizontalExpand="True"/>
-        <controls:Label Name="PriceLabel"/>
+        <controls:Label Name="PriceLabel" Margin="4,0"/>
+        <controls:Button Name="BuyButton" Text="Купить" Margin="8,0,0,0"/>
+        <controls:Button Name="SellButton" Text="Продать" Margin="4,0,0,0" Visible="false"/>
+        <controls:Button Name="ExchangeButton" Text="Обменять" Margin="4,0,0,0" Visible="false"/>
     </controls:BoxContainer>
 </Control>
