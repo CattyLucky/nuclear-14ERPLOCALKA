@@ -20,31 +20,29 @@ public sealed class CurrencyExchangeSystem : EntitySystem
     )
     {
         if (!CurrencyRegistry.TryGet(fromCurrencyId, out var fromHandler) ||
-            !CurrencyRegistry.TryGet(toCurrencyId, out var toHandler) ||
-            fromHandler == null || toHandler == null)
+            !CurrencyRegistry.TryGet(toCurrencyId, out var toHandler))
             return CurrencyOpResult.Invalid;
 
-        if (amount <= 0 || rate <= 0f)
+        if (amount <= 0)
             return CurrencyOpResult.Invalid;
 
         var amountTo = (int)Math.Floor(amount * rate);
 
-        if (fromHandler.GetBalance(owner) < amount)
-            return CurrencyOpResult.InsufficientFunds;
-
-        var debitResult = fromHandler.Debit(owner, amount);
+        var debitResult = fromHandler!.Debit(owner, amount);
         if (debitResult != CurrencyOpResult.Success)
             return debitResult;
 
-        var creditResult = toHandler.Credit(owner, amountTo);
+        var creditResult = toHandler!.Credit(owner, amountTo);
         if (creditResult != CurrencyOpResult.Success)
         {
-            fromHandler.Credit(owner, amount); // Rollback!
+            fromHandler.Credit(owner, amount);
             return creditResult;
         }
 
+
         return CurrencyOpResult.Success;
     }
+
 
 
     public CurrencyOpResult ExchangeItemToCurrency(

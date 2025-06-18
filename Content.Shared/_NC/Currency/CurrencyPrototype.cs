@@ -12,9 +12,6 @@ namespace Content.Shared._NC.Currency
         [DataField("entity", required: true)]
         public string Entity { get; private set; } = default!;
 
-        [DataField("maxStack")]
-        public int? MaxStack { get; private set; }
-
         [DataField("icon")]
         public SpriteSpecifier? Icon { get; private set; }
 
