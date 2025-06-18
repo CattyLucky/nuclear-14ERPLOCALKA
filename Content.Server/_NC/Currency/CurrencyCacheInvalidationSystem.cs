@@ -11,7 +11,6 @@ namespace Content.Server._NC.Currency;
 /// </summary>
 public sealed class CurrencyCacheInvalidationSystem : EntitySystem
 {
-
     public override void Initialize()
     {
         // CurrencyItem
@@ -25,7 +24,7 @@ public sealed class CurrencyCacheInvalidationSystem : EntitySystem
 
         // Containers
         SubscribeLocalEvent<EntInsertedIntoContainerMessage>(OnEntInserted);
-        SubscribeLocalEvent<EntRemovedFromContainerMessage>(OnEntRemoved);
+        SubscribeLocalEvent<EntRemovedFromContainerMessage >(OnEntRemoved);
 
         // Inventory / Hands
         SubscribeLocalEvent<GotEquippedEvent      >(OnGotEquipped);
@@ -41,23 +40,23 @@ public sealed class CurrencyCacheInvalidationSystem : EntitySystem
 
     private void OnEntInserted(EntInsertedIntoContainerMessage ev)
     {
-        if (!IsCurrency(ev.Entity))
+        if (!IsCurrency(ev.Entity, out var handler) || handler == null)
             return;
 
         if (FindOwner(ev.Entity) is { } owner)
-            InvalidateAllHandlers(owner, ev.Entity);
+            handler.InvalidateBalanceCache(owner);
     }
 
     private void OnEntRemoved(EntRemovedFromContainerMessage ev)
     {
-        if (!IsCurrency(ev.Entity))
+        if (!IsCurrency(ev.Entity, out var handler) || handler == null)
             return;
 
         if (ev.Container.Owner != EntityUid.Invalid)
-            InvalidateAllHandlers(ev.Container.Owner, ev.Entity);
+            handler.InvalidateBalanceCache(ev.Container.Owner);
 
         if (FindOwner(ev.Entity) is { } owner)
-            InvalidateAllHandlers(owner, ev.Entity);
+            handler.InvalidateBalanceCache(owner);
     }
 
     #endregion
@@ -66,14 +65,14 @@ public sealed class CurrencyCacheInvalidationSystem : EntitySystem
 
     private void OnGotEquipped(ref GotEquippedEvent ev)
     {
-        if (IsCurrency(ev.Equipment))
-            InvalidateAllHandlers(ev.Equipee, ev.Equipment);
+        if (IsCurrency(ev.Equipment, out var handler) && handler != null)
+            handler.InvalidateBalanceCache(ev.Equipee);
     }
 
     private void OnGotUnequipped(ref GotUnequippedEvent ev)
     {
-        if (IsCurrency(ev.Equipment))
-            InvalidateAllHandlers(ev.Equipee, ev.Equipment);
+        if (IsCurrency(ev.Equipment, out var handler) && handler != null)
+            handler.InvalidateBalanceCache(ev.Equipee);
     }
 
     #endregion
@@ -82,14 +81,14 @@ public sealed class CurrencyCacheInvalidationSystem : EntitySystem
 
     private void OnGotEquippedHand(ref GotEquippedHandEvent ev)
     {
-        if (IsCurrency(ev.Equipped))
-            InvalidateAllHandlers(ev.User, ev.Equipped);
+        if (IsCurrency(ev.Equipped, out var handler) && handler != null)
+            handler.InvalidateBalanceCache(ev.User);
     }
 
     private void OnGotUnequippedHand(ref GotUnequippedHandEvent ev)
     {
-        if (IsCurrency(ev.Unequipped))
-            InvalidateAllHandlers(ev.User, ev.Unequipped);
+        if (IsCurrency(ev.Unequipped, out var handler) && handler != null)
+            handler.InvalidateBalanceCache(ev.User);
     }
 
     #endregion
@@ -100,7 +99,7 @@ public sealed class CurrencyCacheInvalidationSystem : EntitySystem
     {
         if (ev.CurrencyId is { } id)
         {
-            if (CurrencyRegistry.TryGet(id, out var handler))
+            if (CurrencyRegistry.TryGet(id, out var handler) && handler != null)
                 handler.InvalidateBalanceCache(ev.Owner);
             return;
         }
@@ -128,9 +127,14 @@ public sealed class CurrencyCacheInvalidationSystem : EntitySystem
 
     private void HandleCurrencyItemChanged(EntityUid uid, CurrencyItemComponent comp)
     {
-        if (FindOwner(uid) is { } owner &&
-            CurrencyRegistry.TryGet(comp.Currency, out var handler))
-            handler.InvalidateBalanceCache(owner);
+        if (FindOwner(uid) is not { } owner)
+            return;
+
+        var handler = CurrencyRegistry.TryGet(comp.Currency);
+        if (handler == null)
+            return;
+
+        handler.InvalidateBalanceCache(owner);
     }
 
     private void OnStackShutdown(EntityUid uid, StackComponent comp, ref ComponentShutdown _) =>
@@ -153,30 +157,28 @@ public sealed class CurrencyCacheInvalidationSystem : EntitySystem
 
     #region Helpers
 
-    private bool IsCurrency(EntityUid uid) =>
-        EntityManager.HasComponent<CurrencyItemComponent>(uid) ||
-        EntityManager.HasComponent<StackComponent>(uid);
-
-    private void InvalidateAllHandlers(EntityUid owner, EntityUid currencyEnt)
+    // Новый метод: определяет, относится ли Stack к валюте, и возвращает нужный хендлер
+    private bool IsCurrency(EntityUid uid, out ICurrencyHandler? handler)
     {
-        if (EntityManager.TryGetComponent(currencyEnt, out CurrencyItemComponent? coin))
+        handler = null;
+        if (EntityManager.TryGetComponent(uid, out CurrencyItemComponent? coin))
         {
-            if (CurrencyRegistry.TryGet(coin.Currency, out var handler))
-                handler.InvalidateBalanceCache(owner);
-            return;
+            if (CurrencyRegistry.TryGet(coin.Currency, out handler))
+                return true;
         }
-
-        if (EntityManager.TryGetComponent(currencyEnt, out StackComponent? stack))
+        if (EntityManager.TryGetComponent(uid, out StackComponent? stack))
         {
-            foreach (var handler in CurrencyRegistry.GetAllHandlers())
-                if (handler.StackTypeId == stack.StackTypeId)
-                    handler.InvalidateBalanceCache(owner);
-            return;
+            foreach (var h in CurrencyRegistry.GetAllHandlers())
+                if (h.StackTypeId == stack.StackTypeId)
+                {
+                    handler = h;
+                    return true;
+                }
         }
-
-        foreach (var handler in CurrencyRegistry.GetAllHandlers())
-            handler.InvalidateBalanceCache(owner);
+        return false;
     }
+
+    private bool IsCurrency(EntityUid uid) => IsCurrency(uid, out _);
 
     private EntityUid? FindOwner(EntityUid entity)
     {
@@ -190,13 +192,11 @@ public sealed class CurrencyCacheInvalidationSystem : EntitySystem
                 if (cont.Owner != EntityUid.Invalid)
                     return cont.Owner;
         }
-
         return null;
     }
 
     #endregion
 }
-
 
 public sealed class CurrencyCacheInvalidateEvent(EntityUid owner, string? currencyId = null) : EntityEventArgs
 {

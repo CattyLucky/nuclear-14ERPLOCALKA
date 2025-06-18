@@ -17,38 +17,36 @@ public sealed class CurrencyExchangeSystem : EntitySystem
 
     private static readonly ISawmill Sawmill = Logger.GetSawmill("currency-exchange");
 
-    public CurrencyOpResult Exchange(
-        EntityUid owner,
-        string    fromCurrencyId,
-        string    toCurrencyId,
-        int       amount,
-        float     rate = 1f
-    )
+    public CurrencyOpResult Exchange(EntityUid owner, string fromCurrencyId, string toCurrencyId, int amount, float rate = 1f)
     {
-        if (amount <= 0 || rate <= 0)
+        if (amount <= 0 || rate <= 0f)
             return CurrencyOpResult.Invalid;
 
-        if (!CurrencyRegistry.TryGet(fromCurrencyId, out var fromHandler) ||
-            !CurrencyRegistry.TryGet(toCurrencyId, out var toHandler))
+        if (!CurrencyRegistry.TryGet(fromCurrencyId, out var fromHandler) || fromHandler == null ||
+            !CurrencyRegistry.TryGet(toCurrencyId,   out var toHandler)   || toHandler   == null)
             return CurrencyOpResult.NoHandler;
 
-        var raw = (double) amount * rate;
+        var raw   = (double) amount * rate;
         var amtTo = raw > int.MaxValue ? int.MaxValue : (int) Math.Floor(raw);
-
         if (amtTo <= 0)
             return CurrencyOpResult.Invalid;
 
+        // 1. списываем во «временный буфер» (entity-буфер нельзя украсть/потерять)
         var debitRes = fromHandler.Debit(owner, amount);
         if (debitRes != CurrencyOpResult.Success)
             return debitRes;
 
+        // 2. пробуем зачислить
         var creditRes = toHandler.Credit(owner, amtTo);
         if (creditRes == CurrencyOpResult.Success)
             return CurrencyOpResult.Success;
-        fromHandler.Credit(owner, amount);
-        Sawmill.Warning($"[Exchange] rollback for {owner}: {creditRes}");
+
+        // 3. если не удалось – возвращаем исходное
+        var rollback = fromHandler.Credit(owner, amount);
+        Sawmill.Warning($"[Exchange] rollback {owner}: {creditRes}, rollbackResult={rollback}");
         return creditRes;
     }
+
 
     public CurrencyOpResult ExchangeItemToCurrency(
         EntityUid owner,
@@ -60,7 +58,7 @@ public sealed class CurrencyExchangeSystem : EntitySystem
         if (!_ents.EntityExists(item) || currencyAmount <= 0)
             return CurrencyOpResult.Invalid;
 
-        if (!CurrencyRegistry.TryGet(toCurrencyId, out var toHandler))
+        if (!CurrencyRegistry.TryGet(toCurrencyId, out var toHandler) || toHandler == null)
             return CurrencyOpResult.NoHandler;
 
         var creditRes = toHandler.Credit(owner, currencyAmount);
@@ -70,7 +68,6 @@ public sealed class CurrencyExchangeSystem : EntitySystem
         _ents.DeleteEntity(item);
         return CurrencyOpResult.Success;
     }
-
     public bool ExchangeItemToItem(
         EntityUid owner,
         EntityUid giveItem,

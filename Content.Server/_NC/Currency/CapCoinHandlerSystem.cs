@@ -13,30 +13,30 @@ using Robust.Shared.Prototypes;
 namespace Content.Server._NC.Currency;
 
 /// <summary>
-///     Серверный обработчик валюты <c>CapCoin</c>.
-///     Поддерживает как стаки (<see cref="StackComponent"/>), так и одиночные сущности-монеты.
+///     Server‑side currency handler for <c>CapCoin</c>.
+///     Works with both stack‑based coins and individual coin entities.
 /// </summary>
 public sealed partial class CapCoinHandlerSystem : EntitySystem, ICurrencyHandler
 {
     #region Dependencies
 
     [Dependency] private readonly IEntityManager       _ents      = default!;
-    [Dependency] private readonly IPrototypeManager     _protos    = default!;
-    [Dependency] private readonly StackSystem           _stacks    = default!;
-    [Dependency] private readonly InventorySystem       _invSys    = default!;
-    [Dependency] private readonly SharedHandsSystem     _handsSys  = default!;
-    [Dependency] private readonly ItemSlotsSystem       _itemSlots = default!;
-    [Dependency] private readonly SharedTransformSystem _xform     = default!;
+    [Dependency] private readonly IPrototypeManager    _protos    = default!;
+    [Dependency] private readonly StackSystem          _stacks    = default!;
+    [Dependency] private readonly InventorySystem      _invSys    = default!;
+    [Dependency] private readonly SharedHandsSystem    _handsSys  = default!;
+    [Dependency] private readonly ItemSlotsSystem      _itemSlots = default!;
+    [Dependency] private readonly SharedTransformSystem _xform    = default!;
 
     #endregion
 
     private static readonly ISawmill Sawmill = Logger.GetSawmill("capcoin");
 
-    public string Id => "CapCoin";               // CurrencyPrototype.ID
+    public string Id => "CapCoin";
 
-    private string          _coinProtoId = default!; // Префаб одиночной монеты
-    private string?         _stackTypeId;            // StackComponent.StackTypeId
-    private StackPrototype? _stackProto;             // Прототип стака
+    private string          _coinProtoId = default!;
+    private string?         _stackTypeId;
+    private StackPrototype? _stackProto;
     public  string?         StackTypeId => _stackTypeId;
 
     #region Initialize / Shutdown
@@ -45,7 +45,6 @@ public sealed partial class CapCoinHandlerSystem : EntitySystem, ICurrencyHandle
     {
         base.Initialize();
 
-        // 1. Загружаем CurrencyPrototype
         if (!_protos.TryIndex<CurrencyPrototype>(Id, out var currencyProto))
         {
             Sawmill.Error($"CurrencyPrototype '{Id}' not found — CapCoin disabled.");
@@ -54,7 +53,7 @@ public sealed partial class CapCoinHandlerSystem : EntitySystem, ICurrencyHandle
 
         _coinProtoId = currencyProto.Entity;
 
-        // 2. Выясняем, является ли монета стаком
+        // Определяем, является ли монета стаком
         if (_protos.TryIndex<EntityPrototype>(_coinProtoId, out var entityProto) &&
             entityProto.TryGetComponent(out StackComponent? stackComp, IoCManager.Resolve<IComponentFactory>()))
         {
@@ -103,13 +102,13 @@ public sealed partial class CapCoinHandlerSystem : EntitySystem, ICurrencyHandle
                 total += stack.Count;
         }
 
-        // 3. Сохраняем в кэш (+Dirty для клиента)
+        // 3. Кэшируем (без Dirty, тут не нужен лишний нетворкинг)
         if (!_ents.HasComponent<CurrencyBalanceTrackerComponent>(owner))
             _ents.AddComponent<CurrencyBalanceTrackerComponent>(owner);
 
         var trackerRef = _ents.GetComponent<CurrencyBalanceTrackerComponent>(owner);
         trackerRef.Balances[Id] = total;
-        _ents.Dirty(owner, trackerRef);
+        // Не вызываем _ents.Dirty тут — кэш только для сервера, не для клиента!
 
         return total;
     }
@@ -117,7 +116,10 @@ public sealed partial class CapCoinHandlerSystem : EntitySystem, ICurrencyHandle
     public CurrencyOpResult Debit(EntityUid owner, int amount)
     {
         if (amount <= 0)
+        {
+            Sawmill.Warning($"[Debit] Requested to debit 0 or negative CapCoin ({amount}) for {owner}");
             return CurrencyOpResult.Invalid;
+        }
 
         if (!CanAfford(owner, amount))
             return CurrencyOpResult.InsufficientFunds;
@@ -130,7 +132,7 @@ public sealed partial class CapCoinHandlerSystem : EntitySystem, ICurrencyHandle
             if (remaining == 0)
                 break;
 
-            // одиночные монеты
+            // Одиночные монеты
             if (_ents.TryGetComponent(uid, out CurrencyItemComponent? coin) && coin.Currency == Id)
             {
                 var take = Math.Min(coin.Amount, remaining);
@@ -139,7 +141,7 @@ public sealed partial class CapCoinHandlerSystem : EntitySystem, ICurrencyHandle
                 continue;
             }
 
-            // стаки
+            // Стаки
             if (_stackTypeId != null &&
                 _ents.TryGetComponent(uid, out StackComponent? stack) &&
                 stack.StackTypeId == _stackTypeId)
@@ -161,6 +163,11 @@ public sealed partial class CapCoinHandlerSystem : EntitySystem, ICurrencyHandle
             {
                 var stack = _ents.GetComponent<StackComponent>(uid);
                 var after = stack.Count - take;
+                if (after < 0)
+                {
+                    Sawmill.Error($"[Debit] Tried to overdraw stack {uid}: stack.Count={stack.Count}, take={take}");
+                    continue;
+                }
                 _stacks.SetCount(uid, after, stack);
                 if (after == 0)
                     _ents.DeleteEntity(uid);
@@ -169,6 +176,11 @@ public sealed partial class CapCoinHandlerSystem : EntitySystem, ICurrencyHandle
             {
                 var coin = _ents.GetComponent<CurrencyItemComponent>(uid);
                 var after = coin.Amount - take;
+                if (after < 0)
+                {
+                    Sawmill.Error($"[Debit] Tried to overdraw coin {uid}: coin.Amount={coin.Amount}, take={take}");
+                    continue;
+                }
                 if (after == 0)
                     _ents.DeleteEntity(uid);
                 else
@@ -178,41 +190,68 @@ public sealed partial class CapCoinHandlerSystem : EntitySystem, ICurrencyHandle
                 }
             }
 
-        InvalidateBalanceCache(owner);
+        // Инвалидируем кэш только через событие (CurrencyCacheInvalidationSystem)
+        RaiseInvalidateBalanceEvent(owner);
+
         return CurrencyOpResult.Success;
     }
 
     public CurrencyOpResult Credit(EntityUid owner, int amount)
     {
         if (amount <= 0)
+        {
+            Sawmill.Warning($"[Credit] Requested to credit 0 or negative CapCoin ({amount}) for {owner}");
             return CurrencyOpResult.Invalid;
+        }
 
         var coords    = _ents.GetComponent<TransformComponent>(owner).Coordinates;
         var remaining = FillPartialStacks(owner, amount);
 
         if (remaining == 0)
         {
-            InvalidateBalanceCache(owner);
+            RaiseInvalidateBalanceEvent(owner);
             return CurrencyOpResult.Success;
         }
 
         if (!HasFreeSlot(owner))
-            Sawmill.Warning($"[Credit] No free slot for {remaining} CapCoin → dropping to ground.");
+            Sawmill.Warning($"[Credit] No free slot for {remaining} CapCoin – dropping to ground.");
 
         if (_stackProto != null)
-            SpawnStack(owner, _stackProto, remaining, coords);
+        {
+            var max = _stackProto.MaxCount ?? int.MaxValue;
+            while (remaining > 0)
+            {
+                var spawnCount = Math.Min(remaining, max);
+                SpawnStack(owner, _stackProto, spawnCount, coords);
+                remaining -= spawnCount;
+            }
+        }
         else
             SpawnCoins(owner, remaining, coords);
 
-        InvalidateBalanceCache(owner);
+        RaiseInvalidateBalanceEvent(owner);
         return CurrencyOpResult.Success;
     }
 
+    /// <summary>
+    /// Не вызывайте это напрямую — используйте систему инвалидирования!
+    /// </summary>
     public void InvalidateBalanceCache(EntityUid owner)
     {
         if (_ents.TryGetComponent(owner, out CurrencyBalanceTrackerComponent? tracker) &&
             tracker.Balances.Remove(Id))
-            _ents.Dirty(owner, tracker);
+        {
+            // Кэш только серверный, нет Dirty
+        }
+    }
+
+    /// <summary>
+    /// Вызвать событие для сброса кэша через CurrencyCacheInvalidationSystem
+    /// </summary>
+    private void RaiseInvalidateBalanceEvent(EntityUid owner)
+    {
+        var ev = new CurrencyCacheInvalidateEvent(owner, Id);
+        RaiseLocalEvent(owner, ev);
     }
 
     #endregion
@@ -224,6 +263,8 @@ public sealed partial class CapCoinHandlerSystem : EntitySystem, ICurrencyHandle
         if (_stackTypeId == null || _stackProto == null)
             return amount;
 
+        var max = _stackProto.MaxCount ?? int.MaxValue;
+
         foreach (var uid in CurrencyHelpers.EnumerateDeepItemsUnique(owner, _ents))
         {
             if (amount == 0)
@@ -232,13 +273,20 @@ public sealed partial class CapCoinHandlerSystem : EntitySystem, ICurrencyHandle
             if (!_ents.TryGetComponent(uid, out StackComponent? stack) || stack.StackTypeId != _stackTypeId)
                 continue;
 
-            var max   = _stackProto.MaxCount ?? int.MaxValue;
-            var space = Math.Max(0, max - stack.Count);
+            var current = Math.Min(stack.Count, max); // исправляем жирные стаки
+            if (current != stack.Count)
+            {
+                Sawmill.Error($"[FillPartialStacks] Fat stack {uid} with {stack.Count} CapCoin, capping to {max}.");
+                _stacks.SetCount(uid, current, stack);
+            }
+
+            var space = max - current;
             var add   = Math.Min(space, amount);
+
             if (add == 0)
                 continue;
 
-            _stacks.SetCount(uid, stack.Count + add, stack);
+            _stacks.SetCount(uid, current + add, stack);
             amount -= add;
         }
 

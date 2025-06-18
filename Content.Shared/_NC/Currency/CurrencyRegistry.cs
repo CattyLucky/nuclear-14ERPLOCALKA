@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Content.Shared._NC.Currency;
@@ -32,10 +31,15 @@ public static class CurrencyRegistry
         Sawmill.Debug($"Unregistered handler '{id}'.");
         return true;
     }
+    public static ICurrencyHandler? TryGet(string id)
+    {
+        Handlers.TryGetValue(id, out var handler);
+        return handler;
+    }
 
     public static bool TryGet(
         string id,
-        [NotNullWhen(true)] out ICurrencyHandler? handler
+        out ICurrencyHandler? handler
     ) =>
         Handlers.TryGetValue(id, out handler);
 
