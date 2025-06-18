@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using Content.Shared.Containers.ItemSlots;
-using Content.Shared.Inventory;
 using Content.Shared.Hands.Components;
+using Content.Shared.Inventory;
 using Robust.Shared.Containers;
 
 namespace Content.Shared._NC.Currency;
@@ -20,7 +20,6 @@ public static class CurrencyHelpers
                 queue.Enqueue(uid);
         }
 
-        #region Слой-0: предметы, «прилепленные» к самому владельцу
 
         if (ents.TryGetComponent(owner, out InventoryComponent? inventory))
         {
@@ -52,9 +51,6 @@ public static class CurrencyHelpers
                     Enqueue(hand.HeldEntity.Value);
         }
 
-        #endregion
-
-        #region Рекурсия: обходим все вложенные контейнеры (BFS)
 
         while (queue.Count > 0)
         {
@@ -70,7 +66,6 @@ public static class CurrencyHelpers
                     Enqueue(child);
             }
         }
-
-        #endregion
     }
 }
+
