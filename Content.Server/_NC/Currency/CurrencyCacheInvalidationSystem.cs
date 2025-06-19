@@ -27,9 +27,9 @@ public sealed class CurrencyCacheInvalidationSystem : EntitySystem
         SubscribeLocalEvent<EntRemovedFromContainerMessage >(OnEntRemoved);
 
         // Inventory / Hands
-        SubscribeLocalEvent<GotEquippedEvent      >(OnGotEquipped);
-        SubscribeLocalEvent<GotUnequippedEvent    >(OnGotUnequipped);
-        SubscribeLocalEvent<GotEquippedHandEvent  >(OnGotEquippedHand);
+        SubscribeLocalEvent<GotEquippedEvent>(OnGotEquipped);
+        SubscribeLocalEvent<GotUnequippedEvent>(OnGotUnequipped);
+        SubscribeLocalEvent<GotEquippedHandEvent>(OnGotEquippedHand);
         SubscribeLocalEvent<GotUnequippedHandEvent>(OnGotUnequippedHand);
 
         // Manual
@@ -63,13 +63,13 @@ public sealed class CurrencyCacheInvalidationSystem : EntitySystem
 
     #region Inventory events
 
-    private void OnGotEquipped(ref GotEquippedEvent ev)
+    private void OnGotEquipped(GotEquippedEvent ev)
     {
         if (IsCurrency(ev.Equipment, out var handler) && handler != null)
             handler.InvalidateBalanceCache(ev.Equipee);
     }
 
-    private void OnGotUnequipped(ref GotUnequippedEvent ev)
+    private void OnGotUnequipped(GotUnequippedEvent ev)
     {
         if (IsCurrency(ev.Equipment, out var handler) && handler != null)
             handler.InvalidateBalanceCache(ev.Equipee);
@@ -79,13 +79,14 @@ public sealed class CurrencyCacheInvalidationSystem : EntitySystem
 
     #region Hand events
 
-    private void OnGotEquippedHand(ref GotEquippedHandEvent ev)
+    private void OnGotEquippedHand(GotEquippedHandEvent ev)
     {
         if (IsCurrency(ev.Equipped, out var handler) && handler != null)
             handler.InvalidateBalanceCache(ev.User);
     }
 
-    private void OnGotUnequippedHand(ref GotUnequippedHandEvent ev)
+
+    private void OnGotUnequippedHand(GotUnequippedHandEvent ev)
     {
         if (IsCurrency(ev.Unequipped, out var handler) && handler != null)
             handler.InvalidateBalanceCache(ev.User);

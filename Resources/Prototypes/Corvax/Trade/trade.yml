@@ -4,12 +4,14 @@
   description: A Pre-War vending machine that dispenses Nuka-Cola Corporation branded beverages.
   suffix: vendor, normal
   components:
-  - type: NcStore
-    preset: nuka_store
+  - type: StoreStructured
+    presetId: nuka_store
   - type: UserInterface
     interfaces:
-     enum.StoreUiKey.Key:
-      type: StoreStructuredBoundUi
+      enum.StoreUiKey.Key:
+        type: NcStoreStructuredBoundUi
+  - type: ActivatableUI
+    key: enum.StoreUiKey.Key
   - type: Clickable
   - type: InteractionOutline
   - type: Transform
@@ -31,13 +33,13 @@
   - type: Sprite
     sprite: _Nuclear14/Structures/Machines/VendingMachines/nukacola.rsi
     layers:
-      - state: "off"
-        map: ["enum.VendingMachineVisualLayers.Base"]
-      - state: "off"
-        map: ["enum.VendingMachineVisualLayers.BaseUnshaded"]
-        shader: unshaded
-      - state: panel
-        map: ["enum.WiresVisualLayers.MaintenancePanel"]
+    - state: "off"
+      map: ["enum.VendingMachineVisualLayers.Base"]
+    - state: "off"
+      map: ["enum.VendingMachineVisualLayers.BaseUnshaded"]
+      shader: unshaded
+    - state: panel
+      map: ["enum.WiresVisualLayers.MaintenancePanel"]
   - type: PointLight
     radius: 2.5
     energy: 1
@@ -45,30 +47,50 @@
     mask: /Textures/Effects/LightMasks/cone.png
     autoRot: true
 
-- type: storePresetStructured
+
+- type: NcStorePresetStructured
   id: nuka_store
+  Nclistings:
+  - nuka_buy_smg
+  - nuka_buy_lmg
+  - nuka_sell_smg
+  - nuka_sell_lmg
+
+- type: NcStoreListing
+  id: nuka_buy_smg
+  mode: Buy
+  product: N14WeaponSMG10mmPipe
+  price: 75
   currency: CapCoin
-  catalog:
-    Buy:
-      Оружие:
-        - proto: N14WeaponSMG10mmPipe
-          price: 75
-          name: "ПП 10мм (труба)"
-          description: "Самодельный пистолет-пулемёт под патрон 10мм."
-        - proto: N14WeaponLMGAutoRifle
-          price: 150
-          name: "Автоматическая винтовка"
-          description: "Старое, но надёжное автоматическое оружие."
-    Sell:
-      Оружие:
-        - proto: N14WeaponSMG10mmPipe
-          price: -30
-          name: "ПП 10мм (труба)"
-          description: "Можно сдать по низкой цене."
-        - proto: N14WeaponLMGAutoRifle
-          price: -60
-          name: "Автоматическая винтовка"
-          description: "Вторичный рынок для старого оружия."
+  name: "ПП 10мм (труба)"
+  description: "Самодельный пистолет-пулемёт под патрон 10мм."
+
+- type: NcStoreListing
+  id: nuka_buy_lmg
+  mode: Buy
+  product: N14WeaponLMGAutoRifle
+  price: 150
+  currency: CapCoin
+  name: "Автоматическая винтовка"
+  description: "Старое, но надёжное автоматическое оружие."
+
+- type: NcStoreListing
+  id: nuka_sell_smg
+  mode: Sell
+  product: N14WeaponSMG10mmPipe
+  price: -30
+  currency: CapCoin
+  name: "ПП 10мм (труба)"
+  description: "Можно сдать по низкой цене."
+
+- type: NcStoreListing
+  id: nuka_sell_lmg
+  mode: Sell
+  product: N14WeaponLMGAutoRifle
+  price: -60
+  currency: CapCoin
+  name: "Автоматическая винтовка"
+  description: "Вторичный рынок для старого оружия."
 
 - type: nccurrency
   id: CapCoin

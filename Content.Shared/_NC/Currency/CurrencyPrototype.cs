@@ -3,7 +3,7 @@ using Robust.Shared.Utility;
 
 namespace Content.Shared._NC.Currency
 {
-    [Prototype("currency")]
+    [Prototype("nccurrency")]
     public sealed class CurrencyPrototype : IPrototype
     {
         [IdDataField]

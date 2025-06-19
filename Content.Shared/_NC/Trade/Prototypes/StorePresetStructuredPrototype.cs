@@ -14,6 +14,6 @@ public sealed partial class StorePresetStructuredPrototype : IPrototype
     /// <summary>
     /// Список id‑листингов (StoreListingPrototype), которые входят в этот магазин.
     /// </summary>
-    [DataField("listings", required: true)]
+    [DataField("Nclistings", required: true)]
     public List<string> Listings { get; private set; } = new();
 }

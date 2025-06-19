@@ -21,14 +21,20 @@ public sealed partial class NcStoreStructuredMenu : DefaultWindow
 
     public void SetBalance(int amount) => BalanceValue.Text = amount.ToString();
 
-    public void PopulateBuyListings(IEnumerable<StoreListingData> data, IPrototypeManager protos) => PopulateListings(BuyList, data, protos, OnBuyClicked);
-    public void PopulateSellListings(IEnumerable<StoreListingData> data, IPrototypeManager protos) => PopulateListings(SellList, data, protos, OnSellClicked);
-    public void PopulateExchangeListings(IEnumerable<StoreListingData> data, IPrototypeManager protos) => PopulateListings(ExchangeList, data, protos, OnExchangeClicked);
+    public void PopulateBuyListings(IEnumerable<StoreListingData> data, IPrototypeManager protos)
+        => PopulateListings(BuyList, data, protos, NcStoreListingControl.ListingMode.Buy, OnBuyClicked);
+
+    public void PopulateSellListings(IEnumerable<StoreListingData> data, IPrototypeManager protos)
+        => PopulateListings(SellList, data, protos, NcStoreListingControl.ListingMode.Sell, OnSellClicked);
+
+    public void PopulateExchangeListings(IEnumerable<StoreListingData> data, IPrototypeManager protos)
+        => PopulateListings(ExchangeList, data, protos, NcStoreListingControl.ListingMode.Exchange, OnExchangeClicked);
 
     private void PopulateListings(
         Control list,
         IEnumerable<StoreListingData> data,
         IPrototypeManager protos,
+        NcStoreListingControl.ListingMode mode,
         Action<string>? onClicked
     )
     {
@@ -37,9 +43,29 @@ public sealed partial class NcStoreStructuredMenu : DefaultWindow
         foreach (var d in data)
         {
             var ctrl = new NcStoreListingControl();
-            ctrl.SetListing(Loc.GetString($"store-listing-name-{d.ProtoId}"), d.Price);
-            if (onClicked != null)
-                ctrl.OnBuyPressed += () => onClicked(d.ProtoId);
+            ctrl.SetListing(
+                Loc.GetString($"store-listing-name-{d.ProtoId}"),
+                d.Price,
+                null, // иконка если нужно
+                null, // описание если нужно
+                mode
+            );
+
+            switch (mode)
+            {
+                case NcStoreListingControl.ListingMode.Buy:
+                    if (onClicked != null)
+                        ctrl.OnBuyPressed += () => onClicked(d.ProtoId);
+                    break;
+                case NcStoreListingControl.ListingMode.Sell:
+                    if (onClicked != null)
+                        ctrl.OnSellPressed += () => onClicked(d.ProtoId);
+                    break;
+                case NcStoreListingControl.ListingMode.Exchange:
+                    if (onClicked != null)
+                        ctrl.OnExchangePressed += () => onClicked(d.ProtoId);
+                    break;
+            }
 
             list.AddChild(ctrl);
         }
