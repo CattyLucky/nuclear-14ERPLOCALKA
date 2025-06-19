@@ -1,49 +1,32 @@
 using Content.Server.Stack;
 using Content.Shared._NC.Currency;
-using Content.Shared.Containers.ItemSlots;
-using Content.Shared.Hands.Components;
-using Content.Shared.Hands.EntitySystems;
-using Content.Shared.Inventory;
 using Content.Shared.Stacks;
-using Content.Shared.Storage;
-using Robust.Shared.Containers;
-using Robust.Shared.Map;
 using Robust.Shared.Prototypes;
 
 namespace Content.Server._NC.Currency;
 
-/// <summary>
-///     Server‑side currency handler for <c>CapCoin</c>.
-///     Works with both stack‑based coins and individual coin entities.
-/// </summary>
-public sealed partial class CapCoinHandlerSystem : EntitySystem, ICurrencyHandler
+public sealed class CapCoinHandlerSystem : EntitySystem, ICurrencyHandler
 {
     #region Dependencies
 
-    [Dependency] private readonly IEntityManager       _ents      = default!;
-    [Dependency] private readonly IPrototypeManager    _protos    = default!;
-    [Dependency] private readonly StackSystem          _stacks    = default!;
-    [Dependency] private readonly InventorySystem      _invSys    = default!;
-    [Dependency] private readonly SharedHandsSystem    _handsSys  = default!;
-    [Dependency] private readonly ItemSlotsSystem      _itemSlots = default!;
-    [Dependency] private readonly SharedTransformSystem _xform    = default!;
+    [Dependency] private readonly IEntityManager _ents = default!;
+    [Dependency] private readonly IPrototypeManager _protos = default!;
+    [Dependency] private readonly StackSystem _stacks = default!;
+    [Dependency] private readonly SharedTransformSystem _xform = default!;
 
     #endregion
 
     private static readonly ISawmill Sawmill = Logger.GetSawmill("capcoin");
 
     public string Id => "CapCoin";
+    public string? StackTypeId => _stackTypeId;
 
-    private string          _coinProtoId = default!;
-    private string?         _stackTypeId;
+    private string _stackTypeId = default!;
     private StackPrototype? _stackProto;
-    public  string?         StackTypeId => _stackTypeId;
-
-    #region Initialize / Shutdown
 
     public override void Initialize()
     {
-        base.Initialize();
+        Sawmill.Info("Initializing CapCoinHandlerSystem...");
 
         if (!_protos.TryIndex<CurrencyPrototype>(Id, out var currencyProto))
         {
@@ -51,70 +34,80 @@ public sealed partial class CapCoinHandlerSystem : EntitySystem, ICurrencyHandle
             return;
         }
 
-        _coinProtoId = currencyProto.Entity;
-
-        // Определяем, является ли монета стаком
-        if (_protos.TryIndex<EntityPrototype>(_coinProtoId, out var entityProto) &&
-            entityProto.TryGetComponent(out StackComponent? stackComp, IoCManager.Resolve<IComponentFactory>()))
+        var entityProtoId = currencyProto.Entity;
+        if (!_protos.TryIndex<EntityPrototype>(entityProtoId, out var entityProto) ||
+            !entityProto.TryGetComponent(out StackComponent? stackComp, IoCManager.Resolve<IComponentFactory>()))
         {
-            _stackTypeId = stackComp.StackTypeId;
-
-            if (!_protos.TryIndex(_stackTypeId, out _stackProto))
-                Sawmill.Warning($"StackPrototype '{_stackTypeId}' not found.");
+            Sawmill.Error($"Entity '{entityProtoId}' for CapCoin does not have a StackComponent!");
+            return;
         }
 
-        CurrencyRegistry.Register(this);
+        _stackTypeId = stackComp.StackTypeId;
+        if (!_protos.TryIndex(_stackTypeId, out _stackProto))
+            Sawmill.Warning($"StackPrototype '{_stackTypeId}' not found.");
+        else
+            Sawmill.Info($"Detected CapCoin as stack-based currency. StackTypeId: {_stackTypeId}");
+
+        if (CurrencyRegistry.Register(this))
+            Sawmill.Info("Registered CapCoinHandlerSystem in CurrencyRegistry.");
+        else
+            Sawmill.Warning("CapCoinHandlerSystem registration in CurrencyRegistry failed (duplicate?).");
     }
 
     public override void Shutdown()
     {
+        Sawmill.Info("Shutting down CapCoinHandlerSystem...");
         base.Shutdown();
         CurrencyRegistry.Unregister(Id);
+        Sawmill.Info("Unregistered CapCoinHandlerSystem from CurrencyRegistry.");
     }
-
-    #endregion
-
-    #region ICurrencyHandler
-
-    public bool CanAfford(EntityUid owner, int amount) =>
-        GetBalance(owner) >= amount;
 
     public int GetBalance(EntityUid owner)
     {
-        // 1. Кэш
+        Sawmill.Debug($"GetBalance called for {owner}");
+
         if (_ents.TryGetComponent(owner, out CurrencyBalanceTrackerComponent? tracker) &&
             tracker.Balances.TryGetValue(Id, out var cached))
+        {
+            Sawmill.Debug($"[GetBalance] Cache HIT for {owner} ({Id}): {cached}");
             return cached;
+        }
 
-        // 2. Пересчёт
         var total = 0;
         foreach (var uid in CurrencyHelpers.EnumerateDeepItemsUnique(owner, _ents))
         {
-            if (_ents.TryGetComponent(uid, out CurrencyItemComponent? coin) && coin.Currency == Id)
-            {
-                total += coin.Amount;
-                continue;
-            }
-
-            if (_stackTypeId != null &&
-                _ents.TryGetComponent(uid, out StackComponent? stack) &&
+            if (_ents.TryGetComponent(uid, out StackComponent? stack) &&
                 stack.StackTypeId == _stackTypeId)
+            {
                 total += stack.Count;
+                Sawmill.Debug($"[GetBalance] Found stack {uid}, +{stack.Count}, running total {total}");
+            }
         }
 
-        // 3. Кэшируем (без Dirty, тут не нужен лишний нетворкинг)
         if (!_ents.HasComponent<CurrencyBalanceTrackerComponent>(owner))
+        {
+            Sawmill.Debug($"[GetBalance] Adding CurrencyBalanceTrackerComponent for {owner}");
             _ents.AddComponent<CurrencyBalanceTrackerComponent>(owner);
+        }
 
         var trackerRef = _ents.GetComponent<CurrencyBalanceTrackerComponent>(owner);
-        trackerRef.Balances[Id] = total;
-        // Не вызываем _ents.Dirty тут — кэш только для сервера, не для клиента!
+        trackerRef.Set(owner, Id, total, _ents);
+        Sawmill.Debug($"[GetBalance] Set cache for {owner} ({Id}): {total}");
 
         return total;
     }
 
+    public bool CanAfford(EntityUid owner, int amount)
+    {
+        var can = GetBalance(owner) >= amount;
+        Sawmill.Debug($"CanAfford({owner}, {amount}) = {can}");
+        return can;
+    }
+
     public CurrencyOpResult Debit(EntityUid owner, int amount)
     {
+        Sawmill.Info($"[Debit] Request: {amount} CapCoin from {owner}");
+
         if (amount <= 0)
         {
             Sawmill.Warning($"[Debit] Requested to debit 0 or negative CapCoin ({amount}) for {owner}");
@@ -122,9 +115,11 @@ public sealed partial class CapCoinHandlerSystem : EntitySystem, ICurrencyHandle
         }
 
         if (!CanAfford(owner, amount))
+        {
+            Sawmill.Warning($"[Debit] Not enough CapCoin for {owner}: requested {amount}, has {GetBalance(owner)}");
             return CurrencyOpResult.InsufficientFunds;
+        }
 
-        var plan      = new List<(EntityUid uid, int take, bool isStack)>();
         var remaining = amount;
 
         foreach (var uid in CurrencyHelpers.EnumerateDeepItemsUnique(owner, _ents))
@@ -132,264 +127,108 @@ public sealed partial class CapCoinHandlerSystem : EntitySystem, ICurrencyHandle
             if (remaining == 0)
                 break;
 
-            // Одиночные монеты
-            if (_ents.TryGetComponent(uid, out CurrencyItemComponent? coin) && coin.Currency == Id)
-            {
-                var take = Math.Min(coin.Amount, remaining);
-                plan.Add((uid, take, false));
-                remaining -= take;
+            if (!_ents.TryGetComponent(uid, out StackComponent? stack) || stack.StackTypeId != _stackTypeId)
                 continue;
-            }
 
-            // Стаки
-            if (_stackTypeId != null &&
-                _ents.TryGetComponent(uid, out StackComponent? stack) &&
-                stack.StackTypeId == _stackTypeId)
+            var take = Math.Min(stack.Count, remaining);
+            _stacks.SetCount(uid, stack.Count - take, stack);
+            Sawmill.Debug($"[Debit] Stack {uid}: set count to {stack.Count - take}");
+            if (stack.Count - take <= 0)
             {
-                var take = Math.Min(stack.Count, remaining);
-                plan.Add((uid, take, true));
-                remaining -= take;
+                _ents.DeleteEntity(uid);
+                Sawmill.Debug($"[Debit] Stack {uid} deleted");
             }
+            remaining -= take;
         }
 
         if (remaining > 0)
         {
-            Sawmill.Error($"[Debit] Can't cover {amount} CapCoin for {owner} (missing {remaining}).");
+            Sawmill.Error($"[Debit] Logic error: Could not debit full amount for {owner} (left: {remaining})");
             return CurrencyOpResult.Invalid;
         }
 
-        foreach (var (uid, take, isStack) in plan)
-            if (isStack)
-            {
-                var stack = _ents.GetComponent<StackComponent>(uid);
-                var after = stack.Count - take;
-                if (after < 0)
-                {
-                    Sawmill.Error($"[Debit] Tried to overdraw stack {uid}: stack.Count={stack.Count}, take={take}");
-                    continue;
-                }
-                _stacks.SetCount(uid, after, stack);
-                if (after == 0)
-                    _ents.DeleteEntity(uid);
-            }
-            else
-            {
-                var coin = _ents.GetComponent<CurrencyItemComponent>(uid);
-                var after = coin.Amount - take;
-                if (after < 0)
-                {
-                    Sawmill.Error($"[Debit] Tried to overdraw coin {uid}: coin.Amount={coin.Amount}, take={take}");
-                    continue;
-                }
-                if (after == 0)
-                    _ents.DeleteEntity(uid);
-                else
-                {
-                    coin.Amount = after;
-                    _ents.Dirty(uid, coin);
-                }
-            }
-
-        // Инвалидируем кэш только через событие (CurrencyCacheInvalidationSystem)
         RaiseInvalidateBalanceEvent(owner);
-
+        Sawmill.Info($"[Debit] SUCCESS: Debited {amount} CapCoin from {owner}");
         return CurrencyOpResult.Success;
     }
 
     public CurrencyOpResult Credit(EntityUid owner, int amount)
     {
+        Sawmill.Info($"[Credit] Request: {amount} CapCoin to {owner}");
+
         if (amount <= 0)
         {
             Sawmill.Warning($"[Credit] Requested to credit 0 or negative CapCoin ({amount}) for {owner}");
             return CurrencyOpResult.Invalid;
         }
 
-        var coords    = _ents.GetComponent<TransformComponent>(owner).Coordinates;
-        var remaining = FillPartialStacks(owner, amount);
+        var coords = _ents.GetComponent<TransformComponent>(owner).Coordinates;
+        EntityUid? firstStack = null;
 
-        if (remaining == 0)
+        // Попробуй найти хотя бы один существующий стек у владельца
+        foreach (var uid in CurrencyHelpers.EnumerateDeepItemsUnique(owner, _ents))
         {
-            RaiseInvalidateBalanceEvent(owner);
-            return CurrencyOpResult.Success;
-        }
-
-        if (!HasFreeSlot(owner))
-            Sawmill.Warning($"[Credit] No free slot for {remaining} CapCoin – dropping to ground.");
-
-        if (_stackProto != null)
-        {
-            var max = _stackProto.MaxCount ?? int.MaxValue;
-            while (remaining > 0)
+            if (_ents.TryGetComponent(uid, out StackComponent? stack) && stack.StackTypeId == _stackTypeId)
             {
-                var spawnCount = Math.Min(remaining, max);
-                SpawnStack(owner, _stackProto, spawnCount, coords);
-                remaining -= spawnCount;
+                _stacks.SetCount(uid, stack.Count + amount, stack);
+                Sawmill.Debug($"[Credit] Added {amount} to stack {uid} (new count: {stack.Count + amount})");
+                firstStack = uid;
+                break;
             }
         }
-        else
-            SpawnCoins(owner, remaining, coords);
+
+        // Если не нашли ни одного стака — спавним новый
+        if (firstStack == null)
+        {
+            var uid = _stacks.Spawn(amount, _stackProto!, coords);
+            Sawmill.Debug($"[Credit] Spawned new stack {uid} ({amount}) for {owner}");
+            if (!TryInsertBest(owner, uid))
+            {
+                _xform.SetCoordinates(uid, coords);
+                Sawmill.Warning($"[Credit] Stack {uid} dropped on ground.");
+            }
+        }
 
         RaiseInvalidateBalanceEvent(owner);
+        Sawmill.Info($"[Credit] SUCCESS: Credited {amount} CapCoin to {owner}");
         return CurrencyOpResult.Success;
     }
 
-    /// <summary>
-    /// Не вызывайте это напрямую — используйте систему инвалидирования!
-    /// </summary>
     public void InvalidateBalanceCache(EntityUid owner)
     {
-        if (!_ents.HasComponent<CurrencyBalanceTrackerComponent>(owner))
-            _ents.AddComponent<CurrencyBalanceTrackerComponent>(owner);
-
-        var tracker = _ents.GetComponent<CurrencyBalanceTrackerComponent>(owner);
-        tracker.Balances.Remove(Id);
+        Sawmill.Debug($"InvalidateBalanceCache for {owner} ({Id})");
+        if (_ents.TryGetComponent(owner, out CurrencyBalanceTrackerComponent? tracker))
+        {
+            tracker.Remove(owner, Id, _ents);
+            Sawmill.Debug($"[InvalidateBalanceCache] Cache removed for {owner} ({Id})");
+        }
     }
 
-    /// <summary>
-    /// Вызвать событие для сброса кэша через CurrencyCacheInvalidationSystem
-    /// </summary>
     private void RaiseInvalidateBalanceEvent(EntityUid owner)
     {
+        Sawmill.Debug($"RaiseInvalidateBalanceEvent for {owner}");
         var ev = new CurrencyCacheInvalidateEvent(owner, Id);
         RaiseLocalEvent(owner, ev);
     }
 
-    #endregion
-
-    #region Internal helpers
-
-    private int FillPartialStacks(EntityUid owner, int amount)
-    {
-        if (_stackTypeId == null || _stackProto == null)
-            return amount;
-
-        var max = _stackProto.MaxCount ?? int.MaxValue;
-
-        foreach (var uid in CurrencyHelpers.EnumerateDeepItemsUnique(owner, _ents))
-        {
-            if (amount == 0)
-                break;
-
-            if (!_ents.TryGetComponent(uid, out StackComponent? stack) || stack.StackTypeId != _stackTypeId)
-                continue;
-
-            var current = Math.Min(stack.Count, max); // исправляем жирные стаки
-            if (current != stack.Count)
-            {
-                Sawmill.Error($"[FillPartialStacks] Fat stack {uid} with {stack.Count} CapCoin, capping to {max}.");
-                _stacks.SetCount(uid, current, stack);
-            }
-
-            var space = max - current;
-            var add   = Math.Min(space, amount);
-
-            if (add == 0)
-                continue;
-
-            _stacks.SetCount(uid, current + add, stack);
-            amount -= add;
-        }
-
-        return amount;
-    }
-
-    private void SpawnStack(EntityUid owner, StackPrototype proto, int amount, EntityCoordinates coords)
-    {
-        var uid = _stacks.Spawn(amount, proto, coords);
-        if (!TryInsertBest(owner, uid))
-        {
-            _xform.SetCoordinates(uid, coords);
-            Sawmill.Warning($"[Credit] Stack {uid} dropped on ground.");
-        }
-    }
-
-    private void SpawnCoins(EntityUid owner, int amount, EntityCoordinates coords)
-    {
-        for (var i = 0; i < amount; i++)
-        {
-            var uid = _ents.SpawnEntity(_coinProtoId, coords);
-            if (!TryInsertBest(owner, uid))
-            {
-                _xform.SetCoordinates(uid, coords);
-                Sawmill.Warning($"[Credit] Coin {uid} dropped on ground.");
-            }
-        }
-    }
-
     private bool TryInsertBest(EntityUid owner, EntityUid item)
     {
-        // item-slots
-        if (_ents.TryGetComponent(owner, out ItemSlotsComponent? slots))
-        {
-            foreach (var slot in slots.Slots.Values)
-                if (!slot.Locked && !slot.HasItem && _itemSlots.TryInsert(owner, slot, item, owner))
-                    return true;
-        }
-
-        // inventory
-        if (_ents.TryGetComponent(owner, out InventoryComponent? inv))
-        {
-            foreach (var def in inv.Slots)
-            {
-                if (_invSys.TryGetSlotEntity(owner, def.Name, out _))
-                    continue;
-
-                if (_invSys.TryEquip(owner, owner, item, def.Name, false, false, false, inv))
-                    return true;
-            }
-        }
-
-        // hands
-        return _ents.TryGetComponent(owner, out HandsComponent? _) &&
-               _handsSys.TryPickupAnyHand(owner, item, false);
+        // Оставь свою или пустую, если неважно
+        return true;
     }
 
-    private bool HasFreeSlot(EntityUid owner)
+    #region Helpers
+
+    public sealed class CurrencyCacheInvalidateEvent : EntityEventArgs
     {
-        // item-slots
-        if (_ents.TryGetComponent(owner, out ItemSlotsComponent? slots))
-        {
-            foreach (var slot in slots.Slots.Values)
-                if (!slot.Locked && !slot.HasItem)
-                    return true;
-        }
+        public readonly string? CurrencyId;
+        public readonly EntityUid Owner;
 
-        // inventory
-        if (_ents.TryGetComponent(owner, out InventoryComponent? inv))
+        public CurrencyCacheInvalidateEvent(EntityUid owner, string? currencyId = null)
         {
-            foreach (var def in inv.Slots)
-                if (!_invSys.TryGetSlotEntity(owner, def.Name, out _))
-                    return true;
+            Owner = owner;
+            CurrencyId = currencyId;
         }
-
-        // hands
-        if (_ents.TryGetComponent(owner, out HandsComponent? hands))
-        {
-            foreach (var hand in _handsSys.EnumerateHands(owner, hands))
-                if (hand.HeldEntity == null)
-                    return true;
-        }
-
-        // storage containers
-        if (_ents.TryGetComponent(owner, out ContainerManagerComponent? cmc))
-        {
-            var em = _ents;
-            foreach (var cont in cmc.Containers.Values)
-                if (cont.ContainedEntities.Count < GetContainerLimit(cont, em))
-                    return true;
-        }
-
-        return false;
     }
-
-    private static int GetContainerLimit(BaseContainer container, IEntityManager em) =>
-        container switch
-        {
-            ContainerSlot => 1,
-            { Owner: var own, } when em.TryGetComponent(own, out StorageComponent? storage)
-                => storage.Grid.GetArea(),
-            _ => int.MaxValue
-        };
-
     #endregion
 }
