@@ -4,7 +4,7 @@
   description: A Pre-War vending machine that dispenses Nuka-Cola Corporation branded beverages.
   suffix: vendor, normal
   components:
-  - type: StoreStructured
+  - type: NcStore
     presetId: nuka_store
   - type: UserInterface
     interfaces:
@@ -48,49 +48,37 @@
     autoRot: true
 
 
-- type: NcStorePresetStructured
+- type: storePresetStructured
   id: nuka_store
-  Nclistings:
-  - nuka_buy_smg
-  - nuka_buy_lmg
-  - nuka_sell_smg
-  - nuka_sell_lmg
-
-- type: NcStoreListing
-  id: nuka_buy_smg
-  mode: Buy
-  product: N14WeaponSMG10mmPipe
-  price: 75
   currency: CapCoin
-  name: "ПП 10мм (труба)"
-  description: "Самодельный пистолет-пулемёт под патрон 10мм."
+  catalog:
+    Buy:
+      Оружие:
+      - proto: N14WeaponSMG10mmPipe
+        name: "ПП 10мм (труба)"
+        description: "Самодельный пистолет-пулемёт под патрон 10мм."
+        price: 75
+      - proto: N14WeaponLMGAutoRifle
+        name: "Автоматическая винтовка"
+        description: "Старое, но надёжное автоматическое оружие."
+        price: 150
+      Винтовки:
+      - proto: N14WeaponLMGAutoRifle
+        name: "Автоматическая винтовка"
+        description: "Старое, но надёжное автоматическое оружие."
+        price: 150
+    Sell:
+      Оружие:
+      - proto: N14WeaponSMG10mmPipe
+        name: "ПП 10мм (труба)"
+        description: "Можно сдать по низкой цене."
+        price: -30
+      Винтовки:
+      - proto: N14WeaponLMGAutoRifle
+        name: "Автоматическая винтовка"
+        description: "Вторичный рынок для старого оружия."
+        price: -60
 
-- type: NcStoreListing
-  id: nuka_buy_lmg
-  mode: Buy
-  product: N14WeaponLMGAutoRifle
-  price: 150
-  currency: CapCoin
-  name: "Автоматическая винтовка"
-  description: "Старое, но надёжное автоматическое оружие."
-
-- type: NcStoreListing
-  id: nuka_sell_smg
-  mode: Sell
-  product: N14WeaponSMG10mmPipe
-  price: -30
-  currency: CapCoin
-  name: "ПП 10мм (труба)"
-  description: "Можно сдать по низкой цене."
-
-- type: NcStoreListing
-  id: nuka_sell_lmg
-  mode: Sell
-  product: N14WeaponLMGAutoRifle
-  price: -60
-  currency: CapCoin
-  name: "Автоматическая винтовка"
-  description: "Вторичный рынок для старого оружия."
 
 - type: nccurrency
   id: CapCoin
