@@ -3,7 +3,9 @@ using Robust.Client.UserInterface;
 
 namespace Content.Client._NC.Trade
 {
-    public sealed class NcStoreBoundUserInterface(EntityUid owner, Enum uiKey) : BoundUserInterface(owner, uiKey)
+    public sealed class NcStoreStructuredBoundUi(EntityUid owner, Enum uiKey)
+        : BoundUserInterface(owner, uiKey)
+
     {
         private NcStoreMenu? _menu;
         private List<StoreListingData> _cachedListings = new();

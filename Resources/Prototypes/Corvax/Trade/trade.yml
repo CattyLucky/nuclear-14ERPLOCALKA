@@ -5,7 +5,7 @@
   suffix: vendor, normal
   components:
   - type: NcStore
-    presetId: nuka_store
+    preset: nuka_store
   - type: UserInterface
     interfaces:
       enum.StoreUiKey.Key:

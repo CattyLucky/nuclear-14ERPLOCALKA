@@ -238,11 +238,11 @@ public sealed partial class CapCoinHandlerSystem : EntitySystem, ICurrencyHandle
     /// </summary>
     public void InvalidateBalanceCache(EntityUid owner)
     {
-        if (_ents.TryGetComponent(owner, out CurrencyBalanceTrackerComponent? tracker) &&
-            tracker.Balances.Remove(Id))
-        {
-            // Кэш только серверный, нет Dirty
-        }
+        if (!_ents.HasComponent<CurrencyBalanceTrackerComponent>(owner))
+            _ents.AddComponent<CurrencyBalanceTrackerComponent>(owner);
+
+        var tracker = _ents.GetComponent<CurrencyBalanceTrackerComponent>(owner);
+        tracker.Balances.Remove(Id);
     }
 
     /// <summary>

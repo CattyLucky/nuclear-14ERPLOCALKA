@@ -21,7 +21,6 @@ public sealed class NcStoreLogicSystem : EntitySystem
         return handler.GetBalance(user);
     }
 
-
     public bool TryPurchase(string listingId, EntityUid machine, NcStoreComponent? store, EntityUid user)
     {
         if (store == null || store.Listings.Count == 0)
@@ -124,14 +123,19 @@ public sealed class NcStoreLogicSystem : EntitySystem
     private bool RemoveItem(EntityUid user, string protoId)
     {
         foreach (var item in CurrencyHelpers.EnumerateDeepItemsUnique(user, _ents))
-            if (_ents.GetComponent<MetaDataComponent>(item).EntityPrototype?.ID == protoId)
+        {
+            var meta = _ents.GetComponent<MetaDataComponent>(item);
+            Sawmill.Info($"[RemoveItem] user={user}, item={item}, protoId={meta.EntityPrototype?.ID}, wanted={protoId}");
+            if (meta.EntityPrototype?.ID == protoId)
             {
                 _ents.DeleteEntity(item);
                 return true;
             }
-
+        }
         return false;
     }
+
+
 
     private void SpawnProduct(string protoId, MapCoordinates coords) =>
         _ents.SpawnEntity(protoId, coords);
