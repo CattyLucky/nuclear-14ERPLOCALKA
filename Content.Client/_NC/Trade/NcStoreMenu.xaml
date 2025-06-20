@@ -7,40 +7,83 @@
     MinWidth="1100" MinHeight="720">
 
     <BoxContainer Orientation="Vertical">
+
+        <!-- Баланс + поиск -->
         <BoxContainer Orientation="Horizontal" Margin="4 4 4 0">
             <RichTextLabel Name="BalanceInfo" HorizontalExpand="True"/>
-            <LineEdit Name="SearchBar" Margin="0 0 8 0" HorizontalExpand="True" Access="Public"/>
+            <LineEdit Name="SearchBar"
+                      Margin="0 0 8 0"
+                      HorizontalExpand="True"
+                      Access="Public"/>
         </BoxContainer>
-            <TabContainer VerticalExpand="True" Margin="4 4 4 4">
-                <PanelContainer Name="Покупка" VerticalExpand="True">
-                    <BoxContainer Orientation="Horizontal" VerticalExpand="True">
-                        <PanelContainer VerticalExpand="True" MinWidth="140" Margin="0 0 8 0">
-                            <BoxContainer Name="BuyCategoryListContainer" Orientation="Vertical"/>
-                        </PanelContainer>
-                        <ScrollContainer Name="BuyListingsScroll" VerticalExpand="True" HorizontalExpand="True">
-                            <BoxContainer Name="BuyListingsContainer" Orientation="Vertical" VerticalExpand="True"/>
-                        </ScrollContainer>
-                    </BoxContainer>
-                </PanelContainer>
-                <PanelContainer Name="Продажа" VerticalExpand="True" Visible="false">
-                    <BoxContainer Orientation="Horizontal" VerticalExpand="True">
-                        <PanelContainer VerticalExpand="True" MinWidth="140" Margin="0 0 8 0">
-                            <BoxContainer Name="SellCategoryListContainer" Orientation="Vertical"/>
-                        </PanelContainer>
-                        <ScrollContainer Name="SellListingsScroll" VerticalExpand="True" HorizontalExpand="True">
-                            <BoxContainer Name="SellListingsContainer" Orientation="Vertical" VerticalExpand="True"/>
-                        </ScrollContainer>
-                    </BoxContainer>
-                </PanelContainer>
-            </TabContainer>
+
+        <!-- вкладки крупным шрифтом -->
+        <TabContainer StyleClasses="TabContainerLarge"
+                      VerticalExpand="True"
+                      Margin="4">
+
+            <!-- ───────── Купить ───────── -->
+            <PanelContainer Name="Покупка" VerticalExpand="True">
+                <BoxContainer Orientation="Horizontal" VerticalExpand="True">
+
+                    <!-- категории -->
+                    <PanelContainer VerticalExpand="True" MinWidth="160">
+                        <BoxContainer Name="BuyCategoryListContainer"
+                                      Orientation="Vertical"/>
+                    </PanelContainer>
+
+                    <!-- тонкая линия -->
+                    <PanelContainer MinWidth="1" StyleClasses="LowDivider"/>
+
+                    <!-- лоты -->
+                    <ScrollContainer Name="BuyListingsScroll"
+                                     VerticalExpand="True"
+                                     HorizontalExpand="True">
+                        <BoxContainer Name="BuyListingsContainer"
+                                      Orientation="Vertical"
+                                      VerticalExpand="True"/>
+                    </ScrollContainer>
+                </BoxContainer>
+            </PanelContainer>
+
+            <!-- ───────── Продажа ───────── -->
+            <PanelContainer Name="Продажа" VerticalExpand="True">
+                <BoxContainer Orientation="Horizontal" VerticalExpand="True">
+
+                    <PanelContainer VerticalExpand="True" MinWidth="160">
+                        <BoxContainer Name="SellCategoryListContainer"
+                                      Orientation="Vertical"/>
+                    </PanelContainer>
+
+                    <PanelContainer MinWidth="1" StyleClasses="LowDivider"/>
+
+                    <ScrollContainer Name="SellListingsScroll"
+                                     VerticalExpand="True"
+                                     HorizontalExpand="True">
+                        <BoxContainer Name="SellListingsContainer"
+                                      Orientation="Vertical"
+                                      VerticalExpand="True"/>
+                    </ScrollContainer>
+                </BoxContainer>
+            </PanelContainer>
+        </TabContainer>
+
+        <!-- футер -->
         <BoxContainer Orientation="Vertical">
-            <PanelContainer StyleClasses="LowDivider" />
-            <BoxContainer Orientation="Horizontal" Margin="10 2 5 0" VerticalAlignment="Bottom">
-                <Label Text="Баланс:" StyleClasses="WindowFooterText"/>
-                <Label Name="BalanceLabel" StyleClasses="WindowFooterText"
-                       HorizontalAlignment="Right" HorizontalExpand="True" Margin="0 0 5 0"/>
+            <PanelContainer StyleClasses="LowDivider"/>
+            <BoxContainer Orientation="Horizontal"
+                          Margin="10 2 5 0"
+                          VerticalAlignment="Bottom">
+                <Label Text="Баланс:"
+                       StyleClasses="WindowFooterText"/>
+                <Label Name="BalanceLabel"
+                       StyleClasses="WindowFooterText"
+                       HorizontalAlignment="Right"
+                       HorizontalExpand="True"
+                       Margin="0 0 5 0"/>
             </BoxContainer>
         </BoxContainer>
     </BoxContainer>
 </controls1:FancyWindow>
+
 
