@@ -51,7 +51,6 @@
       - Currency
   - type: Stack
     stackType: Caps
-    maxCount: 99999999
     count: 1
     baseLayer: base
     layerStates:
