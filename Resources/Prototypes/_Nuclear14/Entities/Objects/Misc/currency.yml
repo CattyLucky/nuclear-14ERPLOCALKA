@@ -81,9 +81,6 @@
   - type: Appearance
   - type: Item
     size: Tiny
-  - type: CurrencyItem
-    currency: CapCoin
-    amount: 1
 
 - type: stack
   id: Caps
@@ -101,9 +98,6 @@
     state: caps3
   - type: Stack
     count: 10
-  - type: CurrencyItem
-    currency: CapCoin
-    amount: 10
 
 - type: entity
   parent: N14CurrencyCap
@@ -115,9 +109,6 @@
     state: moneypouch
   - type: Stack
     count: 50
-  - type: CurrencyItem
-    currency: CapCoin
-    amount: 50
 
 - type: entity
   parent: N14CurrencyCap
@@ -129,9 +120,6 @@
     state: moneybag
   - type: Stack
     count: 100
-  - type: CurrencyItem
-    currency: CapCoin
-    amount: 100
 
 - type: entity
   parent: N14CurrencyCap
@@ -143,23 +131,7 @@
     state: moneybag
   - type: Stack
     count: 500
-  - type: CurrencyItem
-    currency: CapCoin
-    amount: 500
 
-- type: entity
-  parent: N14CurrencyCap
-  id: N14CurrencyCap999999999
-  suffix: 999999999
-  components:
-  - type: Icon
-    sprite: _Nuclear14/Objects/Misc/storage.rsi
-    state: moneybag
-  - type: Stack
-    count: 999999999
-  - type: CurrencyItem
-    currency: CapCoin
-    amount: 999999999
 # Pre-War
 - type: entity
   parent: N14CurrencyCap

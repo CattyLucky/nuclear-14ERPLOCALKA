@@ -1,13 +1,13 @@
 using Content.Shared._NC.Trade;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
-using Robust.Shared.Map;
 
 namespace Content.Server._NC.Trade;
 
 /// <summary>
 /// Система загрузки структурированного магазина из пресета (YAML-прототипа).
 /// Наполняет компонент NcStoreComponent при инициализации карты (MapInitEvent).
+/// Сервер НЕ подставляет ни имя, ни описание, ни иконку! Только protoId, цену и категории.
 /// </summary>
 public sealed class StoreSystemStructuredLoader : EntitySystem
 {
@@ -42,34 +42,35 @@ public sealed class StoreSystemStructuredLoader : EntitySystem
         comp.Listings.Clear();
 
         int count = 0;
-        foreach (var (mode, categories) in preset.Catalog)
+        foreach (var (modeStr, categories) in preset.Catalog)
         {
+            var mode = modeStr switch
+            {
+                "Buy" => StoreMode.Buy,
+                "Sell" => StoreMode.Sell,
+                _ => StoreMode.Buy
+            };
+
             foreach (var (category, entries) in categories)
             {
-                if (!comp.Categories.Contains(category))
-                    comp.Categories.Add(category);
-
                 foreach (var entry in entries)
                 {
                     var id = $"{mode}_{category}_{entry.Proto}_{_random.Next(100000)}";
+
                     var listing = new StoreListingPrototype
                     {
                         Id = id,
                         ProductEntity = entry.Proto,
-                        Name = entry.Name,
-                        Description = entry.Description,
-                        Icon = entry.Icon,
-                        Cost = new() { [preset.Currency] = entry.Price, },
+                        Cost = new() { [preset.Currency] = entry.Price },
                         Categories = [category],
-                        Conditions = new()
+                        Conditions = new(),
+                        Mode = mode
                     };
 
                     comp.Listings.Add(listing);
-                    count++;
                 }
             }
         }
-
         Sawmill.Info($"[NcStore] Всего товаров: {count} для {ToPrettyString(uid)}");
     }
 }

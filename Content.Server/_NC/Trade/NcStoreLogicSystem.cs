@@ -1,13 +1,12 @@
 using System.Linq;
-using Content.Shared._NC.Currency;
 using Content.Shared._NC.Trade;
-using Robust.Shared.Map;
 using Robust.Shared.Prototypes;
-using Content.Server._NC.Currency;
 using Content.Shared.Hands.Components;
 using Content.Shared.Hands.EntitySystems;
 using Content.Shared.Stacks;
-
+using Content.Shared.Inventory;
+using Content.Shared.Containers.ItemSlots;
+using Robust.Shared.Containers;
 
 namespace Content.Server._NC.Trade;
 
@@ -15,245 +14,229 @@ public sealed class NcStoreLogicSystem : EntitySystem
 {
     [Dependency] private readonly IEntityManager _ents = default!;
     [Dependency] private readonly IPrototypeManager _protos = default!;
-    [Dependency] private readonly CurrencyExchangeSystem _exchange = default!;
     [Dependency] private readonly SharedTransformSystem _transform = default!;
-    [Dependency] private readonly SharedStackSystem _stacks= default!;
+    [Dependency] private readonly SharedStackSystem _stacks = default!;
     private static readonly ISawmill Sawmill = Logger.GetSawmill("ncstore-logic");
 
-    public int GetBalance(EntityUid user, string currencyId)
+    // --- 1. Баланс по currencyProtoId (теперь это protoId стака, например, "CapCoin") ---
+    public int GetBalance(EntityUid user, string stackType)
     {
-        Sawmill.Debug($"GetBalance: user={user}, currencyId={currencyId}");
-        if (!CurrencyRegistry.TryGet(currencyId, out var handler) || handler == null)
+        Sawmill.Debug($"GetBalance: user={user}, stackType={stackType}");
+        int total = 0;
+        foreach (var entity in EnumerateDeepItemsUnique(user))
         {
-            Sawmill.Warning($"GetBalance: handler not found for currencyId={currencyId}");
-            return 0;
+            if (_ents.TryGetComponent(entity, out StackComponent? stack)
+                && stack.StackTypeId == stackType)
+            {
+                total += stack.Count;
+            }
         }
-        var bal = handler.GetBalance(user);
-        Sawmill.Debug($"GetBalance: user={user}, currencyId={currencyId}, balance={bal}");
-        return bal;
+        Sawmill.Debug($"GetBalance: user={user}, stackType={stackType}, balance={total}");
+        return total;
     }
 
-    public bool TryPurchase(string listingId, EntityUid machine, NcStoreComponent? store, EntityUid user)
+
+    public bool TryBuy(string listingId, EntityUid machine, NcStoreComponent? store, EntityUid user)
     {
-        Sawmill.Info($"TryPurchase: listingId={listingId}, machine={machine}, user={user}");
         if (store == null || store.Listings.Count == 0)
-        {
-            Sawmill.Warning("TryPurchase: Store is null or has no listings");
             return false;
-        }
 
-        var listing = store.Listings.FirstOrDefault(x => x.Id == listingId);
+        var listing = store.Listings.FirstOrDefault(x => x.Id == listingId && x.Mode == StoreMode.Buy);
         if (listing == null)
-        {
-            Sawmill.Warning($"TryPurchase: Listing {listingId} not found in store");
             return false;
-        }
-        if (listing.Cost.Count == 0 || string.IsNullOrEmpty(listing.ProductEntity))
-        {
-            Sawmill.Warning($"TryPurchase: Listing {listingId} is invalid: no cost or no product");
-            return false;
-        }
-
-        var currencyId = store.CurrencyWhitelist.FirstOrDefault();
-        if (string.IsNullOrEmpty(currencyId) || !CurrencyRegistry.TryGet(currencyId, out var handler) || handler == null)
-        {
-            Sawmill.Warning($"TryPurchase: No valid currency handler for listing {listingId}");
-            return false;
-        }
 
         var price = (int)listing.Cost.First().Value;
-        var isSell = price < 0;
-
-        var coords = _transform.ToMapCoordinates(_ents.GetComponent<TransformComponent>(machine).Coordinates);
-
-        Sawmill.Debug($"TryPurchase: user={user}, isSell={isSell}, price={price}, currency={currencyId}");
-
-        if (!isSell)
-        {
-            if (!handler.CanAfford(user, price))
-            {
-                Sawmill.Warning($"TryPurchase: User {user} cannot afford price {price} in {currencyId}");
-                return false;
-            }
-            var debitRes = handler.Debit(user, price);
-            if (debitRes != CurrencyOpResult.Success)
-            {
-                Sawmill.Warning($"TryPurchase: Debit failed: {debitRes} for user={user}, price={price}");
-                return false;
-            }
-
-            Sawmill.Info($"TryPurchase: Success. Spawning product {listing.ProductEntity} at {coords}");
-            SpawnProduct(listing.ProductEntity, user);
-            return true;
-        }
-
-        if (string.IsNullOrEmpty(listing.ProductEntity))
-        {
-            Sawmill.Warning("TryPurchase: ProductEntity is null or empty for sell listing");
+        var currencyStackType = store.CurrencyWhitelist.FirstOrDefault();
+        if (string.IsNullOrEmpty(currencyStackType))
             return false;
-        }
-        if (!RemoveItem(user, listing.ProductEntity))
-        {
-            Sawmill.Warning($"TryPurchase: User {user} does not have product {listing.ProductEntity} to sell");
-            return false;
-        }
-        var creditRes = handler.Credit(user, -price);
-        if (creditRes != CurrencyOpResult.Success)
-        {
-            Sawmill.Warning($"TryPurchase: Credit failed: {creditRes} for user={user}, amount={-price}");
-            return false;
-        }
 
-        Sawmill.Info($"TryPurchase: Success. User {user} sold {listing.ProductEntity} for {currencyId} ({-price})");
+        if (GetBalance(user, currencyStackType) < price)
+            return false;
+        if (!TryTakeCurrency(user, currencyStackType, price))
+            return false;
+
+        SpawnProduct(listing.ProductEntity, user);
+        Sawmill.Info($"TryBuy: BUY success. Spawning {listing.ProductEntity}");
         return true;
     }
 
-    public bool TryExchange(string listingId, EntityUid machine, NcStoreComponent? store, EntityUid user, StoreExchangeListingBoundUiMessage msg)
+    public bool TrySell(string listingId, EntityUid machine, NcStoreComponent? store, EntityUid user)
     {
-        Sawmill.Info($"TryExchange: listingId={listingId}, user={user}, type={msg.ExchangeType}");
         if (store == null || store.Listings.Count == 0)
-        {
-            Sawmill.Warning("TryExchange: Store is null or has no listings");
             return false;
-        }
 
-        var listing = store.Listings.FirstOrDefault(x => x.Id == listingId);
+        var listing = store.Listings.FirstOrDefault(x => x.Id == listingId && x.Mode == StoreMode.Sell);
         if (listing == null)
-        {
-            Sawmill.Warning($"TryExchange: Listing {listingId} not found");
             return false;
-        }
 
-        var coords = _transform.ToMapCoordinates(_ents.GetComponent<TransformComponent>(machine).Coordinates);
+        var price = Math.Abs((int)listing.Cost.First().Value);
+        var currencyStackType = store.CurrencyWhitelist.FirstOrDefault();
+        if (string.IsNullOrEmpty(currencyStackType))
+            return false;
 
-        switch (msg.ExchangeType)
-        {
-            case StoreExchangeType.CurrencyToCurrency:
-                if (string.IsNullOrEmpty(msg.FromCurrencyId) || string.IsNullOrEmpty(msg.ToCurrencyId))
-                {
-                    Sawmill.Warning("TryExchange: CurrencyToCurrency: missing currency IDs");
-                    return false;
-                }
-                var result = _exchange.Exchange(user, msg.FromCurrencyId, msg.ToCurrencyId, msg.Amount, msg.ExchangeRate);
-                Sawmill.Info($"TryExchange: CurrencyToCurrency result={result}");
-                return result == CurrencyOpResult.Success;
+        if (!RemoveItemByProto(user, listing.ProductEntity))
+            return false;
 
-            case StoreExchangeType.ItemToCurrency:
-                if (string.IsNullOrEmpty(msg.ItemProtoId) || string.IsNullOrEmpty(msg.ToCurrencyId))
-                {
-                    Sawmill.Warning("TryExchange: ItemToCurrency: missing item protoId or currencyId");
-                    return false;
-                }
-                if (!RemoveItem(user, msg.ItemProtoId))
-                {
-                    Sawmill.Warning($"TryExchange: ItemToCurrency: user {user} does not have item {msg.ItemProtoId}");
-                    return false;
-                }
-                if (!CurrencyRegistry.TryGet(msg.ToCurrencyId, out var handlerItemCur) || handlerItemCur == null)
-                {
-                    Sawmill.Warning($"TryExchange: ItemToCurrency: handler not found for {msg.ToCurrencyId}");
-                    return false;
-                }
-                var creditRes = handlerItemCur.Credit(user, msg.Amount);
-                Sawmill.Info($"TryExchange: ItemToCurrency: creditRes={creditRes}");
-                return creditRes == CurrencyOpResult.Success;
-
-            case StoreExchangeType.CurrencyToItem:
-                if (string.IsNullOrEmpty(msg.FromCurrencyId) || string.IsNullOrEmpty(msg.ItemProtoId))
-                {
-                    Sawmill.Warning("TryExchange: CurrencyToItem: missing currencyId or item protoId");
-                    return false;
-                }
-                if (!CurrencyRegistry.TryGet(msg.FromCurrencyId, out var handlerCurItem) || handlerCurItem == null)
-                {
-                    Sawmill.Warning($"TryExchange: CurrencyToItem: handler not found for {msg.FromCurrencyId}");
-                    return false;
-                }
-                if (!handlerCurItem.CanAfford(user, msg.Amount))
-                {
-                    Sawmill.Warning($"TryExchange: CurrencyToItem: user {user} cannot afford {msg.Amount} {msg.FromCurrencyId}");
-                    return false;
-                }
-                var debitRes = handlerCurItem.Debit(user, msg.Amount);
-                if (debitRes != CurrencyOpResult.Success)
-                {
-                    Sawmill.Warning($"TryExchange: CurrencyToItem: debit failed: {debitRes}");
-                    return false;
-                }
-                Sawmill.Info($"TryExchange: CurrencyToItem: spawning product {msg.ItemProtoId} at {coords}");
-                SpawnProduct(listing.ProductEntity, user);
-                return true;
-
-            case StoreExchangeType.ItemToItem:
-                if (string.IsNullOrEmpty(msg.ItemProtoId) || string.IsNullOrEmpty(msg.ToItemProtoId))
-                {
-                    Sawmill.Warning("TryExchange: ItemToItem: missing item protoId(s)");
-                    return false;
-                }
-                if (!RemoveItem(user, msg.ItemProtoId))
-                {
-                    Sawmill.Warning($"TryExchange: ItemToItem: user {user} does not have item {msg.ItemProtoId}");
-                    return false;
-                }
-                Sawmill.Info($"TryExchange: ItemToItem: spawning product {msg.ToItemProtoId} at {coords}");
-                SpawnProduct(listing.ProductEntity, user);
-                return true;
-
-            default:
-                Sawmill.Warning($"TryExchange: Unknown exchange type {msg.ExchangeType}");
-                return false;
-        }
+        GiveCurrency(user, currencyStackType, price);
+        Sawmill.Info($"TrySell: SELL success. User {user} sold {listing.ProductEntity} for {currencyStackType} ({price})");
+        return true;
     }
 
-    private bool RemoveItem(EntityUid user, string protoId)
-    {
-        Sawmill.Debug($"RemoveItem: user={user}, protoId={protoId}");
-        foreach (var item in CurrencyHelpers.EnumerateDeepItemsUnique(user, _ents))
-        {
-            var meta = _ents.GetComponent<MetaDataComponent>(item);
-            Sawmill.Info($"[RemoveItem] user={user}, item={item}, protoId={meta.EntityPrototype?.ID}, wanted={protoId}");
 
-            // Только для нестакуемых
-            if (meta.EntityPrototype?.ID == protoId)
-            {
-                _ents.DeleteEntity(item);
-                Sawmill.Info($"[RemoveItem] Deleted item {item} (protoId={protoId}) from user {user}");
-                return true;
-            }
-        }
-        Sawmill.Warning($"[RemoveItem] User {user} does not have item with protoId={protoId}");
+    public bool TryExchange(string listingId, EntityUid machine, NcStoreComponent? store, EntityUid user, StoreExchangeListingBoundUiMessage msg)
+    {
+        // Оставь этот метод пустым или реализуй аналогично TryPurchase, если нужна поддержка обмена
         return false;
     }
 
+    // --- 2. Глубокий обход всех предметов игрока ---
+    private IEnumerable<EntityUid> EnumerateDeepItemsUnique(EntityUid owner)
+    {
+        var visited = new HashSet<EntityUid>();
 
+        void Enqueue(EntityUid uid, Queue<EntityUid> queue)
+        {
+            if (visited.Add(uid))
+                queue.Enqueue(uid);
+        }
+
+        var queue = new Queue<EntityUid>();
+
+        // Инвентарь
+        if (_ents.TryGetComponent(owner, out InventoryComponent? inventory))
+        {
+            var slotEnum = new InventorySystem.InventorySlotEnumerator(inventory);
+            while (slotEnum.NextItem(out var item))
+                Enqueue(item, queue);
+        }
+
+        // ItemSlots
+        if (_ents.TryGetComponent(owner, out ItemSlotsComponent? itemSlots))
+        {
+            foreach (var slot in itemSlots.Slots.Values)
+                if (slot.HasItem && slot.Item.HasValue)
+                    Enqueue(slot.Item.Value, queue);
+        }
+
+        // Руки
+        if (_ents.TryGetComponent(owner, out HandsComponent? hands))
+        {
+            foreach (var hand in hands.Hands.Values)
+                if (hand.HeldEntity.HasValue)
+                    Enqueue(hand.HeldEntity.Value, queue);
+        }
+
+        // Контейнеры верхнего уровня
+        if (_ents.TryGetComponent(owner, out ContainerManagerComponent? cmcRoot))
+        {
+            foreach (var container in cmcRoot.Containers.Values)
+            {
+                foreach (var entity in container.ContainedEntities)
+                    Enqueue(entity, queue);
+            }
+        }
+
+        // Рекурсивно дочерние контейнеры
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+            yield return current;
+
+            if (_ents.TryGetComponent(current, out ContainerManagerComponent? cmc))
+            {
+                foreach (var container in cmc.Containers.Values)
+                {
+                    foreach (var child in container.ContainedEntities)
+                        Enqueue(child, queue);
+                }
+            }
+        }
+    }
+
+    // --- 3. Списание currencyProtoId (стака) ---
+    private bool TryTakeCurrency(EntityUid user, string stackType, int amount)
+    {
+        foreach (var entity in EnumerateDeepItemsUnique(user))
+        {
+            if (_ents.TryGetComponent(entity, out StackComponent? stack)
+                && stack.StackTypeId == stackType)
+            {
+                var toRemove = Math.Min(stack.Count, amount);
+                _ents.System<SharedStackSystem>().SetCount(entity, stack.Count - toRemove, stack);
+                amount -= toRemove;
+                if (amount <= 0)
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    private void GiveCurrency(EntityUid user, string stackType, int amount)
+    {
+        if (amount <= 0)
+            return;
+
+        foreach (var ent in EnumerateDeepItemsUnique(user))
+        {
+            if (_ents.TryGetComponent(ent, out StackComponent? stack) &&
+                stack.StackTypeId == stackType)
+            {
+                stack.Unlimited = true;
+                _stacks.SetCount(ent, stack.Count + amount, stack);
+                return;
+            }
+        }
+
+        if (!_protos.TryIndex<StackPrototype>(stackType, out var proto))
+            return;
+
+        var coords  = _ents.GetComponent<TransformComponent>(user).Coordinates;
+        var spawned = _ents.SpawnEntity(proto.Spawn, coords);
+
+        if (_ents.TryGetComponent(spawned, out StackComponent? newStack))
+        {
+            newStack.Unlimited = true;
+            _stacks.SetCount(spawned, amount, newStack);
+        }
+
+        if (_ents.TryGetComponent(user, out HandsComponent? hands))
+            EntitySystem.Get<SharedHandsSystem>()
+                .TryPickupAnyHand(user, spawned, checkActionBlocker: false);
+    }
+
+
+    private bool RemoveItemByProto(EntityUid user, string protoId)
+    {
+        foreach (var entity in EnumerateDeepItemsUnique(user))
+        {
+            var meta = _ents.GetComponent<MetaDataComponent>(entity);
+            if (meta.EntityPrototype?.ID == protoId)
+            {
+                if (_ents.TryGetComponent(entity, out StackComponent? stack) && stack.Count > 1)
+                {
+                    _stacks.SetCount(entity, stack.Count - 1, stack);
+                }
+                else
+                {
+                    _ents.DeleteEntity(entity);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
 
 
     private void SpawnProduct(string protoId, EntityUid user)
     {
         var userXform = _ents.GetComponent<TransformComponent>(user);
         var coords = userXform.Coordinates;
-
-        Sawmill.Info($"SpawnProduct: Spawning {protoId} for user {user} at {coords}");
         var spawned = _ents.SpawnEntity(protoId, coords);
 
-        // Пытаемся вложить в руки
         if (_ents.TryGetComponent(user, out HandsComponent? hands))
         {
             var handsSys = EntitySystem.Get<SharedHandsSystem>();
-            if (!handsSys.TryPickupAnyHand(user, spawned, checkActionBlocker: false))
-            {
-                Sawmill.Warning($"SpawnProduct: No free hand for {user}, spawned {protoId} at their feet.");
-                // Если не удалось вложить — предмет остаётся на координатах игрока
-            }
-            else
-            {
-                Sawmill.Info($"SpawnProduct: Spawned {protoId} placed in hand of {user}");
-            }
-        }
-        else
-        {
-            Sawmill.Warning($"SpawnProduct: User {user} has no hands! Spawning {protoId} at their feet.");
+            handsSys.TryPickupAnyHand(user, spawned, checkActionBlocker: false);
         }
     }
-
 }

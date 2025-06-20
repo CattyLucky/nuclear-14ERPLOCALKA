@@ -6,7 +6,7 @@ using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.XAML;
 using System.Linq;
 using Content.Client.Message;
-
+using Robust.Shared.Prototypes;
 
 namespace Content.Client._NC.Trade
 {
@@ -14,14 +14,17 @@ namespace Content.Client._NC.Trade
     public sealed partial class NcStoreMenu : FancyWindow
     {
         public event Action<string>? OnSearchChanged;
-        public event Action<string>? OnCategoryChanged;
+        public event Action<string>? OnBuyCategoryChanged;
+        public event Action<string>? OnSellCategoryChanged;
         public event Action<StoreListingData>? OnBuyPressed;
         public event Action<StoreListingData>? OnSellPressed;
         public event Action<StoreListingData>? OnExchangePressed;
 
         private List<StoreListingData> _currentListings = new();
-        private List<string> _categories = new();
-        public string CurrentCategory = string.Empty;
+        private List<string> _buyCategories = new();
+        private List<string> _sellCategories = new();
+        public string CurrentBuyCategory = string.Empty;
+        public string CurrentSellCategory = string.Empty;
         public string SearchText = string.Empty;
 
         public NcStoreMenu()
@@ -29,7 +32,6 @@ namespace Content.Client._NC.Trade
             RobustXamlLoader.Load(this);
             IoCManager.InjectDependencies(this);
 
-            // Поиск
             SearchBar.OnTextChanged += _ =>
             {
                 SearchText = SearchBar.Text.Trim();
@@ -38,87 +40,145 @@ namespace Content.Client._NC.Trade
             };
         }
 
-        /// <summary>
-        /// Основной метод обновления магазина — вызывай при каждом новом состоянии!
-        /// </summary>
         public void Populate(List<StoreListingData> listings)
         {
             _currentListings = listings;
 
-            // Категории из всех товаров
-            _categories = listings.SelectMany(l => l.Categories).Distinct().OrderBy(x => x).ToList();
-            PopulateCategoryButtons();
+            _buyCategories = listings
+                .Where(l => l.Mode == StoreMode.Buy)
+                .Select(l => l.Category)
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList();
 
-            // Категория по умолчанию
-            if (string.IsNullOrEmpty(CurrentCategory) && _categories.Count > 0)
-                CurrentCategory = _categories[0];
+            _sellCategories = listings
+                .Where(l => l.Mode == StoreMode.Sell)
+                .Select(l => l.Category)
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList();
+
+            PopulateBuyCategoryButtons();
+            PopulateSellCategoryButtons();
+
+            if (string.IsNullOrEmpty(CurrentBuyCategory) && _buyCategories.Count > 0)
+                CurrentBuyCategory = _buyCategories[0];
+            if (string.IsNullOrEmpty(CurrentSellCategory) && _sellCategories.Count > 0)
+                CurrentSellCategory = _sellCategories[0];
 
             UpdateListings();
         }
 
-        /// <summary>
-        /// Рендерит кнопки категорий
-        /// </summary>
-        private void PopulateCategoryButtons()
+        private void PopulateBuyCategoryButtons()
         {
-            CategoryListContainer.Children.Clear();
-            foreach (var cat in _categories)
+            BuyCategoryListContainer.Children.Clear();
+            foreach (var cat in _buyCategories)
             {
                 var button = new Button
                 {
                     Text = cat,
                     ToggleMode = true,
-                    Pressed = (cat == CurrentCategory),
+                    Pressed = (cat == CurrentBuyCategory),
                     HorizontalExpand = true,
-                    StyleClasses = { "OpenBoth", }
                 };
                 button.OnPressed += _ =>
                 {
-                    CurrentCategory = cat;
-                    OnCategoryChanged?.Invoke(cat);
+                    CurrentBuyCategory = cat;
+                    OnBuyCategoryChanged?.Invoke(cat);
                     UpdateListings();
                 };
-                CategoryListContainer.AddChild(button);
+                BuyCategoryListContainer.AddChild(button);
             }
         }
 
-        /// <summary>
-        /// Главная фильтрация и отображение товаров
-        /// </summary>
+        private void PopulateSellCategoryButtons()
+        {
+            SellCategoryListContainer.Children.Clear();
+            foreach (var cat in _sellCategories)
+            {
+                var button = new Button
+                {
+                    Text = cat,
+                    ToggleMode = true,
+                    Pressed = (cat == CurrentSellCategory),
+                    HorizontalExpand = true,
+                };
+                button.OnPressed += _ =>
+                {
+                    CurrentSellCategory = cat;
+                    OnSellCategoryChanged?.Invoke(cat);
+                    UpdateListings();
+                };
+                SellCategoryListContainer.AddChild(button);
+            }
+        }
+
         private void UpdateListings()
         {
-            StoreListingsContainer.Children.Clear();
-            var search = SearchText.ToLowerInvariant();
-
-            // Категория фильтра
-            var filtered = _currentListings
-                .Where(l => l.Categories.Contains(CurrentCategory))
-                .Where(l => string.IsNullOrWhiteSpace(search) ||
-                    l.Name.ToLowerInvariant().Contains(search) ||
-                    (l.Description).ToLowerInvariant().Contains(search))
+            // Покупка
+            BuyListingsContainer.Children.Clear();
+            var buyFiltered = _currentListings
+                .Where(l => l.Mode == StoreMode.Buy && l.Category.Contains(CurrentBuyCategory))
+                .Where(l => FilterBySearch(l.ProductEntity, SearchText))
                 .ToList();
 
-            if (filtered.Count == 0)
+            if (buyFiltered.Count == 0)
             {
-                StoreListingsContainer.AddChild(new Label { Text = "Нет товаров.", });
-                return;
+                BuyListingsContainer.AddChild(new Label { Text = "Нет товаров." });
+            }
+            else
+            {
+                var spriteSystem = IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SpriteSystem>();
+                foreach (var entry in buyFiltered)
+                {
+                    var control = new NcStoreListingControl(entry, spriteSystem);
+                    control.OnBuyPressed += () => OnBuyPressed?.Invoke(entry);
+                    BuyListingsContainer.AddChild(control);
+                }
             }
 
-            var spriteSystem = IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SpriteSystem>();
+            // Продажа
+            SellListingsContainer.Children.Clear();
+            var sellFiltered = _currentListings
+                .Where(l => l.Mode == StoreMode.Sell && l.Category.Contains(CurrentSellCategory))
+                .Where(l => FilterBySearch(l.ProductEntity, SearchText))
+                .ToList();
 
-            foreach (var entry in filtered)
+            if (sellFiltered.Count == 0)
             {
-                var control = new NcStoreListingControl(entry, spriteSystem);
-                control.OnBuyPressed += () => OnBuyPressed?.Invoke(entry);
-                control.OnSellPressed += () => OnSellPressed?.Invoke(entry);
-                control.OnExchangePressed += () => OnExchangePressed?.Invoke(entry);
-                StoreListingsContainer.AddChild(control);
+                SellListingsContainer.AddChild(new Label { Text = "Нет товаров." });
+            }
+            else
+            {
+                var spriteSystem = IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SpriteSystem>();
+                foreach (var entry in sellFiltered)
+                {
+                    var control = new NcStoreListingControl(entry, spriteSystem);
+                    control.OnSellPressed += () => OnSellPressed?.Invoke(entry);
+                    SellListingsContainer.AddChild(control);
+                }
             }
         }
 
         /// <summary>
-        /// Для обновления баланса и баланса в футере
+        /// Поиск по имени и описанию, вытянутым из прототипа по protoId.
         /// </summary>
+        private static bool FilterBySearch(string protoId, string searchText)
+        {
+            if (string.IsNullOrWhiteSpace(searchText))
+                return true;
+
+            var protoManager = IoCManager.Resolve<IPrototypeManager>();
+            if (!protoManager.TryIndex<EntityPrototype>(protoId, out var proto))
+                return false;
+
+            var name = proto.Name ?? string.Empty;
+            var desc = proto.Description ?? string.Empty;
+            searchText = searchText.ToLowerInvariant();
+            return name.ToLowerInvariant().Contains(searchText) ||
+                   desc.ToLowerInvariant().Contains(searchText);
+        }
+
         public void SetBalance(int balance)
         {
             BalanceLabel.Text = balance.ToString();
@@ -126,4 +186,3 @@ namespace Content.Client._NC.Trade
         }
     }
 }
-

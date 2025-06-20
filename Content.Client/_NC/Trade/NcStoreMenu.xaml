@@ -3,23 +3,36 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="clr-namespace:Content.Client._NC.Trade"
     xmlns:controls1="clr-namespace:Content.Client.UserInterface.Controls"
-    Title="Магазин">
+    Title="Магазин"
+    MinWidth="1100" MinHeight="720">
 
     <BoxContainer Orientation="Vertical">
         <BoxContainer Orientation="Horizontal" Margin="4 4 4 0">
             <RichTextLabel Name="BalanceInfo" HorizontalExpand="True"/>
             <LineEdit Name="SearchBar" Margin="0 0 8 0" HorizontalExpand="True" Access="Public"/>
         </BoxContainer>
-        <PanelContainer VerticalExpand="True" Margin="4 4 4 4">
-            <BoxContainer Orientation="Horizontal" VerticalExpand="True">
-                <PanelContainer VerticalExpand="True" MinWidth="110" Margin="0 0 6 0">
-                    <BoxContainer Name="CategoryListContainer" Orientation="Vertical"/>
+            <TabContainer VerticalExpand="True" Margin="4 4 4 4">
+                <PanelContainer Name="Покупка" VerticalExpand="True">
+                    <BoxContainer Orientation="Horizontal" VerticalExpand="True">
+                        <PanelContainer VerticalExpand="True" MinWidth="140" Margin="0 0 8 0">
+                            <BoxContainer Name="BuyCategoryListContainer" Orientation="Vertical"/>
+                        </PanelContainer>
+                        <ScrollContainer Name="BuyListingsScroll" VerticalExpand="True" HorizontalExpand="True">
+                            <BoxContainer Name="BuyListingsContainer" Orientation="Vertical" VerticalExpand="True"/>
+                        </ScrollContainer>
+                    </BoxContainer>
                 </PanelContainer>
-                <ScrollContainer Name="StoreListingsScroll" VerticalExpand="True" HorizontalExpand="True">
-                    <BoxContainer Name="StoreListingsContainer" Orientation="Vertical" VerticalExpand="True"/>
-                </ScrollContainer>
-            </BoxContainer>
-        </PanelContainer>
+                <PanelContainer Name="Продажа" VerticalExpand="True" Visible="false">
+                    <BoxContainer Orientation="Horizontal" VerticalExpand="True">
+                        <PanelContainer VerticalExpand="True" MinWidth="140" Margin="0 0 8 0">
+                            <BoxContainer Name="SellCategoryListContainer" Orientation="Vertical"/>
+                        </PanelContainer>
+                        <ScrollContainer Name="SellListingsScroll" VerticalExpand="True" HorizontalExpand="True">
+                            <BoxContainer Name="SellListingsContainer" Orientation="Vertical" VerticalExpand="True"/>
+                        </ScrollContainer>
+                    </BoxContainer>
+                </PanelContainer>
+            </TabContainer>
         <BoxContainer Orientation="Vertical">
             <PanelContainer StyleClasses="LowDivider" />
             <BoxContainer Orientation="Horizontal" Margin="10 2 5 0" VerticalAlignment="Bottom">
@@ -30,3 +43,4 @@
         </BoxContainer>
     </BoxContainer>
 </controls1:FancyWindow>
+

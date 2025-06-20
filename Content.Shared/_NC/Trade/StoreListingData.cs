@@ -1,41 +1,35 @@
 using Robust.Shared.Serialization;
-using Robust.Shared.Utility;
 
 namespace Content.Shared._NC.Trade;
 
-[Serializable, NetSerializable,]
+[Serializable, NetSerializable]
 public sealed class StoreListingData
 {
     public string Id;
-    public string Name;
-    public string Description;
-    public SpriteSpecifier Icon;
-    public int Cost;
-    public List<string> Categories;
-    public StoreMode Mode;
+    public string ProductEntity; // protoId
+    public int Price;
+    public string Category;
     public string CurrencyId;
+    public StoreMode Mode;
 
     public StoreListingData(
         string id,
-        string name,
-        string description,
-        SpriteSpecifier icon,
-        int cost,
-        List<string> categories,
-        StoreMode mode,
-        string currencyId
+        string productEntity,
+        int price,
+        string category,
+        string currencyId,
+        StoreMode mode
     )
     {
         Id = id;
-        Name = name;
-        Description = description;
-        Icon = icon;
-        Cost = cost;
-        Categories = categories;
-        Mode = mode;
+        ProductEntity = productEntity;
+        Price = price;
+        Category = category;
         CurrencyId = currencyId;
+        Mode = mode;
     }
 }
+
 
 public enum StoreMode
 {

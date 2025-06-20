@@ -19,4 +19,6 @@ public sealed partial class NcStoreComponent : Component
 
     [DataField("listings")]
     public List<StoreListingPrototype> Listings = new();
+
+    public EntityUid? CurrentUser = null;
 }

@@ -15,20 +15,14 @@ namespace Content.Shared._NC.Trade
         [DataField("productEntity")]
         public string ProductEntity = string.Empty;
 
-        [DataField("name")]
-        public string? Name;
-
-        [DataField("description")]
-        public string? Description;
-
-        [DataField("icon")]
-        public SpriteSpecifier? Icon;
-
         [DataField("cost")]
         public Dictionary<string, float> Cost = new();
 
         [DataField("categories")]
         public List<string> Categories = new();
+
+        [DataField("mode")]
+        public StoreMode Mode = StoreMode.Buy;
 
         [DataField("conditions")]
         public List<ListingConditionPrototype> Conditions = new();

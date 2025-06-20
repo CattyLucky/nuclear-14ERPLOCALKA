@@ -1,3 +1,4 @@
+using System.Linq;
 using Content.Shared._NC.Trade;
 using Robust.Server.GameObjects;
 
@@ -17,6 +18,7 @@ public sealed class NcStoreSystem : EntitySystem
     public override void Initialize()
     {
         SubscribeLocalEvent<NcStoreComponent, StoreBuyListingBoundUiMessage>(OnBuyRequest);
+        SubscribeLocalEvent<NcStoreComponent, StoreSellListingBoundUiMessage>(OnSellRequest);
         SubscribeLocalEvent<NcStoreComponent, StoreExchangeListingBoundUiMessage>(OnExchangeRequest);
     }
 
@@ -27,7 +29,21 @@ public sealed class NcStoreSystem : EntitySystem
             return;
 
         var logic = _sysMan.GetEntitySystem<NcStoreLogicSystem>();
-        var result = logic.TryPurchase(msg.ListingId, uid, comp, actor);
+        // Найти listing по id
+        var listing = comp.Listings.FirstOrDefault(x => x.Id == msg.ListingId);
+        if (listing == null)
+        {
+            Sawmill.Warning($"[Buy] Listing not found: {msg.ListingId}");
+            return;
+        }
+
+        bool result = false;
+        if (listing.Mode == StoreMode.Buy)
+            result = logic.TryBuy(listing.Id, uid, comp, actor);
+        else if (listing.Mode == StoreMode.Sell)
+            result = logic.TrySell(listing.Id, uid, comp, actor);
+        else
+            Sawmill.Warning($"[Buy] Unsupported listing mode: {listing.Mode}");
 
         if (result)
         {
@@ -36,6 +52,31 @@ public sealed class NcStoreSystem : EntitySystem
         }
         else
             Sawmill.Warning($"[Buy] Покупка не удалась: listingId={msg.ListingId}, user={ToPrettyString(actor)}.");
+    }
+
+    private void OnSellRequest(EntityUid uid, NcStoreComponent comp, StoreSellListingBoundUiMessage msg)
+    {
+        var actor = msg.Actor;
+        if (!ValidateUiAccess(uid, actor))
+            return;
+
+        var logic = _sysMan.GetEntitySystem<NcStoreLogicSystem>();
+        var listing = comp.Listings.FirstOrDefault(x => x.Id == msg.ListingId && x.Mode == StoreMode.Sell);
+        if (listing == null)
+        {
+            Sawmill.Warning($"[Sell] Listing not found: {msg.ListingId}");
+            return;
+        }
+
+        bool result = logic.TrySell(listing.Id, uid, comp, actor);
+
+        if (result)
+        {
+            Sawmill.Info($"[Sell] {ToPrettyString(actor)} продал '{msg.ListingId}' у {ToPrettyString(uid)}.");
+            _sysMan.GetEntitySystem<StoreStructuredSystem>().UpdateUiState(uid, comp, actor);
+        }
+        else
+            Sawmill.Warning($"[Sell] Продажа не удалась: listingId={msg.ListingId}, user={ToPrettyString(actor)}.");
     }
 
     private void OnExchangeRequest(EntityUid uid, NcStoreComponent comp, StoreExchangeListingBoundUiMessage msg)

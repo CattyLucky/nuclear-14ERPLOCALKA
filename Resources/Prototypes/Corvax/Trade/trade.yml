@@ -50,40 +50,27 @@
 
 - type: storePresetStructured
   id: nuka_store
-  currency: CapCoin
+  currency: Caps
   catalog:
     Buy:
       Оружие:
-      - proto: N14WeaponSMG10mmPipe
-        name: "ПП 10мм (труба)"
-        description: "Самодельный пистолет-пулемёт под патрон 10мм."
+      - proto: N14WeaponSMG12mmAdvancedChinese
         price: 75
-      - proto: N14WeaponLMGAutoRifle
-        name: "Автоматическая винтовка"
-        description: "Старое, но надёжное автоматическое оружие."
+      - proto: N14WeaponPistol9mmChinese
         price: 150
-      Винтовки:
-      - proto: N14WeaponLMGAutoRifle
-        name: "Автоматическая винтовка"
-        description: "Старое, но надёжное автоматическое оружие."
-        price: 150
+      Броня:
+      - proto: N14ClothingOuterCombatArmorMK2
+        price: 125
+      - proto: N14ClothingOuterCombatArmorCaptainBOS
+        price: 125
     Sell:
       Оружие:
-      - proto: N14WeaponSMG10mmPipe
-        name: "ПП 10мм (труба)"
-        description: "Можно сдать по низкой цене."
-        price: -30
-      Винтовки:
-      - proto: N14WeaponLMGAutoRifle
-        name: "Автоматическая винтовка"
-        description: "Вторичный рынок для старого оружия."
-        price: -60
-
-
-- type: nccurrency
-  id: CapCoin
-  name: Капкойн
-  icon:
-    sprite: _Nuclear14/Objects/Misc/currency.rsi
-    state: caps3
-  entity: N14CurrencyCap
+      - proto: N14WeaponPistol12mm
+        price: 30
+      - proto: N14TrainingSword
+        price: 60
+      Хлам:
+      - proto: N14MaterialBrahminHide
+        price: 30
+      - proto: N14MaterialNightstalkerPelt
+        price: 60
