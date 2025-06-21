@@ -14,27 +14,22 @@ public sealed class NcStoreLogicSystem : EntitySystem
 {
     [Dependency] private readonly IEntityManager _ents = default!;
     [Dependency] private readonly IPrototypeManager _protos = default!;
-    [Dependency] private readonly SharedTransformSystem _transform = default!;
     [Dependency] private readonly SharedStackSystem _stacks = default!;
+    [Dependency] private readonly SharedHandsSystem _hands = default!;
     private static readonly ISawmill Sawmill = Logger.GetSawmill("ncstore-logic");
 
     public int GetBalance(EntityUid user, string stackType)
     {
         Sawmill.Debug($"GetBalance: user={user}, stackType={stackType}");
-        int total = 0;
+        var total = 0;
         foreach (var entity in EnumerateDeepItemsUnique(user))
-        {
             if (_ents.TryGetComponent(entity, out StackComponent? stack)
                 && stack.StackTypeId == stackType)
-            {
                 total += stack.Count;
-            }
-        }
+
         Sawmill.Debug($"GetBalance: user={user}, stackType={stackType}, balance={total}");
         return total;
     }
-
-
     public bool TryBuy(string listingId, EntityUid machine, NcStoreComponent? store, EntityUid user)
     {
         if (store == null || store.Listings.Count == 0)
@@ -82,10 +77,7 @@ public sealed class NcStoreLogicSystem : EntitySystem
     }
 
 
-    public bool TryExchange(string listingId, EntityUid machine, NcStoreComponent? store, EntityUid user, StoreExchangeListingBoundUiMessage msg)
-    {
-        return false;
-    }
+    public bool TryExchange(string listingId, EntityUid machine, NcStoreComponent? store, EntityUid user, StoreExchangeListingBoundUiMessage msg) => false;
 
     private IEnumerable<EntityUid> EnumerateDeepItemsUnique(EntityUid owner)
     {
@@ -148,7 +140,6 @@ public sealed class NcStoreLogicSystem : EntitySystem
     private bool TryTakeCurrency(EntityUid user, string stackType, int amount)
     {
         foreach (var entity in EnumerateDeepItemsUnique(user))
-        {
             if (_ents.TryGetComponent(entity, out StackComponent? stack)
                 && stack.StackTypeId == stackType)
             {
@@ -158,7 +149,7 @@ public sealed class NcStoreLogicSystem : EntitySystem
                 if (amount <= 0)
                     return true;
             }
-        }
+
         return false;
     }
 
@@ -168,7 +159,6 @@ public sealed class NcStoreLogicSystem : EntitySystem
             return;
 
         foreach (var ent in EnumerateDeepItemsUnique(user))
-        {
             if (_ents.TryGetComponent(ent, out StackComponent? stack) &&
                 stack.StackTypeId == stackType)
             {
@@ -176,7 +166,6 @@ public sealed class NcStoreLogicSystem : EntitySystem
                 _stacks.SetCount(ent, stack.Count + amount, stack);
                 return;
             }
-        }
 
         if (!_protos.TryIndex<StackPrototype>(stackType, out var proto))
             return;
@@ -190,9 +179,8 @@ public sealed class NcStoreLogicSystem : EntitySystem
             _stacks.SetCount(spawned, amount, newStack);
         }
 
-        if (_ents.TryGetComponent(user, out HandsComponent? hands))
-            EntitySystem.Get<SharedHandsSystem>()
-                .TryPickupAnyHand(user, spawned, checkActionBlocker: false);
+        if (_ents.HasComponent<HandsComponent>(user))
+            _hands.TryPickupAnyHand(user, spawned, checkActionBlocker: false);
     }
 
 
@@ -204,13 +192,9 @@ public sealed class NcStoreLogicSystem : EntitySystem
             if (meta.EntityPrototype?.ID == protoId)
             {
                 if (_ents.TryGetComponent(entity, out StackComponent? stack) && stack.Count > 1)
-                {
                     _stacks.SetCount(entity, stack.Count - 1, stack);
-                }
                 else
-                {
                     _ents.DeleteEntity(entity);
-                }
                 return true;
             }
         }
@@ -224,10 +208,7 @@ public sealed class NcStoreLogicSystem : EntitySystem
         var coords = userXform.Coordinates;
         var spawned = _ents.SpawnEntity(protoId, coords);
 
-        if (_ents.TryGetComponent(user, out HandsComponent? hands))
-        {
-            var handsSys = EntitySystem.Get<SharedHandsSystem>();
-            handsSys.TryPickupAnyHand(user, spawned, checkActionBlocker: false);
-        }
+        if (_ents.HasComponent<HandsComponent>(user))
+            _hands.TryPickupAnyHand(user, spawned, checkActionBlocker: false);
     }
 }

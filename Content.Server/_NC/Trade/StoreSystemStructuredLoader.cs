@@ -4,13 +4,19 @@ using Robust.Shared.Random;
 
 namespace Content.Server._NC.Trade;
 
+/// <summary>
+/// Система загрузки структурированного магазина из пресета (YAML-прототипа).
+/// Наполняет <see cref="NcStoreComponent"/> при инициализации карты (<see cref="MapInitEvent"/>).
+/// Сервер **НЕ** подставляет имя, описание и иконку — только protoId, цену и категории.
+/// </summary>
 public sealed class StoreSystemStructuredLoader : EntitySystem
 {
     [Dependency] private readonly IPrototypeManager _prototypes = default!;
-    [Dependency] private readonly IRobustRandom _random = default!;
+    [Dependency] private readonly IRobustRandom _random         = default!;
     private static readonly ISawmill Sawmill = Logger.GetSawmill("ncstore-loader");
 
     public override void Initialize() =>
+        // Важно: используем MapInitEvent — гарантированная полная инициализация сущности.
         SubscribeLocalEvent<NcStoreComponent, MapInitEvent>(OnMapInit);
 
     private void OnMapInit(EntityUid uid, NcStoreComponent comp, MapInitEvent args)
@@ -29,42 +35,52 @@ public sealed class StoreSystemStructuredLoader : EntitySystem
 
         Sawmill.Info($"[NcStore] Загружается пресет '{comp.Preset}' для {ToPrettyString(uid)}");
 
+        // ─────────── Сброс старых данных ───────────
         comp.CurrencyWhitelist.Clear();
-        comp.CurrencyWhitelist.Add(preset.Currency);
-
         comp.Categories.Clear();
         comp.Listings.Clear();
 
-        int count = 0;
+        // ─────────── Валюта ───────────
+        comp.CurrencyWhitelist.Add(preset.Currency);
+
+        // ─────────── Каталог ───────────
+        var count = 0;
+
         foreach (var (modeStr, categories) in preset.Catalog)
         {
             var mode = modeStr switch
             {
-                "Buy" => StoreMode.Buy,
+                "Buy"  => StoreMode.Buy,
                 "Sell" => StoreMode.Sell,
-                _ => StoreMode.Buy
+                _      => StoreMode.Buy
             };
 
             foreach (var (category, entries) in categories)
             {
+                // Добавляем категорию в компонент, если ещё не добавлена
+                if (!comp.Categories.Contains(category))
+                    comp.Categories.Add(category);
+
                 foreach (var entry in entries)
                 {
                     var id = $"{mode}_{category}_{entry.Proto}_{_random.Next(100000)}";
 
                     var listing = new StoreListingPrototype
                     {
-                        Id = id,
+                        Id            = id,
                         ProductEntity = entry.Proto,
-                        Cost = new() { [preset.Currency] = entry.Price },
-                        Categories = [category],
-                        Conditions = new(),
-                        Mode = mode
+                        Cost          = new() { [preset.Currency] = entry.Price, },
+                        Categories    = [category,],
+                        Conditions    = new(),
+                        Mode          = mode
                     };
 
                     comp.Listings.Add(listing);
+                    count++; // увеличиваем счётчик товаров
                 }
             }
         }
+
         Sawmill.Info($"[NcStore] Всего товаров: {count} для {ToPrettyString(uid)}");
     }
 }

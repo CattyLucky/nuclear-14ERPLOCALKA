@@ -1,71 +1,137 @@
 using System.Linq;
+using Content.Server.Popups;
 using Content.Shared._NC.Trade;
 using Content.Shared.Interaction;
 using Robust.Server.GameObjects;
+using Robust.Shared.Timing;
 
 namespace Content.Server._NC.Trade;
 
+/// <summary>
+/// Управляет взаимодействием игрока с торговым автоматом:
+///   • ограничивает одного пользователя;
+///   • обновляет UI;
+///   • закрывает UI, если игрок ушёл далеко или закрыл окно.
+/// </summary>
 public sealed class StoreStructuredSystem : EntitySystem
 {
-    [Dependency] private readonly UserInterfaceSystem _ui = default!;
+    [Dependency] private readonly UserInterfaceSystem _ui  = default!;
     [Dependency] private readonly NcStoreLogicSystem _logic = default!;
+    [Dependency] private readonly PopupSystem _popups       = default!;
+    [Dependency] private readonly IGameTiming _timing       = default!;
+    [Dependency] private readonly SharedTransformSystem _xform = default!;
+
+    private const float AutoCloseDistance = 3f;   // метры
+    private const float CheckInterval     = 0.5f; // сек
+
+    private TimeSpan _nextCheck = TimeSpan.Zero;
 
     public override void Initialize()
     {
         SubscribeLocalEvent<NcStoreComponent, ActivateInWorldEvent>(OnActivate);
+        SubscribeLocalEvent<NcStoreComponent, BoundUIClosedEvent>(OnUiClosed);
         SubscribeLocalEvent<NcStoreComponent, RequestUiRefreshMessage>(OnUiRefreshRequest);
     }
 
-    private void OnActivate(EntityUid uid, NcStoreComponent comp, ActivateInWorldEvent args)
+    /* ───────────────────────── Активация ───────────────────────── */
+
+    private void OnActivate(EntityUid uid, NcStoreComponent comp, ActivateInWorldEvent ev)
     {
+        // Если автомат уже кем-то занят ↴
+        if (comp.CurrentUser != null && comp.CurrentUser != ev.User)
+        {
+            _popups.PopupEntity(Loc.GetString("ncstore-busy"), uid, ev.User);
+            return;
+        }
+
         if (!_ui.HasUi(uid, StoreUiKey.Key))
             return;
 
-        if (!_ui.IsUiOpen(uid, StoreUiKey.Key, args.User))
-            _ui.OpenUi(uid, StoreUiKey.Key, args.User);
-        comp.CurrentUser = args.User;
-        UpdateUiState(uid, comp, args.User);
+        comp.CurrentUser = ev.User; // фиксируем владельца сессии
+
+        if (!_ui.IsUiOpen(uid, StoreUiKey.Key, ev.User))
+            _ui.OpenUi(uid, StoreUiKey.Key, ev.User);
+
+        UpdateUiState(uid, comp, ev.User);
     }
-    private void OnUiRefreshRequest(EntityUid uid,
-        NcStoreComponent comp,
-        RequestUiRefreshMessage msg)
+
+    /* ───────────────────────── UI события ───────────────────────── */
+
+    private void OnUiClosed(EntityUid uid, NcStoreComponent comp, BoundUIClosedEvent ev)
+    {
+        if (ev.UiKey.Equals(StoreUiKey.Key))
+            comp.CurrentUser = null; // освобождаем автомат
+    }
+
+    private void OnUiRefreshRequest(EntityUid uid, NcStoreComponent comp, RequestUiRefreshMessage msg)
     {
         if (comp.CurrentUser != null)
             UpdateUiState(uid, comp, comp.CurrentUser.Value);
     }
 
+    /* ───────────────────────── Логика UI ───────────────────────── */
+
     public void UpdateUiState(EntityUid uid, NcStoreComponent comp, EntityUid user)
     {
         var currencyProtoId = comp.CurrencyWhitelist.FirstOrDefault() ?? string.Empty;
+        var balance         = string.IsNullOrEmpty(currencyProtoId) ? 0 : _logic.GetBalance(user, currencyProtoId);
 
-        var balance = 0;
-        if (!string.IsNullOrEmpty(currencyProtoId))
-            balance = _logic.GetBalance(user, currencyProtoId);
-
-        var data = comp.Listings
-            .Where(x => !string.IsNullOrEmpty(x.ProductEntity))
-            .Select(x =>
+        var listings = comp.Listings
+            .Where(l => !string.IsNullOrEmpty(l.ProductEntity))
+            .Select(l =>
             {
-                var cost = x.Cost.Count > 0 ? x.Cost.First().Value : 0f;
+                var price = l.Cost.Count > 0 ? l.Cost.First().Value : 0f;
 
-                var categories = (x.Categories?.Any() ?? false)
-                    ? x.Categories.ToList()
-                    : new List<string> { "Разное" };
-
-                var category = categories.FirstOrDefault() ?? "Разное";
-                var mode = x.Mode;
+                // Categories не null: проверяем Count
+                var cat = l.Categories.Count > 0 ? l.Categories[0] : "Разное";
 
                 return new StoreListingData(
-                    x.Id,
-                    x.ProductEntity, // protoId
-                    (int)cost,
-                    category,
+                    l.Id,
+                    l.ProductEntity,
+                    (int)price,
+                    cat,
                     currencyProtoId,
-                    mode
-                );
+                    l.Mode);
             })
             .ToList();
 
-        _ui.SetUiState(uid, StoreUiKey.Key, new StoreUiState(balance, data));
+        _ui.SetUiState(uid, StoreUiKey.Key, new StoreUiState(balance, listings));
+    }
+
+
+    /* ───────────────────────── Tick для автозакрытия ───────────────────────── */
+
+
+
+    public override void Update(float frameTime)
+    {
+        base.Update(frameTime);
+
+        if (_timing.CurTime < _nextCheck)
+            return;
+
+        _nextCheck = _timing.CurTime + TimeSpan.FromSeconds(CheckInterval);
+
+        var iter = EntityQueryEnumerator<NcStoreComponent, TransformComponent>();
+        while (iter.MoveNext(out var uid, out var store, out var xform))
+        {
+            // автомат свободен
+            if (store.CurrentUser is not { } userUid)
+                continue;
+
+            // игрок пропал / вышел
+            if (!EntityManager.TryGetComponent(userUid, out TransformComponent? userXform))
+            {
+                store.CurrentUser = null;
+                continue;
+            }
+
+            // дистанция > AutoCloseDistance → закрываем
+            if (!_xform.InRange(xform.Coordinates, userXform.Coordinates, AutoCloseDistance))
+            {
+                _ui.CloseUi(uid, StoreUiKey.Key, userUid);
+                store.CurrentUser = null;
+            }
+        }
     }
 }

@@ -34,7 +34,7 @@ public sealed class NcStoreSystem : EntitySystem
             return;
         }
 
-        bool result = false;
+        var result = false;
         if (listing.Mode == StoreMode.Buy)
             result = logic.TryBuy(listing.Id, uid, comp, actor);
         else if (listing.Mode == StoreMode.Sell)
@@ -65,7 +65,7 @@ public sealed class NcStoreSystem : EntitySystem
             return;
         }
 
-        bool result = logic.TrySell(listing.Id, uid, comp, actor);
+        var result = logic.TrySell(listing.Id, uid, comp, actor);
 
         if (result)
         {
@@ -96,6 +96,17 @@ public sealed class NcStoreSystem : EntitySystem
 
     private bool ValidateUiAccess(EntityUid storeUid, EntityUid user)
     {
+        if (_entMan.TryGetComponent(storeUid, out NcStoreComponent? storeComp))
+        {
+            if (storeComp.CurrentUser == null || storeComp.CurrentUser != user)
+            {
+                Sawmill.Warning(
+                    $"[UI] Store busy: {ToPrettyString(storeUid)}. " +
+                    $"Current={ToPrettyString(storeComp.CurrentUser)},  " +
+                    $"Attempt={ToPrettyString(user)}");
+                return false;
+            }
+        }
         if (!_entMan.EntityExists(user))
             return false;
         if (!_entMan.TryGetComponent(storeUid, out TransformComponent? storeXform) ||
