@@ -18,7 +18,6 @@ public sealed class NcStoreLogicSystem : EntitySystem
     [Dependency] private readonly SharedStackSystem _stacks = default!;
     private static readonly ISawmill Sawmill = Logger.GetSawmill("ncstore-logic");
 
-    // --- 1. Баланс по currencyProtoId (теперь это protoId стака, например, "CapCoin") ---
     public int GetBalance(EntityUid user, string stackType)
     {
         Sawmill.Debug($"GetBalance: user={user}, stackType={stackType}");
@@ -85,11 +84,9 @@ public sealed class NcStoreLogicSystem : EntitySystem
 
     public bool TryExchange(string listingId, EntityUid machine, NcStoreComponent? store, EntityUid user, StoreExchangeListingBoundUiMessage msg)
     {
-        // Оставь этот метод пустым или реализуй аналогично TryPurchase, если нужна поддержка обмена
         return false;
     }
 
-    // --- 2. Глубокий обход всех предметов игрока ---
     private IEnumerable<EntityUid> EnumerateDeepItemsUnique(EntityUid owner)
     {
         var visited = new HashSet<EntityUid>();
@@ -102,7 +99,6 @@ public sealed class NcStoreLogicSystem : EntitySystem
 
         var queue = new Queue<EntityUid>();
 
-        // Инвентарь
         if (_ents.TryGetComponent(owner, out InventoryComponent? inventory))
         {
             var slotEnum = new InventorySystem.InventorySlotEnumerator(inventory);
@@ -110,7 +106,6 @@ public sealed class NcStoreLogicSystem : EntitySystem
                 Enqueue(item, queue);
         }
 
-        // ItemSlots
         if (_ents.TryGetComponent(owner, out ItemSlotsComponent? itemSlots))
         {
             foreach (var slot in itemSlots.Slots.Values)
@@ -118,7 +113,6 @@ public sealed class NcStoreLogicSystem : EntitySystem
                     Enqueue(slot.Item.Value, queue);
         }
 
-        // Руки
         if (_ents.TryGetComponent(owner, out HandsComponent? hands))
         {
             foreach (var hand in hands.Hands.Values)
@@ -126,7 +120,6 @@ public sealed class NcStoreLogicSystem : EntitySystem
                     Enqueue(hand.HeldEntity.Value, queue);
         }
 
-        // Контейнеры верхнего уровня
         if (_ents.TryGetComponent(owner, out ContainerManagerComponent? cmcRoot))
         {
             foreach (var container in cmcRoot.Containers.Values)
@@ -136,7 +129,6 @@ public sealed class NcStoreLogicSystem : EntitySystem
             }
         }
 
-        // Рекурсивно дочерние контейнеры
         while (queue.Count > 0)
         {
             var current = queue.Dequeue();
@@ -153,7 +145,6 @@ public sealed class NcStoreLogicSystem : EntitySystem
         }
     }
 
-    // --- 3. Списание currencyProtoId (стака) ---
     private bool TryTakeCurrency(EntityUid user, string stackType, int amount)
     {
         foreach (var entity in EnumerateDeepItemsUnique(user))

@@ -36,15 +36,12 @@ public sealed class StoreStructuredSystem : EntitySystem
 
     public void UpdateUiState(EntityUid uid, NcStoreComponent comp, EntityUid user)
     {
-        // Валюта магазина (первая из списка)
         var currencyProtoId = comp.CurrencyWhitelist.FirstOrDefault() ?? string.Empty;
 
-        // Получаем баланс пользователя — теперь через логику магазина (работает через стаки/предметы)
         var balance = 0;
         if (!string.IsNullOrEmpty(currencyProtoId))
             balance = _logic.GetBalance(user, currencyProtoId);
 
-        // Формируем список товаров для UI (только protoId, цена, категория и валюта)
         var data = comp.Listings
             .Where(x => !string.IsNullOrEmpty(x.ProductEntity))
             .Select(x =>

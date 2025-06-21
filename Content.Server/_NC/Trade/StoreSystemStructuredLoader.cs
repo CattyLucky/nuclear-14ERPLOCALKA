@@ -4,11 +4,6 @@ using Robust.Shared.Random;
 
 namespace Content.Server._NC.Trade;
 
-/// <summary>
-/// Система загрузки структурированного магазина из пресета (YAML-прототипа).
-/// Наполняет компонент NcStoreComponent при инициализации карты (MapInitEvent).
-/// Сервер НЕ подставляет ни имя, ни описание, ни иконку! Только protoId, цену и категории.
-/// </summary>
 public sealed class StoreSystemStructuredLoader : EntitySystem
 {
     [Dependency] private readonly IPrototypeManager _prototypes = default!;
@@ -16,7 +11,6 @@ public sealed class StoreSystemStructuredLoader : EntitySystem
     private static readonly ISawmill Sawmill = Logger.GetSawmill("ncstore-loader");
 
     public override void Initialize() =>
-        // Важно: используем MapInitEvent — гарантированная полная инициализация!
         SubscribeLocalEvent<NcStoreComponent, MapInitEvent>(OnMapInit);
 
     private void OnMapInit(EntityUid uid, NcStoreComponent comp, MapInitEvent args)

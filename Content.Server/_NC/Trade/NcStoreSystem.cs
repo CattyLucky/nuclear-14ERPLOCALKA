@@ -4,9 +4,6 @@ using Robust.Server.GameObjects;
 
 namespace Content.Server._NC.Trade;
 
-/// <summary>
-/// Серверная система взаимодействия с магазином через Bound UI.
-/// </summary>
 public sealed class NcStoreSystem : EntitySystem
 {
     [Dependency] private readonly IEntityManager _entMan = default!;

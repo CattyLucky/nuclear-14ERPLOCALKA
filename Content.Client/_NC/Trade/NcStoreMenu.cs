@@ -34,7 +34,8 @@ public sealed partial class NcStoreMenu : FancyWindow
 
     private readonly SpriteSystem      _sprites;
     private readonly IPrototypeManager _proto;
-
+    private static readonly Color CatSelected = new(0xD9, 0xA4, 0x41); // яркое золото
+    private static readonly Color CatIdle     = new(0x7C, 0x66, 0x24); // тусклый золото
     /* ─────────── палитра Nano для категорий ─────────── */
     private const string CatIdleClass = ContainerButton.StyleClassButton;
     private static readonly string[] CatPalette =
@@ -77,7 +78,7 @@ public sealed partial class NcStoreMenu : FancyWindow
                                .Select(i => i.Category).Distinct().OrderBy(c => c));
 
         if (!_buyCats.Contains(_buyCat))  _buyCat  = string.Empty;
-        if (!_sellCats.Contains(_sellCat))_sellCat = string.Empty;
+        if (!_sellCats.Contains(_sellCat)) _sellCat = string.Empty;
 
         BuildCategoryButtons();
         RefreshListings();
@@ -92,45 +93,60 @@ public sealed partial class NcStoreMenu : FancyWindow
     /* ────────── категории ───────── */
     private void BuildCategoryButtons()
     {
-        MakeButtons(_buyCats,  BuyCategoryListContainer,  _buyCat,
-            cat => { _buyCat  = cat; OnBuyCategoryChanged?.Invoke(cat);  RefreshListings(); });
+        MakeButtons(_buyCats, BuyCategoryListContainer, _buyCat, cat =>
+        {
+            _buyCat = (cat == _buyCat) ? string.Empty : cat;
+            RefreshListings();
+        });
 
-        MakeButtons(_sellCats, SellCategoryListContainer, _sellCat,
-            cat => { _sellCat = cat; OnSellCategoryChanged?.Invoke(cat); RefreshListings(); });
+        MakeButtons(_sellCats, SellCategoryListContainer, _sellCat, cat =>
+        {
+            _sellCat = (cat == _sellCat) ? string.Empty : cat;
+            RefreshListings();
+        });
+    }
+
+    private static Color Brighten(Color c, float f)
+    {
+        return new Color(
+            MathF.Min(c.R * f, 1.0f),
+            MathF.Min(c.G * f, 1.0f),
+            MathF.Min(c.B * f, 1.0f),
+            c.A
+        );
     }
 
     private static void MakeButtons(IEnumerable<string> cats,
-                                    Control parent,
-                                    string current,
-                                    Action<string> onClick)
+        Control parent, string current, Action<string> onClick)
     {
         parent.Children.Clear();
 
-        var idx = 0;
         foreach (var c in cats)
         {
+            var selected = c == current;
             var btn = new Button
             {
-                Text             = c,
-                ToggleMode       = true,
-                Pressed          = c == current,
-                HorizontalExpand = true
+                Text               = c,
+                ToggleMode         = true,
+                HorizontalExpand   = true,
+                Pressed            = selected,
+                ModulateSelfOverride = selected ? CatSelected : CatIdle
             };
-
-            // раскрашиваем каждый пункт из палитры
-            var paletteClass = CatPalette[idx % CatPalette.Length];
-            btn.StyleClasses.Add(paletteClass);
-
-            idx++;
+            btn.OnMouseEntered += _ => btn.ModulateSelfOverride = Brighten(CatSelected, 1.2f);
+            btn.OnMouseExited  += _ => btn.ModulateSelfOverride = selected ? CatSelected : CatIdle;
 
             btn.OnPressed += _ => onClick(c);
             parent.AddChild(btn);
         }
     }
 
+
+
+
     /* ────────── лоты ───────── */
     private void RefreshListings()
     {
+        BuildCategoryButtons();
         FillPane(BuyListingsContainer,  StoreMode.Buy,  _buyCat,  d => OnBuyPressed?.Invoke(d));
         FillPane(SellListingsContainer, StoreMode.Sell, _sellCat, d => OnSellPressed?.Invoke(d));
     }

@@ -9,9 +9,10 @@ using Robust.Shared.Prototypes;
 namespace Content.Client._NC.Trade;
 
 /// <summary>
-/// Карточка лота магазина, Nano‑UI.
-/// Иконка 96 × 96 обрамлена «слотом»‑панелью,
-/// чтобы ясно видеть её границы.
+/// Карточка товара для NcStore.
+/// Разметка упрощена: текст (заголовок + описание) теперь рендерится одним RichTextLabel,
+/// поэтому никаких скрытых отступов или отрицательных margin больше не нужно.
+/// Структура строки: [ слот‑иконка | RichText | кнопка цены ].
 /// </summary>
 public sealed class NcStoreListingControl : PanelContainer
 {
@@ -19,104 +20,118 @@ public sealed class NcStoreListingControl : PanelContainer
     public event Action? OnSellPressed;
     public event Action? OnExchangePressed;
 
-    public NcStoreListingControl(StoreListingData d, SpriteSystem sprites)
+    private const int SlotPx  = 96;  // размер квадрата с иконкой
+    private const int Gap     = 4;   // зазор между рамкой слота и текстом
+    private const int PriceW  = 96;  // ширина кнопки цены
+    private const int PriceH  = 32;  // высота кнопки цены
+    private const int TextMax = 420; // макс. ширина текстового блока
+
+    public NcStoreListingControl(StoreListingData data, SpriteSystem sprites)
     {
-        IoCManager.InjectDependencies(this);
-
-        /* ───── фон карточки ───── */
+        // фон и разделитель
         StyleClasses.Add(StyleNano.StyleClassBackgroundBaseDark);
-        Margin = new Thickness(0, 0, 0, 4);
+        StyleClasses.Add(StyleNano.ClassLowDivider);
 
-        /* ───── горизонтальный контейнер ───── */
-        var pad = new BoxContainer
+        var row = new BoxContainer
         {
             Orientation        = BoxContainer.LayoutOrientation.Horizontal,
-            SeparationOverride = 2,   // почти вплотную к слоту
-            Margin             = new Thickness(4)
+            SeparationOverride = Gap,
+            Margin             = new Thickness(0)
         };
-        AddChild(pad);
+        AddChild(row);
 
-        /* ───── данные прототипа ───── */
-        var pm = IoCManager.Resolve<IPrototypeManager>();
-        pm.TryIndex<EntityPrototype>(d.ProductEntity, out var proto);
-        var name = proto?.Name ?? d.ProductEntity;
-        var desc = proto?.Description ?? string.Empty;
+        // ─── Слот‑иконка ───
+        if (MakeSlot(data, sprites) is { } slot)
+            row.AddChild(slot);
 
-        /* ───── иконка 96×96 + «слот»‑рамка ───── */
-        if (pm.TryIndex<EntityPrototype>(d.ProductEntity, out var p) &&
-            sprites.GetPrototypeIcon(p.ID).Default is { } tex)
-        {
-            var slot = new PanelContainer
-            {
-                StyleClasses = { StyleNano.StyleClassInventorySlotBackground },
-                MinSize      = new Vector2i(96, 96)
-            };
-            slot.AddChild(new TextureRect
-            {
-                Texture = tex,
-                Stretch = TextureRect.StretchMode.KeepAspectCentered,
-                Margin  = new Thickness(2) // небольшое поле внутри рамки
-            });
-            pad.AddChild(slot);
-        }
+        // ─── Текст (RichTextLabel) ───
+        row.AddChild(MakeRichText(data));
 
-        /* ───── вертикальный блок текста ───── */
-        var v = new BoxContainer
-        {
-            Orientation      = BoxContainer.LayoutOrientation.Vertical,
-            HorizontalExpand = true
-        };
-        pad.AddChild(v);
-
-        // Заголовок
-        v.AddChild(new Label
-        {
-            Text         = name,
-            StyleClasses = { StyleNano.StyleClassLabelHeading },
-            Margin       = new Thickness(0, 0, 0, 2)
-        });
-
-        // Описание (wrap под заголовком)
-        if (!string.IsNullOrWhiteSpace(desc))
-        {
-            v.AddChild(new RichTextLabel
-            {
-                Text         = $"[wrap=true]{desc}",
-                StyleClasses = { StyleNano.StyleClassLabelSubText },
-                MaxWidth     = 440
-            });
-        }
-
-        /* ───── кнопка цены ───── */
-        pad.AddChild(MakePriceButton(d));
+        // ─── Кнопка цены ───
+        row.AddChild(MakePriceButton(data));
     }
 
-    private Control MakePriceButton(StoreListingData d)
+    // ------------------------------------------------------------------
+    private Control? MakeSlot(StoreListingData data, SpriteSystem sprites)
     {
-        var priceClass = d.Mode switch
+        var pm = IoCManager.Resolve<IPrototypeManager>();
+        if (!pm.TryIndex<EntityPrototype>(data.ProductEntity, out var proto)) return null;
+        if (sprites.GetPrototypeIcon(proto.ID).Default is not { } tex)       return null;
+
+        var slot = new PanelContainer
         {
-            StoreMode.Buy  => StyleNano.StyleClassButtonColorGreen,
-            StoreMode.Sell => StyleNano.StyleClassButtonColorRed,
-            _              => ContainerButton.StyleClassButton
+            StyleClasses = { StyleNano.StyleClassInventorySlotBackground },
+            MinSize      = new Vector2i(SlotPx, SlotPx)
+        };
+        slot.AddChild(new TextureRect
+        {
+            Texture = tex,
+            Stretch = TextureRect.StretchMode.KeepAspectCentered,
+            Margin  = new Thickness(2)
+        });
+        return slot;
+    }
+
+    // ------------------------------------------------------------------
+    private Control MakeRichText(StoreListingData data)
+    {
+        var pm = IoCManager.Resolve<IPrototypeManager>();
+        pm.TryIndex<EntityPrototype>(data.ProductEntity, out var proto);
+        var name = (proto?.Name ?? data.ProductEntity).ToUpperInvariant();
+        var desc = proto?.Description ?? string.Empty;
+
+        var rtxt = new RichTextLabel
+        {
+            MaxWidth         = TextMax,
+            HorizontalExpand = true,
+            Margin           = new Thickness(0) // больше никаких отрицательных margin
+        };
+
+        // жёлтый, жирный заголовок + перенос строки + описание
+        rtxt.Text =
+            $"[wrap=true][color=#FFD84C][size=14][bold]{name}[/bold][/size][/color]\n{desc}";
+
+        return rtxt;
+    }
+
+    // ------------------------------------------------------------------
+    private Control MakePriceButton(StoreListingData data)
+    {
+        var color = data.Mode switch
+        {
+            StoreMode.Buy      => Color.FromHex("#4CAF50"),
+            StoreMode.Sell     => Color.FromHex("#D9534F"),
+            StoreMode.Exchange => Color.FromHex("#388EE5"),
+            _                  => Color.Gray
         };
 
         var btn = new Button
         {
-            Text             = d.Price.ToString(),
-            MinSize          = new Vector2i(80, 24),
-            HorizontalExpand = false,
+            Text         = data.Price.ToString(),
+            MinSize      = new Vector2i(PriceW, PriceH),
+            MaxSize      = new Vector2i(PriceW, PriceH),
+            ClipText     = true,
+            Margin       = new Thickness(8, 0, 0, 0),
+            StyleClasses = { StyleNano.StyleClassButtonBig }
         };
-        btn.StyleClasses.Add(priceClass);
+
+        btn.StyleBoxOverride = new StyleBoxFlat
+        {
+            BackgroundColor = color,
+            BorderColor     = Color.Black,
+            BorderThickness = new Thickness(1)
+        };
 
         btn.OnPressed += _ =>
         {
-            switch (d.Mode)
+            switch (data.Mode)
             {
                 case StoreMode.Buy:      OnBuyPressed?.Invoke();      break;
                 case StoreMode.Sell:     OnSellPressed?.Invoke();     break;
                 case StoreMode.Exchange: OnExchangePressed?.Invoke(); break;
             }
         };
+
         return btn;
     }
 }

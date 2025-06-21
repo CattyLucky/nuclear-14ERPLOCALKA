@@ -14,19 +14,11 @@
         <BoxContainer Orientation="Horizontal" Margin="4 4 4 0" StyleClasses="PanelBackgroundBaseDark">
             <!-- Эмодзи монетки -->
             <Label Text="💰" Margin="0 0 4 0"/>
-
-            <!-- Баланс -->
             <RichTextLabel Name="BalanceInfo"
                            StyleClasses="LabelHeading"
                            HorizontalExpand="False"/>
-
-            <!-- Spacer -->
             <Control HorizontalExpand="True"/>
-
-            <!-- Эмодзи лупы -->
             <Label Text="🔍" Margin="0 0 4 0"/>
-
-            <!-- Поле поиска -->
             <LineEdit Name="SearchBar"
                       HorizontalExpand="False"
                       MinWidth="250"
@@ -48,7 +40,8 @@
                     <PanelContainer MinWidth="1" StyleClasses="HighDivider"/>
                     <!-- Лоты -->
                     <ScrollContainer Name="BuyListingsScroll" VerticalExpand="True" HorizontalExpand="True">
-                        <BoxContainer Name="BuyListingsContainer" Orientation="Vertical" VerticalExpand="True"/>
+                        <!-- ВАЖНО: убран VerticalExpand! -->
+                        <BoxContainer Name="BuyListingsContainer" Orientation="Vertical"/>
                     </ScrollContainer>
                 </BoxContainer>
             </PanelContainer>
@@ -66,7 +59,8 @@
                     <PanelContainer MinWidth="1" StyleClasses="HighDivider"/>
                     <!-- Лоты -->
                     <ScrollContainer Name="SellListingsScroll" VerticalExpand="True" HorizontalExpand="True">
-                        <BoxContainer Name="SellListingsContainer" Orientation="Vertical" VerticalExpand="True"/>
+                        <!-- ВАЖНО: убран VerticalExpand! -->
+                        <BoxContainer Name="SellListingsContainer" Orientation="Vertical"/>
                     </ScrollContainer>
                 </BoxContainer>
             </PanelContainer>
