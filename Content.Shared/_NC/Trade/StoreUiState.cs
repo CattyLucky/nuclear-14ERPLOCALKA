@@ -1,12 +1,14 @@
 using Robust.Shared.Serialization;
 
+
 namespace Content.Shared._NC.Trade;
 
+
 /// <summary>
-/// Состояние UI магазина для клиента.
+///     Состояние UI магазина для клиента.
 /// </summary>
 [Serializable, NetSerializable,]
-public sealed partial class StoreUiState : BoundUserInterfaceState
+public sealed class StoreUiState : BoundUserInterfaceState
 {
     public int Balance;
     public List<StoreListingData> Listings;

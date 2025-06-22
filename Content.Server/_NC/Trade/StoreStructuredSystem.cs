@@ -5,24 +5,25 @@ using Content.Shared.Interaction;
 using Robust.Server.GameObjects;
 using Robust.Shared.Timing;
 
+
 namespace Content.Server._NC.Trade;
 
+
 /// <summary>
-/// Управляет взаимодействием игрока с торговым автоматом:
-///   • ограничивает одного пользователя;
-///   • обновляет UI;
-///   • закрывает UI, если игрок ушёл далеко или закрыл окно.
+///     Управляет взаимодействием игрока с торговым автоматом:
+///     • ограничивает одного пользователя;
+///     • обновляет UI;
+///     • закрывает UI, если игрок ушёл далеко или закрыл окно.
 /// </summary>
 public sealed class StoreStructuredSystem : EntitySystem
 {
-    [Dependency] private readonly UserInterfaceSystem _ui  = default!;
+    private const float AutoCloseDistance = 3f; // метры
+    private const float CheckInterval = 0.5f; // сек
     [Dependency] private readonly NcStoreLogicSystem _logic = default!;
-    [Dependency] private readonly PopupSystem _popups       = default!;
-    [Dependency] private readonly IGameTiming _timing       = default!;
+    [Dependency] private readonly PopupSystem _popups = default!;
+    [Dependency] private readonly IGameTiming _timing = default!;
+    [Dependency] private readonly UserInterfaceSystem _ui = default!;
     [Dependency] private readonly SharedTransformSystem _xform = default!;
-
-    private const float AutoCloseDistance = 3f;   // метры
-    private const float CheckInterval     = 0.5f; // сек
 
     private TimeSpan _nextCheck = TimeSpan.Zero;
 
@@ -74,7 +75,7 @@ public sealed class StoreStructuredSystem : EntitySystem
     public void UpdateUiState(EntityUid uid, NcStoreComponent comp, EntityUid user)
     {
         var currencyProtoId = comp.CurrencyWhitelist.FirstOrDefault() ?? string.Empty;
-        var balance         = string.IsNullOrEmpty(currencyProtoId) ? 0 : _logic.GetBalance(user, currencyProtoId);
+        var balance = string.IsNullOrEmpty(currencyProtoId) ? 0 : _logic.GetBalance(user, currencyProtoId);
 
         var listings = comp.Listings
             .Where(l => !string.IsNullOrEmpty(l.ProductEntity))
@@ -88,7 +89,7 @@ public sealed class StoreStructuredSystem : EntitySystem
                 return new StoreListingData(
                     l.Id,
                     l.ProductEntity,
-                    (int)price,
+                    (int) price,
                     cat,
                     currencyProtoId,
                     l.Mode);
@@ -97,10 +98,6 @@ public sealed class StoreStructuredSystem : EntitySystem
 
         _ui.SetUiState(uid, StoreUiKey.Key, new StoreUiState(balance, listings));
     }
-
-
-    /* ───────────────────────── Tick для автозакрытия ───────────────────────── */
-
 
 
     public override void Update(float frameTime)

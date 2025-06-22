@@ -3,23 +3,24 @@ using Robust.Client.Player;
 using Robust.Client.UserInterface;
 using Robust.Shared.Timing;
 
+
 namespace Content.Client._NC.Trade;
+
 
 public sealed class NcStoreStructuredBoundUi(EntityUid owner, Enum uiKey)
     : BoundUserInterface(owner, uiKey)
 {
-    private NcStoreMenu? _menu;
+    private static readonly TimeSpan RefreshInterval = TimeSpan.FromSeconds(5);
     private readonly List<StoreListingData> _cachedListings = new();
-
-    private readonly IGameTiming _timing   = IoCManager.Resolve<IGameTiming>();
     private readonly IPlayerManager _player = IoCManager.Resolve<IPlayerManager>();
 
-    private static readonly TimeSpan RefreshInterval = TimeSpan.FromSeconds(5);
+    private readonly IGameTiming _timing = IoCManager.Resolve<IGameTiming>();
+    private NcStoreMenu? _menu;
     private TimeSpan _nextRefreshTime = TimeSpan.Zero;
+    private EntityUid? Actor => _player.LocalSession?.AttachedEntity;
 
     /* ───────────────────────────── helpers ───────────────────────────── */
     private static uint Net(EntityUid uid) => unchecked((uint) uid.Id);
-    private EntityUid?  Actor => _player.LocalSession?.AttachedEntity;
 
     private void RequestRefresh()
     {
@@ -31,7 +32,6 @@ public sealed class NcStoreStructuredBoundUi(EntityUid owner, Enum uiKey)
         SendMessage(new RequestUiRefreshMessage());
     }
 
-    /* ───────────────────────────── UI lifecycle ──────────────────────── */
     protected override void Open()
     {
         base.Open();
@@ -39,7 +39,7 @@ public sealed class NcStoreStructuredBoundUi(EntityUid owner, Enum uiKey)
         _menu = this.CreateWindow<NcStoreMenu>();
         _menu.Title = EntMan.GetComponent<MetaDataComponent>(Owner).EntityName;
 
-        _menu.OnBuyPressed  += OnBuy;
+        _menu.OnBuyPressed += OnBuy;
         _menu.OnSellPressed += OnSell;
         _menu.OnExchangePressed += OnExchange;
 
@@ -84,16 +84,17 @@ public sealed class NcStoreStructuredBoundUi(EntityUid owner, Enum uiKey)
         if (Actor is not { } actor)
             return;
 
-        SendMessage(new StoreExchangeListingBoundUiMessage(
-            StoreExchangeType.CurrencyToItem,
-            data.CurrencyId,
-            null,
-            data.Price,
-            null,
-            data.Id,
-            1.0f,
-            Net(actor),
-            data.Id));
+        SendMessage(
+            new StoreExchangeListingBoundUiMessage(
+                StoreExchangeType.CurrencyToItem,
+                data.CurrencyId,
+                null,
+                data.Price,
+                null,
+                data.Id,
+                1.0f,
+                Net(actor),
+                data.Id));
         RequestRefresh();
     }
 
@@ -102,9 +103,9 @@ public sealed class NcStoreStructuredBoundUi(EntityUid owner, Enum uiKey)
     {
         if (_menu != null)
         {
-            _menu.OnBuyPressed       -= OnBuy;
-            _menu.OnSellPressed      -= OnSell;
-            _menu.OnExchangePressed  -= OnExchange;
+            _menu.OnBuyPressed -= OnBuy;
+            _menu.OnSellPressed -= OnSell;
+            _menu.OnExchangePressed -= OnExchange;
             _menu.Orphan();
             _menu = null;
         }

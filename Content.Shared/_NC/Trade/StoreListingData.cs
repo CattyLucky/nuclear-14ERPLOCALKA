@@ -1,16 +1,18 @@
 using Robust.Shared.Serialization;
 
+
 namespace Content.Shared._NC.Trade;
 
-[Serializable, NetSerializable]
+
+[Serializable, NetSerializable,]
 public sealed class StoreListingData
 {
-    public string Id;
-    public string ProductEntity; // protoId
-    public int Price;
     public string Category;
     public string CurrencyId;
+    public string Id;
     public StoreMode Mode;
+    public int Price;
+    public string ProductEntity; // protoId
 
     public StoreListingData(
         string id,
@@ -29,7 +31,6 @@ public sealed class StoreListingData
         Mode = mode;
     }
 }
-
 
 public enum StoreMode
 {

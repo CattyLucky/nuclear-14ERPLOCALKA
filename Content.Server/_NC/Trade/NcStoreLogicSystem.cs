@@ -1,22 +1,24 @@
 using System.Linq;
 using Content.Shared._NC.Trade;
-using Robust.Shared.Prototypes;
+using Content.Shared.Containers.ItemSlots;
 using Content.Shared.Hands.Components;
 using Content.Shared.Hands.EntitySystems;
-using Content.Shared.Stacks;
 using Content.Shared.Inventory;
-using Content.Shared.Containers.ItemSlots;
+using Content.Shared.Stacks;
 using Robust.Shared.Containers;
+using Robust.Shared.Prototypes;
+
 
 namespace Content.Server._NC.Trade;
 
+
 public sealed class NcStoreLogicSystem : EntitySystem
 {
+    private static readonly ISawmill Sawmill = Logger.GetSawmill("ncstore-logic");
     [Dependency] private readonly IEntityManager _ents = default!;
+    [Dependency] private readonly SharedHandsSystem _hands = default!;
     [Dependency] private readonly IPrototypeManager _protos = default!;
     [Dependency] private readonly SharedStackSystem _stacks = default!;
-    [Dependency] private readonly SharedHandsSystem _hands = default!;
-    private static readonly ISawmill Sawmill = Logger.GetSawmill("ncstore-logic");
 
     public int GetBalance(EntityUid user, string stackType)
     {
@@ -30,6 +32,7 @@ public sealed class NcStoreLogicSystem : EntitySystem
         Sawmill.Debug($"GetBalance: user={user}, stackType={stackType}, balance={total}");
         return total;
     }
+
     public bool TryBuy(string listingId, EntityUid machine, NcStoreComponent? store, EntityUid user)
     {
         if (store == null || store.Listings.Count == 0)
@@ -39,7 +42,7 @@ public sealed class NcStoreLogicSystem : EntitySystem
         if (listing == null)
             return false;
 
-        var price = (int)listing.Cost.First().Value;
+        var price = (int) listing.Cost.First().Value;
         var currencyStackType = store.CurrencyWhitelist.FirstOrDefault();
         if (string.IsNullOrEmpty(currencyStackType))
             return false;
@@ -63,7 +66,7 @@ public sealed class NcStoreLogicSystem : EntitySystem
         if (listing == null)
             return false;
 
-        var price = Math.Abs((int)listing.Cost.First().Value);
+        var price = Math.Abs((int) listing.Cost.First().Value);
         var currencyStackType = store.CurrencyWhitelist.FirstOrDefault();
         if (string.IsNullOrEmpty(currencyStackType))
             return false;
@@ -72,12 +75,20 @@ public sealed class NcStoreLogicSystem : EntitySystem
             return false;
 
         GiveCurrency(user, currencyStackType, price);
-        Sawmill.Info($"TrySell: SELL success. User {user} sold {listing.ProductEntity} for {currencyStackType} ({price})");
+        Sawmill.Info(
+            $"TrySell: SELL success. User {user} sold {listing.ProductEntity} for {currencyStackType} ({price})");
         return true;
     }
 
 
-    public bool TryExchange(string listingId, EntityUid machine, NcStoreComponent? store, EntityUid user, StoreExchangeListingBoundUiMessage msg) => false;
+    public bool TryExchange(
+        string listingId,
+        EntityUid machine,
+        NcStoreComponent? store,
+        EntityUid user,
+        StoreExchangeListingBoundUiMessage msg
+    ) =>
+        false;
 
     private IEnumerable<EntityUid> EnumerateDeepItemsUnique(EntityUid owner)
     {
@@ -170,7 +181,7 @@ public sealed class NcStoreLogicSystem : EntitySystem
         if (!_protos.TryIndex<StackPrototype>(stackType, out var proto))
             return;
 
-        var coords  = _ents.GetComponent<TransformComponent>(user).Coordinates;
+        var coords = _ents.GetComponent<TransformComponent>(user).Coordinates;
         var spawned = _ents.SpawnEntity(proto.Spawn, coords);
 
         if (_ents.TryGetComponent(spawned, out StackComponent? newStack))
@@ -180,7 +191,7 @@ public sealed class NcStoreLogicSystem : EntitySystem
         }
 
         if (_ents.HasComponent<HandsComponent>(user))
-            _hands.TryPickupAnyHand(user, spawned, checkActionBlocker: false);
+            _hands.TryPickupAnyHand(user, spawned, false);
     }
 
 
@@ -198,6 +209,7 @@ public sealed class NcStoreLogicSystem : EntitySystem
                 return true;
             }
         }
+
         return false;
     }
 
@@ -209,6 +221,6 @@ public sealed class NcStoreLogicSystem : EntitySystem
         var spawned = _ents.SpawnEntity(protoId, coords);
 
         if (_ents.HasComponent<HandsComponent>(user))
-            _hands.TryPickupAnyHand(user, spawned, checkActionBlocker: false);
+            _hands.TryPickupAnyHand(user, spawned, false);
     }
 }

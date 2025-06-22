@@ -1,32 +1,30 @@
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
-using Robust.Shared.Utility;
-using System.Collections.Generic;
 
-namespace Content.Shared._NC.Trade
+
+namespace Content.Shared._NC.Trade;
+
+
+[Serializable, NetSerializable,, Prototype("ncStoreListing"),]
+public sealed class StoreListingPrototype : IPrototype
 {
-    [Serializable, NetSerializable]
-    [Prototype("ncStoreListing")]
-    public sealed class StoreListingPrototype : IPrototype
-    {
-        [IdDataField]
-        public string Id = string.Empty; // Только этот атрибут!
+    [DataField("categories")]
+    public List<string> Categories = new();
 
-        [DataField("productEntity")]
-        public string ProductEntity = string.Empty;
+    [DataField("conditions")]
+    public List<ListingConditionPrototype> Conditions = new();
 
-        [DataField("cost")]
-        public Dictionary<string, float> Cost = new();
+    [DataField("cost")]
+    public Dictionary<string, float> Cost = new();
 
-        [DataField("categories")]
-        public List<string> Categories = new();
+    [IdDataField]
+    public string Id = string.Empty; // Только этот атрибут!
 
-        [DataField("mode")]
-        public StoreMode Mode = StoreMode.Buy;
+    [DataField("mode")]
+    public StoreMode Mode = StoreMode.Buy;
 
-        [DataField("conditions")]
-        public List<ListingConditionPrototype> Conditions = new();
+    [DataField("productEntity")]
+    public string ProductEntity = string.Empty;
 
-        public string ID => Id;
-    }
+    public string ID => Id;
 }

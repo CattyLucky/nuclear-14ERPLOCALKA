@@ -10,40 +10,37 @@ using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.XAML;
 using Robust.Shared.Prototypes;
 
+
 namespace Content.Client._NC.Trade;
+
 
 [GenerateTypedNameReferences]
 public sealed partial class NcStoreMenu : FancyWindow
 {
-    /* ─────────── события ─────────── */
-    public event Action<string>?           OnSearchChanged;
-    public event Action<string>?           OnBuyCategoryChanged;
-    public event Action<string>?           OnSellCategoryChanged;
-    public event Action<StoreListingData>? OnBuyPressed;
-    public event Action<StoreListingData>? OnSellPressed;
-    public event Action<StoreListingData>? OnExchangePressed;
-
-    /* ─────────── состояние ────────── */
-    private readonly List<StoreListingData> _items = new();
-    private readonly List<string> _buyCats  = new();
-    private readonly List<string> _sellCats = new();
-
-    private string _buyCat  = string.Empty;
-    private string _sellCat = string.Empty;
-    private string _search  = string.Empty;
-
-    private readonly SpriteSystem      _sprites;
-    private readonly IPrototypeManager _proto;
-    private static readonly Color CatSelected = new(0xD9, 0xA4, 0x41); // яркое золото
-    private static readonly Color CatIdle     = new(0x7C, 0x66, 0x24); // тусклый золото
     /* ─────────── палитра Nano для категорий ─────────── */
     private const string CatIdleClass = ContainerButton.StyleClassButton;
+    private static readonly Color CatSelected = new(0xD9, 0xA4, 0x41); // яркое золото
+    private static readonly Color CatIdle = new(0x7C, 0x66, 0x24); // тусклый золото
+
     private static readonly string[] CatPalette =
     {
         StyleNano.StyleClassButtonColorGreen, // первый оттенок
-        StyleNano.StyleClassButtonColorRed,   // второй оттенок
-        ContainerButton.StyleClassButton      // классический серый
+        StyleNano.StyleClassButtonColorRed, // второй оттенок
+        ContainerButton.StyleClassButton // классический серый
     };
+
+    private readonly List<string> _buyCats = new();
+
+    /* ─────────── состояние ────────── */
+    private readonly List<StoreListingData> _items = new();
+    private readonly IPrototypeManager _proto;
+    private readonly List<string> _sellCats = new();
+
+    private readonly SpriteSystem _sprites;
+
+    private string _buyCat = string.Empty;
+    private string _search = string.Empty;
+    private string _sellCat = string.Empty;
 
     public NcStoreMenu()
     {
@@ -51,7 +48,7 @@ public sealed partial class NcStoreMenu : FancyWindow
         IoCManager.InjectDependencies(this);
 
         _sprites = IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SpriteSystem>();
-        _proto   = IoCManager.Resolve<IPrototypeManager>();
+        _proto = IoCManager.Resolve<IPrototypeManager>();
 
         /* поиск */
         SearchBar.OnTextChanged += _ =>
@@ -65,20 +62,37 @@ public sealed partial class NcStoreMenu : FancyWindow
         BalanceLabel.StyleClasses.Add(StyleNano.StyleClassLabelHeadingBigger);
     }
 
+    /* ─────────── события ─────────── */
+    public event Action<string>? OnSearchChanged;
+    public event Action<string>? OnBuyCategoryChanged;
+    public event Action<string>? OnSellCategoryChanged;
+    public event Action<StoreListingData>? OnBuyPressed;
+    public event Action<StoreListingData>? OnSellPressed;
+    public event Action<StoreListingData>? OnExchangePressed;
+
     /* ────────── API ────────── */
     public void Populate(List<StoreListingData> list)
     {
         _items.Clear();
         _items.AddRange(list);
 
-        _buyCats .Clear(); _sellCats.Clear();
-        _buyCats .AddRange(list.Where(i => i.Mode == StoreMode.Buy )
-                               .Select(i => i.Category).Distinct().OrderBy(c => c));
-        _sellCats.AddRange(list.Where(i => i.Mode == StoreMode.Sell)
-                               .Select(i => i.Category).Distinct().OrderBy(c => c));
+        _buyCats.Clear();
+        _sellCats.Clear();
+        _buyCats.AddRange(
+            list.Where(i => i.Mode == StoreMode.Buy)
+                .Select(i => i.Category)
+                .Distinct()
+                .OrderBy(c => c));
+        _sellCats.AddRange(
+            list.Where(i => i.Mode == StoreMode.Sell)
+                .Select(i => i.Category)
+                .Distinct()
+                .OrderBy(c => c));
 
-        if (!_buyCats.Contains(_buyCat))  _buyCat  = string.Empty;
-        if (!_sellCats.Contains(_sellCat)) _sellCat = string.Empty;
+        if (!_buyCats.Contains(_buyCat))
+            _buyCat = string.Empty;
+        if (!_sellCats.Contains(_sellCat))
+            _sellCat = string.Empty;
 
         BuildCategoryButtons();
         RefreshListings();
@@ -93,31 +107,41 @@ public sealed partial class NcStoreMenu : FancyWindow
     /* ────────── категории ───────── */
     private void BuildCategoryButtons()
     {
-        MakeButtons(_buyCats, BuyCategoryListContainer, _buyCat, cat =>
-        {
-            _buyCat = (cat == _buyCat) ? string.Empty : cat;
-            RefreshListings();
-        });
+        MakeButtons(
+            _buyCats,
+            BuyCategoryListContainer,
+            _buyCat,
+            cat =>
+            {
+                _buyCat = cat == _buyCat ? string.Empty : cat;
+                RefreshListings();
+            });
 
-        MakeButtons(_sellCats, SellCategoryListContainer, _sellCat, cat =>
-        {
-            _sellCat = (cat == _sellCat) ? string.Empty : cat;
-            RefreshListings();
-        });
+        MakeButtons(
+            _sellCats,
+            SellCategoryListContainer,
+            _sellCat,
+            cat =>
+            {
+                _sellCat = cat == _sellCat ? string.Empty : cat;
+                RefreshListings();
+            });
     }
 
-    private static Color Brighten(Color c, float f)
-    {
-        return new Color(
+    private static Color Brighten(Color c, float f) =>
+        new(
             MathF.Min(c.R * f, 1.0f),
             MathF.Min(c.G * f, 1.0f),
             MathF.Min(c.B * f, 1.0f),
             c.A
         );
-    }
 
-    private static void MakeButtons(IEnumerable<string> cats,
-        Control parent, string current, Action<string> onClick)
+    private static void MakeButtons(
+        IEnumerable<string> cats,
+        Control parent,
+        string current,
+        Action<string> onClick
+    )
     {
         parent.Children.Clear();
 
@@ -126,14 +150,14 @@ public sealed partial class NcStoreMenu : FancyWindow
             var selected = c == current;
             var btn = new Button
             {
-                Text               = c,
-                ToggleMode         = true,
-                HorizontalExpand   = true,
-                Pressed            = selected,
+                Text = c,
+                ToggleMode = true,
+                HorizontalExpand = true,
+                Pressed = selected,
                 ModulateSelfOverride = selected ? CatSelected : CatIdle
             };
             btn.OnMouseEntered += _ => btn.ModulateSelfOverride = Brighten(CatSelected, 1.2f);
-            btn.OnMouseExited  += _ => btn.ModulateSelfOverride = selected ? CatSelected : CatIdle;
+            btn.OnMouseExited += _ => btn.ModulateSelfOverride = selected ? CatSelected : CatIdle;
 
             btn.OnPressed += _ => onClick(c);
             parent.AddChild(btn);
@@ -141,34 +165,38 @@ public sealed partial class NcStoreMenu : FancyWindow
     }
 
 
-
-
     /* ────────── лоты ───────── */
     private void RefreshListings()
     {
         BuildCategoryButtons();
-        FillPane(BuyListingsContainer,  StoreMode.Buy,  _buyCat,  d => OnBuyPressed?.Invoke(d));
+        FillPane(BuyListingsContainer, StoreMode.Buy, _buyCat, d => OnBuyPressed?.Invoke(d));
         FillPane(SellListingsContainer, StoreMode.Sell, _sellCat, d => OnSellPressed?.Invoke(d));
     }
 
-    private void FillPane(Control pane,
-                          StoreMode mode,
-                          string cat,
-                          Action<StoreListingData> emit)
+    private void FillPane(
+        Control pane,
+        StoreMode mode,
+        string cat,
+        Action<StoreListingData> emit
+    )
     {
         pane.Children.Clear();
 
-        bool catChosen = !string.IsNullOrEmpty(cat);
-        bool hasSearch = !string.IsNullOrWhiteSpace(_search);
+        var catChosen = !string.IsNullOrEmpty(cat);
+        var hasSearch = !string.IsNullOrWhiteSpace(_search);
 
         if (!catChosen && !hasSearch)
         {
-            pane.AddChild(new Label { Text = "Выберите категорию.",
-                                      StyleClasses = { "nc-store__hint" } });
+            pane.AddChild(
+                new Label
+                {
+                    Text = "Выберите категорию.",
+                    StyleClasses = { "nc-store__hint", }
+                });
             return;
         }
 
-        IEnumerable<StoreListingData> q = _items.Where(i => i.Mode == mode);
+        var q = _items.Where(i => i.Mode == mode);
 
         if (catChosen)
             q = q.Where(i => i.Category == cat);
@@ -179,8 +207,12 @@ public sealed partial class NcStoreMenu : FancyWindow
         var filtered = q.ToList();
         if (filtered.Count == 0)
         {
-            pane.AddChild(new Label { Text = "Ничего не найдено.",
-                                      StyleClasses = { "nc-store__hint" } });
+            pane.AddChild(
+                new Label
+                {
+                    Text = "Ничего не найдено.",
+                    StyleClasses = { "nc-store__hint", }
+                });
             return;
         }
 
@@ -189,7 +221,7 @@ public sealed partial class NcStoreMenu : FancyWindow
             var it = filtered[i];
             var ctrl = new NcStoreListingControl(it, _sprites);
             if (mode == StoreMode.Buy)
-                ctrl.OnBuyPressed  += () => emit(it);
+                ctrl.OnBuyPressed += () => emit(it);
             else
                 ctrl.OnSellPressed += () => emit(it);
 
@@ -198,11 +230,12 @@ public sealed partial class NcStoreMenu : FancyWindow
             // тонкая линия между лотами, кроме последнего
             if (i < filtered.Count - 1)
             {
-                pane.AddChild(new PanelContainer
-                {
-                    MinSize = new Vector2i(0, 1),
-                    StyleClasses = { "LowDivider" }
-                });
+                pane.AddChild(
+                    new PanelContainer
+                    {
+                        MinSize = new Vector2i(0, 1),
+                        StyleClasses = { "LowDivider", }
+                    });
             }
         }
     }
@@ -218,6 +251,6 @@ public sealed partial class NcStoreMenu : FancyWindow
 
         var s = _search.ToLowerInvariant();
         return (p.Name ?? string.Empty).ToLowerInvariant().Contains(s) ||
-               (p.Description ?? string.Empty).ToLowerInvariant().Contains(s);
+            (p.Description ?? string.Empty).ToLowerInvariant().Contains(s);
     }
 }

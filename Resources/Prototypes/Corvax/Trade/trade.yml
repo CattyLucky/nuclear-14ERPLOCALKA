@@ -54,23 +54,60 @@
   catalog:
     Buy:
       Оружие:
-      - proto: N14WeaponSMG12mmAdvancedChinese
+      - proto: N14WeaponPistol12mm
+        price: 40
+      - proto: N14WeaponRevolver10mm
+        price: 35
+      - proto: N14WeaponSniper556VarmintRifle
+        price: 45
+      - proto: N14WeaponRevolver10mm
+        price: 35
+      - proto: N14WeaponRifle556CarbineOld
         price: 75
-      - proto: N14WeaponPistol9mmChinese
-        price: 150
-      Броня:
-      - proto: N14ClothingOuterCombatArmorMK2
-        price: 125
-      - proto: N14ClothingOuterCombatArmorCaptainBOS
-        price: 125
+      - proto: N14WeaponSniper308Ross
+        price: 100
+      - proto: N14WeaponRifle762M14
+        price: 85
+      Патроны:
+      - proto: Magazine762AmmoShort
+        price: 15
+      - proto: Magazine556Rifle
+        price: 10
+      - proto: MagazineBox308
+        price: 40
+      - proto: MagazineBox44
+        price: 37
+      - proto: MagazineBox762
+        price: 35
+      - proto: MagazineBox556
+        price: 30
+      - proto: MagazineBox9mm
+        price: 20
+      Хлам:
+      - proto: N14ModificationkitRevolver44Tribal
+        price: 50
+      - proto: N14ModificationkitRevolver44TribalUpgraded
+        price: 65
     Sell:
       Оружие:
-      - proto: N14WeaponPistol12mm
-        price: 30
-      - proto: N14TrainingSword
+      - proto: N14WeaponSMG9mm
         price: 60
-      Хлам:
-      - proto: N14MaterialBrahminHide
+      - proto: N14WeaponSniper556VarmintRifle
+        price: 20
+      - proto: N14WeaponPistol9mmChinese
         price: 30
-      - proto: N14MaterialNightstalkerPelt
+      - proto: N14WeaponSMG45
+        price: 90
+      - proto: N14WeaponPistol10mm
+        price: 20
+      - proto: N14WeaponPistol9mm
+        price: 15
+      - proto: N14WeaponPistol45Colt
+        price: 45
+      - proto: N14WeaponShotgunDoubleBarrel
+        price: 20
+      Броня:
+      - proto: N14ClothingOuterLeatherArmor
+        price: 40
+      - proto: N14ClothingOuterMetalArmor
         price: 60

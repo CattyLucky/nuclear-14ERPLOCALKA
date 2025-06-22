@@ -2,15 +2,16 @@ using System.Linq;
 using Content.Shared._NC.Trade;
 using Robust.Server.GameObjects;
 
+
 namespace Content.Server._NC.Trade;
+
 
 public sealed class NcStoreSystem : EntitySystem
 {
-    [Dependency] private readonly IEntityManager _entMan = default!;
-    [Dependency] private readonly TransformSystem _transform = default!;
-    [Dependency] private readonly IEntitySystemManager _sysMan = default!;
-
     private static readonly ISawmill Sawmill = Logger.GetSawmill("ncstore");
+    [Dependency] private readonly IEntityManager _entMan = default!;
+    [Dependency] private readonly IEntitySystemManager _sysMan = default!;
+    [Dependency] private readonly TransformSystem _transform = default!;
 
     public override void Initialize()
     {
@@ -107,6 +108,7 @@ public sealed class NcStoreSystem : EntitySystem
                 return false;
             }
         }
+
         if (!_entMan.EntityExists(user))
             return false;
         if (!_entMan.TryGetComponent(storeUid, out TransformComponent? storeXform) ||
@@ -118,7 +120,7 @@ public sealed class NcStoreSystem : EntitySystem
             Sawmill.Warning($"[UI] User too far from store: {ToPrettyString(user)} -> {ToPrettyString(storeUid)}.");
             return false;
         }
-        // Здесь можно добавить мьютекс для "занятости" автомата
+
         return true;
     }
 }

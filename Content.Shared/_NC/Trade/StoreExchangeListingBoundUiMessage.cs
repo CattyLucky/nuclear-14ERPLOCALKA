@@ -1,22 +1,24 @@
 using Robust.Shared.Serialization;
 
+
 namespace Content.Shared._NC.Trade;
 
+
 /// <summary>
-/// Сообщение клиента на сервер для обмена/конверсии/бартера.
+///     Сообщение клиента на сервер для обмена/конверсии/бартера.
 /// </summary>
-[Serializable, NetSerializable]
+[Serializable, NetSerializable,]
 public sealed class StoreExchangeListingBoundUiMessage : BoundUserInterfaceMessage
 {
+    public uint ActorUid;
+    public int Amount;
+    public float ExchangeRate;
     public StoreExchangeType ExchangeType;
     public string? FromCurrencyId;
-    public string? ToCurrencyId;
-    public int Amount;
     public string? ItemProtoId;
-    public string? ToItemProtoId;
-    public float ExchangeRate;
-    public uint ActorUid;
     public string ListingId;
+    public string? ToCurrencyId;
+    public string? ToItemProtoId;
 
     public StoreExchangeListingBoundUiMessage(
         StoreExchangeType exchangeType,
@@ -27,7 +29,8 @@ public sealed class StoreExchangeListingBoundUiMessage : BoundUserInterfaceMessa
         string? toItemProtoId,
         float exchangeRate,
         uint actorUid,
-        string listingId)
+        string listingId
+    )
     {
         ExchangeType = exchangeType;
         FromCurrencyId = fromCurrencyId;
