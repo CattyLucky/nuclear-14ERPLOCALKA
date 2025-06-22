@@ -4,10 +4,7 @@ using Robust.Shared.GameStates;
 namespace Content.Shared._NC.Trade;
 
 
-/// <summary>
-///     Shared-компонент магазина. Содержит настройки пресета, валюту, категории, товары.
-/// </summary>
-[RegisterComponent, NetworkedComponent,]
+[RegisterComponent, NetworkedComponent]
 public sealed partial class NcStoreComponent : Component
 {
     [DataField("categories")]

@@ -7,7 +7,7 @@ namespace Content.Shared._NC.Trade;
 /// <summary>
 ///     Состояние UI магазина для клиента.
 /// </summary>
-[Serializable, NetSerializable,]
+[Serializable, NetSerializable]
 public sealed class StoreUiState : BoundUserInterfaceState
 {
     public int Balance;

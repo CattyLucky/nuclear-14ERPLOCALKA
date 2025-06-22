@@ -5,7 +5,7 @@ using Robust.Shared.Serialization;
 namespace Content.Shared._NC.Trade;
 
 
-[Serializable, NetSerializable,, Prototype("ncStoreListing"),]
+[Serializable, NetSerializable, Prototype("ncStoreListing")]
 public sealed class StoreListingPrototype : IPrototype
 {
     [DataField("categories")]

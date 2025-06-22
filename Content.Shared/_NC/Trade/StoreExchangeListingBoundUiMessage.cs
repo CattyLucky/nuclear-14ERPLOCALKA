@@ -7,7 +7,7 @@ namespace Content.Shared._NC.Trade;
 /// <summary>
 ///     Сообщение клиента на сервер для обмена/конверсии/бартера.
 /// </summary>
-[Serializable, NetSerializable,]
+[Serializable, NetSerializable]
 public sealed class StoreExchangeListingBoundUiMessage : BoundUserInterfaceMessage
 {
     public uint ActorUid;
