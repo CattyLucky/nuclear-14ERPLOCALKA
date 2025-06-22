@@ -30,7 +30,6 @@
   <ItemGroup>
     <Folder Include="GameTicking\Components\" />
     <Folder Include="Objectives\Interfaces\" />
-    <Folder Include="_NC\Trade\Systems\" />
   </ItemGroup>
   <Import Project="..\RobustToolbox\MSBuild\Robust.Properties.targets" />
 </Project>
