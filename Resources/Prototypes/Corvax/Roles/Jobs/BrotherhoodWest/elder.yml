@@ -17,7 +17,7 @@
   startingGear: BoSWestElderCommanderGear
   alwaysUseSpawner: true
   icon: "JobIconBosMCommander" # Corvax-Change
-  supervisors: job-supervisors-bos-mid-commander
+  supervisors: job-supervisors-bos-west-elder
   canBeAntag: false
   accessGroups:
   - BoSWest

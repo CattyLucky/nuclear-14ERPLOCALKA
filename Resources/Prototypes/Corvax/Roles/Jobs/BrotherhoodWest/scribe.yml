@@ -14,7 +14,7 @@
   startingGear: BoSWestScribeGear
   alwaysUseSpawner: true
   icon: "JobIconBosMScriptor" # Corvax-Change
-  supervisors: job-supervisors-bos-mid
+  supervisors: job-supervisors-bos-west
   access:
   - BoSWest
   special:

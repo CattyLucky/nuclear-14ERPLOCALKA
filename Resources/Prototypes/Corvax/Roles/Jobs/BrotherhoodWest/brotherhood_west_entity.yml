@@ -4,7 +4,7 @@
   name: BoSWestElderCommander
   components:
     - type: Icon
-      sprite: _Nuclear14/Markers/Jobs/boswest.rsi
+      sprite: Corvax/Markers/boswest.rsi
       state: elder
     - type: RandomHumanoidAppearance
       randomizeName: true

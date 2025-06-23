@@ -15,7 +15,7 @@
   startingGear: BoSWestGunsmithGear
   alwaysUseSpawner: true
   icon: "JobIconBosMSquire" # Corvax-Change
-  supervisors: job-supervisors-bos-mid-initiate
+  supervisors: job-supervisors-bos-west-initiate
   canBeAntag: false
   access:
   - BoSWest

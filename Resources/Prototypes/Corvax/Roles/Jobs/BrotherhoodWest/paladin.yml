@@ -14,7 +14,7 @@
   startingGear: BoSWestPaladinGear
   alwaysUseSpawner: true
   icon: "JobIconBosMPaladin" # Corvax-Change
-  supervisors: job-supervisors-bos-mid
+  supervisors: job-supervisors-bos-west
   canBeAntag: false
   access:
   - BoSWest

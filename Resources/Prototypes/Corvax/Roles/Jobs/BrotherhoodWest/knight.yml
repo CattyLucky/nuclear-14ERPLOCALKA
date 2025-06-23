@@ -1,8 +1,8 @@
 - type: job
   id: BoSWestKnight
   setPreference: true
-  name: job-name-bos-mid-knight
-  description: job-description-bos-mid-knight
+  name: job-name-bos-west-knight
+  description: job-description-bos-west-knight
   playTimeTracker: BoSWestKnight
   requirements:
     - !type:CharacterSpeciesRequirement
@@ -14,7 +14,7 @@
   startingGear: BoSWestKnightGear
   alwaysUseSpawner: true
   icon: "JobIconBosMKnight" # Corvax-Change
-  supervisors: job-supervisors-bos-mid-knight
+  supervisors: job-supervisors-bos-west-knight
   canBeAntag: false
   access:
   - BoSWest

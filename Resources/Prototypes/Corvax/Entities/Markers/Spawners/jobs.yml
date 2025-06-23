@@ -92,7 +92,7 @@
   - type: SpawnPoint
     job_id: BoSWestElderCommander
   - type: Sprite
-    sprite: _Nuclear14/Markers/Jobs/boswest.rsi
+    sprite: Corvax/Markers/boswest.rsi
     layers:
     - state: green
     - state: elder
