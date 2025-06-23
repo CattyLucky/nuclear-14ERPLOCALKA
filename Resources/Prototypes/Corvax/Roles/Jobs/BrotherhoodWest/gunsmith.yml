@@ -14,7 +14,7 @@
       min: 3600
   startingGear: BoSWestGunsmithGear
   alwaysUseSpawner: true
-  icon: "JobIconBosMSquire" # Corvax-Change
+  icon: "JobIconBosMSquire"
   supervisors: job-supervisors-bos-west-initiate
   canBeAntag: false
   access:
@@ -30,14 +30,14 @@
   id: BoSWestGunsmithGear
   equipment:
     jumpsuit: N14ClothingUniformJumpsuitBOSGreen
-    back: N14ClothingBackpackMilitary # Corvax-Change
+    back: N14ClothingBackpackMilitary
     shoes: N14ClothingBootsCombatFilled
     head: N14ClothingHeadHatArmyCap
     outerClothing: N14ClothingOuterMidwestArmor
     pocket1: NCRBoSMidwestkits
     id: N14IDBrotherhoodHolotagSquire
     belt: ClothingBeltMilitary
-  storage: # Corvax-Change
+  storage:
     back:
     - N14BoxPlasticFilledMilitary
 
