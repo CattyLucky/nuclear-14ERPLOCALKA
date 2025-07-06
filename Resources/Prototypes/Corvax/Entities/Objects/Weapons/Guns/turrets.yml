@@ -1,0 +1,17 @@
+- type: entity
+  parent: N14BaseWeaponTurret
+  id: N14WeaponTurretBrotherhoodWestSecureArea
+  suffix: BOS West, Hostile
+  components:
+  - type: NpcFactionMember
+    factions:
+    - BrotherhoodWestSecureArea
+
+- type: entity
+  parent: N14BaseWeaponTurret
+  id: N14WeaponTurretBrotherhoodWest
+  suffix: BOS Midwest
+  components:
+  - type: NpcFactionMember
+    factions:
+    - BrotherhoodWest

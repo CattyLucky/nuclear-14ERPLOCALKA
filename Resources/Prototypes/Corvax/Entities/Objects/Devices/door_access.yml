@@ -1,0 +1,45 @@
+# BoS West
+- type: entity
+  parent: DoorElectronics
+  id: DoorElectronicsBOSWestElderCommander
+  suffix: BOSW ElderCommander, Locked
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: AccessReader
+    access: [["WestElderCommander"]]
+
+- type: entity
+  parent: DoorElectronics
+  id: DoorElectronicsBOSWestPaladin
+  suffix: BOSW Paladin, Locked
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: AccessReader
+    access: [["WestPaladin"]]
+
+- type: entity
+  parent: DoorElectronics
+  id: DoorElectronicsBOSWestKnight
+  suffix: BOSW Knight, Locked
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: AccessReader
+    access: [["WestKnight"]]
+
+- type: entity
+  parent: DoorElectronics
+  id: DoorElectronicsBOSWestScribe
+  suffix: BOSW Scribe, Locked
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: AccessReader
+    access: [["WestScribe"]]
+
+- type: entity
+  parent: DoorElectronics
+  id: DoorElectronicsBOSWestGeneral
+  suffix: BOSW General, Locked
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: AccessReader
+    access: [["BoSWest"]]

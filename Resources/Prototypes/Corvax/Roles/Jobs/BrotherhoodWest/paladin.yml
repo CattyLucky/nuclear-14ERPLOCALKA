@@ -19,6 +19,7 @@
   access:
   - BoSWest
   - WestPaladin
+  - WestKnight
   special:
   - !type:AddComponentSpecial
     components:
@@ -36,8 +37,8 @@
     outerClothing: N14ClothingOuterMidwestArmorMK2
     pocket1: NCRBoSMidwestPaladinkits
     hands: N14ClothingHandsGlovesCombat
-    id: N14IDBrotherhoodHolotagPaladin
-    ears: N14ClothingHeadsetBOSMidwest
+    id: N14IDBrotherhoodWestHolotagPaladin
+    ears: N14ClothingHeadsetBOSWest
     belt: ClothingBeltMilitary
   storage:
     back:

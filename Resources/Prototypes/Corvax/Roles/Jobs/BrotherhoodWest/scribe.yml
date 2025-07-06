@@ -17,6 +17,8 @@
   supervisors: job-supervisors-bos-west
   access:
   - BoSWest
+  - WestScribe
+  - WestKnight
   special:
   - !type:AddComponentSpecial
     components:
@@ -32,8 +34,8 @@
     back: N14ClothingBackpackSatchelMilitary
     shoes: N14ClothingBootsLeather
     pocket1: NCRBoSMidwestScribekits
-    id: N14IDBrotherhoodHolotag
-    ears: N14ClothingHeadsetBOSMidwest
+    id: N14IDBrotherhoodWestHolotag
+    ears: N14ClothingHeadsetBOSWest
   storage:
     back:
     - N14BoxPlasticFilledMilitary

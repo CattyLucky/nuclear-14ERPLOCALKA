@@ -18,6 +18,7 @@
   canBeAntag: false
   access:
   - BoSWest
+  - WestKnight
   special:
   - !type:AddComponentSpecial
     components:
@@ -35,7 +36,7 @@
     outerClothing: N14ClothingOuterMidwestArmor
     pocket1: NCRBoSMidwestkits
     hands: N14ClothingHandsGlovesCombat
-    id: N14IDBrotherhoodHolotagKnight
+    id: N14IDBrotherhoodWestHolotagKnight
     belt: ClothingBeltMilitary
   storage:
     back:

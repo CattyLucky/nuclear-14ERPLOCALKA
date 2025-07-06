@@ -21,6 +21,7 @@
   canBeAntag: false
   accessGroups:
   - BoSWest
+  - WestElderCommander
   special:
   - !type:AddComponentSpecial
     components:
@@ -38,8 +39,8 @@
     outerClothing: N14ClothingOuterMidwestArmorMK2
     hands: N14ClothingHandsGlovesCombat
     pocket1: NCRBoSMidwestPaladinkits
-    id: N14IDBrotherhoodHolotagCommander
-    ears: N14ClothingHeadsetBOSMidwest
+    id: N14IDBrotherhoodWestHolotagElderCommander
+    ears: N14ClothingHeadsetBOSWest
     belt: ClothingBeltMilitary
   storage:
     back:

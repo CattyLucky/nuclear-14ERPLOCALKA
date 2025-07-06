@@ -13,3 +13,10 @@
   frequency: 1728
   color: "#d8d52f"
   longRange: true
+
+- type: radioChannel
+  id: BrotherhoodWest
+  name: chat-radio-boswest
+  keycode: 'з'
+  frequency: 7777
+  color: "#02e5f5"

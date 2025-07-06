@@ -1,0 +1,13 @@
+﻿- type: entity
+  parent: N14ClothingHeadsetAlt
+  id: N14ClothingHeadsetBOSWest
+  name: West brotherhood over-ear headset
+  components:
+  - type: ContainerFill
+    containers:
+      key_slots:
+      - EncryptionKeyBrotherhoodWest
+  - type: Sprite
+    sprite: Clothing/Ears/Headsets/syndicate.rsi
+  - type: Clothing
+    sprite: Clothing/Ears/Headsets/syndicate.rsi
