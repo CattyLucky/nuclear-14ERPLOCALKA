@@ -21,7 +21,6 @@
   canBeAntag: false
   accessGroups:
   - BoSWest
-  - WestElderCommander
   special:
   - !type:AddComponentSpecial
     components:
