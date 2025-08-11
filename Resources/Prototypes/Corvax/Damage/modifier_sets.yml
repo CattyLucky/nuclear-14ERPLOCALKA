@@ -12,3 +12,8 @@
     Cellular: 1
   flatReductions:
     Radiation: 100
+
+- type: damageModifierSet
+  id: FullRadiationProtection
+  coefficients:
+    Radiation: 0.0

@@ -1,0 +1,46 @@
+- type: job
+  id: BoSWestKnight
+  setPreference: true
+  name: job-name-bos-west-knight
+  description: job-description-bos-west-knight
+  playTimeTracker: BoSWestKnight
+  requirements:
+    - !type:CharacterSpeciesRequirement
+      species:
+      - Human
+    - !type:CharacterDepartmentTimeRequirement
+      department: BrotherhoodWest
+      min: 54000 # 15 hours
+  startingGear: BoSWestKnightGear
+  alwaysUseSpawner: true
+  icon: "JobIconBosMKnight"
+  supervisors: job-supervisors-bos-west-knight
+  canBeAntag: false
+  access:
+  - BoSWest
+  - WestKnight
+  special:
+  - !type:AddComponentSpecial
+    components:
+      - type: NpcFactionMember
+        factions:
+          - BrotherhoodWest
+
+- type: startingGear
+  id: BoSWestKnightGear
+  equipment:
+    jumpsuit: N14ClothingUniformJumpsuitBOSWestKnight
+    back: N14ClothingBackpackMilitary
+    shoes: N14ClothingBootsCombatFilled
+    head: N14ClothingHeadHatCapkhighBoS
+    outerClothing: N14ClothingOuterKnightWesternArmor
+    pocket1: BoSWesternKnightKits
+    hands: N14ClothingHandsGlovesBlackLeather
+    id: N14IDBrotherhoodWestHolotagKnight
+    belt: N14ClothingBeltBoSWesternKhignht
+  storage:
+    back:
+    - N14BoxPlasticFilledMilitary
+
+- type: playTimeTracker
+  id: BoSWestKnight

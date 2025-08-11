@@ -1,6 +1,8 @@
 - type: job
   id: TownDoctor
   setPreference: true
+  overrideConsoleVisibility: false
+  canBeAntag: false
   name: job-name-towndoctor
   description: job-description-towndoctor
   playTimeTracker: TownDoctor
@@ -17,11 +19,13 @@
   supervisors: job-supervisors-townsfolk
   access:
   - TownieDoctor
+  - TownsPerson # Corvax-Change
   special:
   - !type:AddComponentSpecial
     components:
       - type: NpcFactionMember
         factions:
+          - Wastelander
           - Townsfolk
       - type: CPRTraining
 

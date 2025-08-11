@@ -1,6 +1,8 @@
 - type: job
   id: Townsperson
   setPreference: true
+  overrideConsoleVisibility: false
+  canBeAntag: false
   name: job-name-townsperson
   description: job-description-townsperson
   playTimeTracker: Townsperson
@@ -14,11 +16,14 @@
   startingGear: TownspersonGear
   icon: "JobIconTownPerson" # Corvax-Change
   supervisors: job-supervisors-townsfolk
+  access:
+  - TownsPerson # Corvax-Change
   special:
   - !type:AddComponentSpecial
     components:
       - type: NpcFactionMember
         factions:
+          - Wastelander
           - Townsfolk
 
 - type: startingGear

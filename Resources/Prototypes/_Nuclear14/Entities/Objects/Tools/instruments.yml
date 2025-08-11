@@ -68,6 +68,8 @@
     slots:
     - back
     sprite: Objects/Fun/Instruments/guitar.rsi
+  - type: StaticPrice # Forge-Add
+    price: 15
 
 
 - type: entity

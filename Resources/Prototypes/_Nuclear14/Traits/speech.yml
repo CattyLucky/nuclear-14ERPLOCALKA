@@ -18,6 +18,10 @@
       inverted: true
       departments:
         - Tribe
+    - !type:CharacterJobRequirement
+      jobs:
+        - NCRRanger
+        - NCRRangerVeteran
   functions:
     - !type:TraitModifyLanguages
       languagesSpoken:
@@ -59,7 +63,7 @@
 - type: trait
   id: N14Muted
   category: Speech
-  points: 4
+  points: 2 # Forge-Change
   requirements:
     - !type:CharacterJobRequirement
       inverted: true
@@ -70,7 +74,7 @@
         - TownSheriff
         - NCRLT
         - NCRRangerVeteran
-        - NCRRanger # Corvax-Change
+        - NCRRanger # Forge-Change
         - NCRSGT
         - CaravanLeader
         - BoSWashingtonCommander

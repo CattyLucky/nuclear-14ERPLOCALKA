@@ -1,0 +1,188 @@
+- type: entity
+  name: M7 Spear Rifle Scope
+  parent: N14WeaponRifleBase
+  id: N14WeaponRifleM7SpearScope
+  description: Prototype of a next-generation rifle that never made it into service with the US Army. Only a few units were delivered for special operations testing just days before the Great War began. Finding one in the wasteland is a real jackpot. It uses a unique caliber, so finding ammunition for it is an even greater stroke of luck.
+  suffix: DO NOT SPAWN
+  components:
+  - type: Clothing
+    sprite: Corvax/Objects/Weapons/Guns/Rifles/m7spearscope.rsi
+    quickEquip: false
+    slots:
+    - Back
+    - suitStorage
+  - type: Sprite
+    sprite: Corvax/Objects/Weapons/Guns/Rifles/m7spearscope.rsi
+    layers:
+      - state: base
+        map: ["enum.GunVisualLayers.Base"]
+      - state: mag-0
+        map: ["enum.GunVisualLayers.Mag"]
+  - type: Gun
+    minAngle: 24
+    maxAngle: 45
+    angleIncrease: 4
+    angleDecay: 12
+    fireRate: 4.1
+    projectileSpeed: 40
+    soundGunshot:
+      collection: N14PistolSpyGunshot
+    selectedMode: Fullauto
+    availableModes:
+    - Fullauto
+    - SemiAuto
+  - type: ItemSlots
+    slots:
+      gun_magazine:
+        name: Magazine
+        startingItem: Magazine68Rifle
+        insertSound: /Audio/Weapons/Guns/MagIn/ltrifle_magin.ogg
+        ejectSound: /Audio/Weapons/Guns/MagOut/ltrifle_magout.ogg
+        priority: 2
+        whitelist:
+          tags:
+            - N14Magazine68Rifle
+      gun_chamber:
+        name: Chamber
+        startingItem: N14Cartridge68Rifle
+        priority: 1
+        whitelist:
+          tags:
+            - N14Cartridge68Rifle
+  - type: StaticPrice
+    price: 100
+
+- type: entity
+  name: M7 Spear Rifle 
+  parent: N14WeaponRifleM7SpearScope
+  id: N14WeaponRifleM7Spear
+  description: Prototype of a next-generation rifle that never made it into service with the US Army. Only a few units were delivered for special operations testing just days before the Great War began. Finding one in the wasteland is a real jackpot. It uses a unique caliber, so finding ammunition for it is an even greater stroke of luck.
+  suffix: DO NOT SPAWN
+  components:
+  - type: Clothing
+    sprite: Corvax/Objects/Weapons/Guns/Rifles/m7spear.rsi
+    quickEquip: false
+    slots:
+    - Back
+    - suitStorage
+  - type: Sprite
+    sprite: Corvax/Objects/Weapons/Guns/Rifles/m7spear.rsi
+    layers:
+      - state: base
+        map: ["enum.GunVisualLayers.Base"]
+      - state: mag-0
+        map: ["enum.GunVisualLayers.Mag"]
+  - type: Gun
+    minAngle: 24
+    maxAngle: 45
+    angleIncrease: 4
+    angleDecay: 16
+    fireRate: 4.1
+    soundGunshot:
+      collection: N14PistolSpyGunshot
+
+- type: entity
+  name: Ak-112
+  parent: N14WeaponRifleBase
+  id: N14WeaponRifleAk112
+  description: AK-112 assault rifle. An old military model that has not been used since the war. It fires in single-shot and automatic modes. It has gained popularity among the Western Brotherhood of Steel. It uses 5.45mm cartridges.
+  components:
+  - type: Clothing
+    sprite: Corvax/Objects/Weapons/Guns/Rifles/ak112.rsi
+    quickEquip: false
+    slots:
+    - Back
+    - suitStorage
+  - type: Sprite
+    sprite: Corvax/Objects/Weapons/Guns/Rifles/ak112.rsi
+    layers:
+      - state: base
+        map: ["enum.GunVisualLayers.Base"]
+      - state: mag-0
+        map: ["enum.GunVisualLayers.Mag"]
+  - type: Gun
+    minAngle: 24
+    maxAngle: 45
+    angleIncrease: 4
+    angleDecay: 12
+    fireRate: 4.5
+    projectileSpeed: 40
+    soundGunshot:
+      collection: N14RifleR91Gunshot
+    selectedMode: Fullauto
+    availableModes:
+    - Fullauto
+    - SemiAuto
+  - type: ItemSlots
+    slots:
+      gun_magazine:
+        name: Magazine
+        startingItem: Magazine545Rifle
+        insertSound: /Audio/Weapons/Guns/MagIn/ltrifle_magin.ogg
+        ejectSound: /Audio/Weapons/Guns/MagOut/ltrifle_magout.ogg
+        priority: 2
+        whitelist:
+          tags:
+            - Magazine545Rifle
+      gun_chamber:
+        name: Chamber
+        startingItem: N14Cartridge545Rifle
+        priority: 1
+        whitelist:
+          tags:
+            - N14Cartridge545Rifle
+  - type: StaticPrice
+    price: 100
+
+- type: entity
+  name: Ak-112pn
+  parent: N14WeaponRifleBase
+  id: N14WeaponRifleAk112pn
+  description: This Ak-112 rifle is equipped with an extended army-style magazine, making it even more enjoyable to spray everyone with fire than ever before. It uses the same 5.45 ammunition
+  components:
+  - type: Clothing
+    sprite: Corvax/Objects/Weapons/Guns/Rifles/ak112pn.rsi
+    quickEquip: false
+    slots:
+    - Back
+    - suitStorage
+  - type: Sprite
+    sprite: Corvax/Objects/Weapons/Guns/Rifles/ak112pn.rsi
+    layers:
+      - state: base
+        map: ["enum.GunVisualLayers.Base"]
+      - state: mag-0
+        map: ["enum.GunVisualLayers.Mag"]
+  - type: Gun
+    minAngle: 24
+    maxAngle: 60
+    angleIncrease: 4
+    angleDecay: 12
+    fireRate: 4.5
+    projectileSpeed: 35
+    soundGunshot:
+      collection: N14RifleR91Gunshot
+    selectedMode: Fullauto
+    availableModes:
+    - Fullauto
+    - SemiAuto
+  - type: ItemSlots
+    slots:
+      gun_magazine:
+        name: Magazine
+        startingItem: MagazineDrum545Rifle
+        insertSound: /Audio/Weapons/Guns/MagIn/ltrifle_magin.ogg
+        ejectSound: /Audio/Weapons/Guns/MagOut/ltrifle_magout.ogg
+        priority: 2
+        whitelist:
+          tags:
+            - MagazineDrum545Rifle
+      gun_chamber:
+        name: Chamber
+        startingItem: N14Cartridge545Rifle
+        priority: 1
+        whitelist:
+          tags:
+            - N14Cartridge545Rifle
+  - type: StaticPrice
+    price: 100

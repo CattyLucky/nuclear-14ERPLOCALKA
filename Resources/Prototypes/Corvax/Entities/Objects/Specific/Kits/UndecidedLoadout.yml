@@ -157,6 +157,80 @@
       enum.UndecidedLoadoutBackpackUIKey.Key:
         type: UndecidedLoadoutBackpackBoundUserInterface
 
+# Broother Western kits Elden
+- type: entity
+  id: BoSWesternEldenKits
+  name: Undecided Western Kit
+  parent: BaseLoadoutKit
+  components:
+  - type: Sprite
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  - type: UndecidedLoadoutBackpack
+    possibleSets:
+    - KitBrootherWest_ElderlasSet
+    - KitBrootherWest_ElderrifleSet
+
+# Broother Western kits Paladin
+- type: entity
+  id: BoSWesternPaladinKits
+  name: Undecided Paladin Kit
+  parent: BaseLoadoutKit
+  components:
+  - type: Sprite
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  - type: UndecidedLoadoutBackpack
+    possibleSets:
+    - KitBrootherWest_PaladinlasSet
+    - KitBrootherWest_PaladinrifleSet
+    - KitBrootherWest_PaladinplasmaSet
+
+# Broother Western kits Knight
+- type: entity
+  id: BoSWesternKnightKits
+  name: Undecided Knight Kit
+  parent: BaseLoadoutKit
+  components:
+  - type: Sprite
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  - type: UndecidedLoadoutBackpack
+    possibleSets:
+    - KitBrootherWest_KnightrifleSet
+    - KitBrootherWest_KnightlaserSet
+    - KitBrootherWest_KnightplasmaSet
+
+# Broother Western kits Squire
+- type: entity
+  id: BoSWesternSquireKits
+  name: Undecided Squire Kit
+  parent: BaseLoadoutKit
+  components:
+  - type: Sprite
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  - type: UndecidedLoadoutBackpack
+    possibleSets:
+    - KitBrootherWest_SquirerifleSet
+    - KitBrootherWest_SquirelaserSet
+    - KitBrootherWest_SquireplasmaSet
+
+# Broother Western kits Scribe
+- type: entity
+  id: BoSWesternScribeKits
+  name: Undecided Scribe Kit
+  parent: BaseLoadoutKit
+  components:
+  - type: Sprite
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  - type: UndecidedLoadoutBackpack
+    possibleSets:
+    - KitBrootherWest_ScriberifleSet
+    - KitBrootherWest_ScribelaserSet
+    - KitBrootherWest_ScribeplasmaSet
+
 ### Sets
 
 # Legion
@@ -462,3 +536,160 @@
     state: medic
   content:
   - KitScribeMedicWashingtonBoS
+
+# Ranger
+
+- type: UndecidedLoadoutBackpackSet
+  id: RangerSMGSet
+  name: Набор рейнджера с ПП 9мм
+  description: Набор рейнджера, содержащий пистолет-пулемёт, 4 магазина и 1 коробку патронов калибра 9 милиметров, стимпак, сухой паёк и нож.
+  sprite:
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  content:
+  - KitSMGRanger
+
+# Broother Western kits Scribe
+- type: UndecidedLoadoutBackpackSet
+  id: KitBrootherWest_ScriberifleSet
+  name: undecided-loadout-category-scribe-rifle-name
+  description: undecided-loadout-category-scribe-rifle-description
+  sprite:
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  content:
+  - KitBrootherWest_Scriberifle
+
+- type: UndecidedLoadoutBackpackSet
+  id: KitBrootherWest_ScribelaserSet
+  name: undecided-loadout-category-scribe-laser-name
+  description: undecided-loadout-category-scribe-laser-description
+  sprite:
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  content:
+  - KitBrootherWest_Scribelaser
+
+- type: UndecidedLoadoutBackpackSet
+  id: KitBrootherWest_ScribeplasmaSet
+  name: undecided-loadout-category-scribe-plasma-name
+  description: undecided-loadout-category-scribe-plasma-description
+  sprite:
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  content:
+  - KitBrootherWest_Scribeplasma
+
+# Broother Western kits Squire
+- type: UndecidedLoadoutBackpackSet
+  id: KitBrootherWest_SquirerifleSet
+  name: undecided-loadout-category-squire-rifle-name
+  description: undecided-loadout-category-squire-rifle-description
+  sprite:
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  content:
+  - KitBrootherWest_Squirerifle
+
+- type: UndecidedLoadoutBackpackSet
+  id: KitBrootherWest_SquirelaserSet
+  name: undecided-loadout-category-squire-laser-name
+  description: undecided-loadout-category-squire-laser-description
+  sprite:
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  content:
+  - KitBrootherWest_Squirelaser
+
+- type: UndecidedLoadoutBackpackSet
+  id: KitBrootherWest_SquireplasmaSet
+  name: undecided-loadout-category-squire-plasma-name
+  description: undecided-loadout-category-squire-plasma-description
+  sprite:
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  content:
+  - KitBrootherWest_Squireplasma
+
+# Broother Western kits Knight
+- type: UndecidedLoadoutBackpackSet
+  id: KitBrootherWest_KnightrifleSet
+  name: undecided-loadout-category-knight-rifle-name
+  description: undecided-loadout-category-knight-rifle-description
+  sprite:
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  content:
+  - KitBrootherWest_Knightrifle
+
+- type: UndecidedLoadoutBackpackSet
+  id: KitBrootherWest_KnightlaserSet
+  name: undecided-loadout-category-knight-laser-name
+  description: undecided-loadout-category-knight-laser-description
+  sprite:
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  content:
+  - KitBrootherWest_Knightlaser
+
+- type: UndecidedLoadoutBackpackSet
+  id: KitBrootherWest_KnightplasmaSet
+  name: undecided-loadout-category-knight-plasma-name
+  description: undecided-loadout-category-knight-plasma-description
+  sprite:
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  content:
+  - KitBrootherWest_Knightplasma
+
+# Broother Western kits Paladin
+- type: UndecidedLoadoutBackpackSet
+  id: KitBrootherWest_PaladinrifleSet
+  name: undecided-loadout-category-paladin-rifle-name
+  description: undecided-loadout-category-paladin-rifle-description
+  sprite:
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  content:
+  - KitBrootherWest_Paladinrifle
+
+- type: UndecidedLoadoutBackpackSet
+  id: KitBrootherWest_PaladinlasSet
+  name: undecided-loadout-category-paladin-laser-name
+  description: undecided-loadout-category-paladin-laser-description
+  sprite:
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  content:
+  - KitBrootherWest_Paladinlas
+
+- type: UndecidedLoadoutBackpackSet
+  id: KitBrootherWest_PaladinplasmaSet
+  name: undecided-loadout-category-paladin-plasma-name
+  description: undecided-loadout-category-paladin-plasma-description
+  sprite:
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  content:
+  - KitBrootherWest_Paladinplasma
+
+# Broother Western kits Elder
+- type: UndecidedLoadoutBackpackSet
+  id: KitBrootherWest_ElderrifleSet
+  name: undecided-loadout-category-elder-rifle-name
+  description: undecided-loadout-category-elder-rifle-description
+  sprite:
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  content:
+  - KitBrootherWest_Elderrifle
+
+- type: UndecidedLoadoutBackpackSet
+  id: KitBrootherWest_ElderlasSet
+  name: undecided-loadout-category-elder-laser-name
+  description: undecided-loadout-category-elder-laser-description
+  sprite:
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  content:
+  - KitBrootherWest_Elderlas

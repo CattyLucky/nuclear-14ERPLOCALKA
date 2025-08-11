@@ -10,6 +10,9 @@ using Robust.Shared.Enums;
 using Robust.Shared.Network;
 using Robust.Shared.Player;
 using Robust.Shared.Timing;
+using Robust.Shared.Prototypes; // Forge-Change
+using Content.Server.Connection.Whitelist; // Forge-Change
+using Content.Server.Connection.Whitelist.Conditions; // Forge-Change
 
 namespace Content.Server.JoinQueue;
 
@@ -31,7 +34,7 @@ public sealed class JoinQueueManager
         "Timings of players in queue",
         new HistogramConfiguration()
         {
-            LabelNames = new[] {"type"},
+            LabelNames = new[] { "type" },
             Buckets = Histogram.ExponentialBuckets(1, 2, 14),
         });
 
@@ -41,6 +44,7 @@ public sealed class JoinQueueManager
     [Dependency] private readonly IConfigurationManager _configuration = default!;
     [Dependency] private readonly IServerNetManager _net = default!;
     [Dependency] private readonly DiscordAuthManager _discordAuth = default!;
+    [Dependency] private readonly IPrototypeManager _protoMan = default!; // Forge-Change
 
 
     /// <summary>
@@ -90,9 +94,10 @@ public sealed class JoinQueueManager
             return;
         }
 
+        var softMaxPlayers = GetSoftMaxPlayers(); // Forge-Change
         var isPrivileged = await _connection.HasPrivilegedJoin(session.UserId);
         var currentOnline = _player.PlayerCount - 1; // Do not count current session in general online, because we are still deciding her fate
-        var haveFreeSlot = currentOnline < _configuration.GetCVar(CCVars.SoftMaxPlayers);
+        var haveFreeSlot = currentOnline < softMaxPlayers; // Forge-Change
         if (isPrivileged || haveFreeSlot)
         {
             SendToGame(session);
@@ -135,7 +140,8 @@ public sealed class JoinQueueManager
         if (isDisconnect)
             players--; // Decrease currently disconnected session but that has not yet been deleted
 
-        var haveFreeSlot = players < _configuration.GetCVar(CCVars.SoftMaxPlayers);
+        var softMaxPlayers = GetSoftMaxPlayers(); // Forge-Change
+        var haveFreeSlot = players < softMaxPlayers; // Forge-Change
         var queueContains = _queue.Count > 0;
         if (haveFreeSlot && queueContains)
         {
@@ -174,4 +180,22 @@ public sealed class JoinQueueManager
     {
         Timer.Spawn(0, () => _player.JoinGame(session));
     }
+
+    // Forge-Change-Start
+    private int GetSoftMaxPlayers()
+    {
+        var prototypeId = _configuration.GetCVar(CCVars.WhitelistPrototypeList);
+        if (_protoMan.TryIndex<PlayerConnectionWhitelistPrototype>(prototypeId, out var prototype))
+        {
+            var playerCountCondition = prototype.Conditions
+                .OfType<ConditionPlayerCount>()
+                .FirstOrDefault();
+
+            if (playerCountCondition != null)
+                return playerCountCondition.MaximumPlayers;
+        }
+
+        return _configuration.GetCVar(CCVars.SoftMaxPlayers);
+    }
+    // Forge-Change-End
 }

@@ -171,3 +171,45 @@
     sprite: Corvax/Clothing/Head/Helmets/chinastealth.rsi
   - type: Clothing
     sprite: Corvax/Clothing/Head/Helmets/chinastealth.rsi
+
+- type: entity
+  parent: ClothingHeadBase
+  id: N14ClothingHeadHatBrotherHelmet
+  name: the brotherhoods standard helmet
+  description: The standard Western Brotherhood of Steel military helmet. "Want to take over the world? Put on your helmet and run!"
+  components:
+  - type: Sprite
+    sprite: Corvax/Clothing/Head/Helmets/helmetbos.rsi
+  - type: Clothing
+    sprite: Corvax/Clothing/Head/Helmets/helmetbos.rsi
+  - type: Armor
+    modifiers:
+      coefficients:
+        Blunt: 0.9
+        Slash: 0.9
+        Piercing: 0.9
+        Heat: 0.9
+  - type: HideLayerClothing
+    slots:
+    - Hair
+
+- type: entity
+  parent: ClothingHeadBase
+  id: N14ClothingHeadHatBrotherCapralHelmet
+  name: the corporals helmet of the steel brotherhood
+  description: The helmet is given to knights who have earned great respect but have not yet earned the title of paladin
+  components:
+  - type: Sprite
+    sprite: Corvax/Clothing/Head/Helmets/helmetcapral.rsi
+  - type: Clothing
+    sprite: Corvax/Clothing/Head/Helmets/helmetcapral.rsi
+  - type: Armor
+    modifiers:
+      coefficients:
+        Blunt: 0.9
+        Slash: 0.9
+        Piercing: 0.9
+        Heat: 0.9
+  - type: HideLayerClothing
+    slots:
+    - Hair

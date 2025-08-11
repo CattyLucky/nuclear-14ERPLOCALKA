@@ -259,8 +259,8 @@
   - type: NpcFactionMember
     factions:
     - Passive
-  - type: RandomBark
-    barkType: chicken
+  # - type: RandomBark
+    # barkType: chicken
 
 - type: entity
   parent: MobChicken
@@ -326,6 +326,7 @@
     intervalSeconds: 20
     minimumEntitiesSpawned: 1
     maximumEntitiesSpawned: 1
+    ignoreSpawnBlock: true # Forge-Change
   - type: TimedDespawn #delete the egg after the chicken spawns
     lifetime: 21
 
@@ -747,6 +748,7 @@
       intervalSeconds: 20
       minimumEntitiesSpawned: 1
       maximumEntitiesSpawned: 1
+      ignoreSpawnBlock: true # Forge-Change
     - type: TimedDespawn #delete the egg after the chicken spawns
       lifetime: 21
 
@@ -876,9 +878,9 @@
   - type: GuideHelp
     guides:
     - Chef
-  - type: RandomBark
-    barkType: cow
-    barkMultiplier: 3
+  # - type: RandomBark
+    # barkType: cow
+    # barkMultiplier: 3
 
 
 - type: entity

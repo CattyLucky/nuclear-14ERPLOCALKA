@@ -83,3 +83,65 @@
     layers:
       - state: green
       - state: raider
+
+- type: entity
+  parent: SpawnPointJobBase
+  id: N14SpawnPointElderCommander
+  name: elder
+  components:
+  - type: SpawnPoint
+    job_id: BoSWestElderCommander
+  - type: Sprite
+    sprite: Corvax/Markers/boswest.rsi
+    layers:
+    - state: green
+    - state: elder
+
+- type: entity
+  id: N14SpawnPointWestPaladin
+  parent: N14SpawnPointElderCommander
+  name: westpaladin
+  components:
+  - type: SpawnPoint
+    job_id: BoSWestPaladin
+  - type: Sprite
+    layers:
+    - state: green
+    - state: paladin
+
+- type: entity
+  id: N14SpawnPointWestKnight
+  parent: N14SpawnPointElderCommander
+  name: westknight
+  components:
+  - type: SpawnPoint
+    job_id: BoSWestKnight
+  - type: Sprite
+    layers:
+    - state: green
+    - state: knight
+
+- type: entity
+  id: N14SpawnPointWestScribe
+  parent: N14SpawnPointElderCommander
+  name: westscribe
+  components:
+  - type: SpawnPoint
+    job_id: BoSWestScribe
+  - type: Sprite
+    layers:
+    - state: green
+    - state: scribe
+
+- type: entity
+  id: N14SpawnPointWestGunsmith
+  parent: N14SpawnPointElderCommander
+  name: westgunsmith
+  components:
+  - type: SpawnPoint
+    job_id: BoSWestGunsmith
+  - type: Sprite
+    layers:
+    - state: green
+    - state: gunsmith
+

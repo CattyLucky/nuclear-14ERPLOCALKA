@@ -52,7 +52,7 @@
   layers:
   - !type:BiomeEntityLayer
     allowedTiles:
-    - CorvaxFloorWasteland
+    - ForgeFloorWasteland
     threshold: 0.7
     noise:
       seed: 1
@@ -83,4 +83,4 @@
     - 5
     - 6
     - 8
-    tile: CorvaxFloorWasteland
+    tile: ForgeFloorWasteland

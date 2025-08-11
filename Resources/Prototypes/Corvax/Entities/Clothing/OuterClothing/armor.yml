@@ -243,3 +243,43 @@
         Heat: 0.6
   - type: ToggleableClothing
     clothingPrototype: NCClothingHeadHatBoSReaconHood
+
+- type: entity
+  parent: N14FalloutArmorBase
+  id: N14ClothingOuterKnightWesternArmor
+  name: armor of the knight of the western brotherhood
+  description: Excellent armor produced by the Western Brotherhood. It looks like the designer was based on a power
+  components:
+  - type: Sprite
+    sprite: Corvax/Clothing/OuterClothing/Armor/boskiharmor.rsi
+  - type: Clothing
+    sprite: Corvax/Clothing/OuterClothing/Armor/boskiharmor.rsi
+  - type: Armor
+    modifiers:
+      coefficients:
+        Blunt: 0.7
+        Slash: 0.7
+        Piercing: 0.65
+        Heat: 0.65
+  - type: ExplosionResistance
+    damageCoefficient: 0.8
+
+- type: entity
+  parent: N14FalloutArmorBase
+  id: N14ClothingOuterRecruitWesternArmor
+  name: armor of the squire of the western brotherhood
+  description: Lightweight, comfortable armor designed for protection and high mobility
+  components:
+  - type: Sprite
+    sprite: Corvax/Clothing/OuterClothing/Armor/bossqiarmor.rsi
+  - type: Clothing
+    sprite: Corvax/Clothing/OuterClothing/Armor/bossqiarmor.rsi
+  - type: Armor
+    modifiers:
+      coefficients:
+        Blunt: 0.75
+        Slash: 0.75
+        Piercing: 0.7
+        Heat: 0.7
+  - type: ExplosionResistance
+    damageCoefficient: 0.8

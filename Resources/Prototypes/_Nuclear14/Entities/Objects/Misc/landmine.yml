@@ -1,0 +1,19 @@
+- type: entity
+  name: anti-personnel landmine
+  parent: BaseLandMine
+  id: N14LandMine
+  placement:
+    mode: SnapgridCenter
+  components:
+  - type: ExplodeOnTrigger
+  - type: Explosive # Should be identical copy of a 40mm grenade.
+    explosionType: Default
+    maxIntensity: 8
+    intensitySlope: 6
+    totalIntensity: 15
+    maxTileBreak: 0
+    canCreateVacuum: false
+  - type: PointLight # Forge-Change удалили свечение тайла.
+    color: "#FE321099"
+    radius: 1.3
+    energy: 0.5

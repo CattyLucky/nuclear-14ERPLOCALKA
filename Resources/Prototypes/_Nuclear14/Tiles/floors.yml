@@ -1797,7 +1797,7 @@
   footstepSounds:
     collection: N14FootstepDirt
   heatCapacity: 10000
-  weather: false
+  weather: true
 
 - type: tile
   id: FloorRubble
@@ -2090,3 +2090,4 @@
   heatCapacity: 10000
   weather: true
   indestructible: true
+

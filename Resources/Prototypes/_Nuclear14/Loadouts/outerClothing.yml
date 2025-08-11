@@ -75,7 +75,7 @@
   requirements:
     - !type:CharacterItemGroupRequirement
       group: N14LoadoutOuter
-    - !type:CharacterDepartmentRequirement # Corvax-Change
+    - !type:CharacterDepartmentRequirement # Forge-Change
       inverted: true
       departments:
       - Vault
@@ -89,7 +89,7 @@
   requirements:
     - !type:CharacterItemGroupRequirement
       group: N14LoadoutOuter
-    - !type:CharacterDepartmentRequirement # Corvax-Change
+    - !type:CharacterDepartmentRequirement # Forge-Change
       inverted: true
       departments:
       - Vault
@@ -103,7 +103,7 @@
   requirements:
     - !type:CharacterItemGroupRequirement
       group: N14LoadoutOuter
-    - !type:CharacterDepartmentRequirement # Corvax-Change
+    - !type:CharacterDepartmentRequirement # Forge-Change
       inverted: true
       departments:
       - Vault
@@ -117,7 +117,7 @@
   requirements:
     - !type:CharacterItemGroupRequirement
       group: N14LoadoutOuter
-    - !type:CharacterDepartmentRequirement # Corvax-Change
+    - !type:CharacterDepartmentRequirement # Forge-Change
       inverted: true
       departments:
       - Vault
@@ -141,7 +141,7 @@
   requirements:
     - !type:CharacterItemGroupRequirement
       group: N14LoadoutOuter
-    - !type:CharacterDepartmentRequirement # Corvax-Change
+    - !type:CharacterDepartmentRequirement # Forge-Change
       inverted: true
       departments:
       - Vault
@@ -185,7 +185,7 @@
   requirements:
     - !type:CharacterItemGroupRequirement
       group: N14LoadoutOuter
-    - !type:CharacterDepartmentRequirement # Corvax-Change
+    - !type:CharacterDepartmentRequirement # Forge-Change
       inverted: true
       departments:
       - Vault
@@ -199,7 +199,7 @@
   requirements:
     - !type:CharacterItemGroupRequirement
       group: N14LoadoutOuter
-    - !type:CharacterDepartmentRequirement # Corvax-Change
+    - !type:CharacterDepartmentRequirement # Forge-Change
       inverted: true
       departments:
       - Vault
@@ -213,7 +213,7 @@
   requirements:
     - !type:CharacterItemGroupRequirement
       group: N14LoadoutOuter
-    - !type:CharacterDepartmentRequirement # Corvax-Change
+    - !type:CharacterDepartmentRequirement # Forge-Change
       inverted: true
       departments:
       - Vault
@@ -227,7 +227,7 @@
   requirements:
     - !type:CharacterItemGroupRequirement
       group: N14LoadoutOuter
-    - !type:CharacterDepartmentRequirement # Corvax-Change
+    - !type:CharacterDepartmentRequirement # Forge-Change
       inverted: true
       departments:
       - Vault
@@ -241,7 +241,7 @@
   requirements:
     - !type:CharacterItemGroupRequirement
       group: N14LoadoutOuter
-    - !type:CharacterDepartmentRequirement # Corvax-Change
+    - !type:CharacterDepartmentRequirement # Forge-Change
       inverted: true
       departments:
       - Vault
@@ -255,7 +255,7 @@
   requirements:
     - !type:CharacterItemGroupRequirement
       group: N14LoadoutOuter
-    - !type:CharacterDepartmentRequirement # Corvax-Change
+    - !type:CharacterDepartmentRequirement # Forge-Change
       inverted: true
       departments:
       - Vault
@@ -269,7 +269,7 @@
   requirements:
     - !type:CharacterItemGroupRequirement
       group: N14LoadoutOuter
-    - !type:CharacterDepartmentRequirement # Corvax-Change
+    - !type:CharacterDepartmentRequirement # Forge-Change
       inverted: true
       departments:
       - Vault
@@ -283,7 +283,7 @@
   requirements:
     - !type:CharacterItemGroupRequirement
       group: N14LoadoutOuter
-    - !type:CharacterDepartmentRequirement # Corvax-Change
+    - !type:CharacterDepartmentRequirement # Forge-Change
       inverted: true
       departments:
       - Vault
@@ -300,7 +300,7 @@
       min: 24000
     - !type:CharacterItemGroupRequirement
       group: N14LoadoutOuter
-    - !type:CharacterDepartmentRequirement # Corvax-Change
+    - !type:CharacterDepartmentRequirement # Forge-Change
       inverted: true
       departments:
       - Vault

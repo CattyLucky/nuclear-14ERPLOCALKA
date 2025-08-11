@@ -21,6 +21,8 @@
   icon: "JobIconLegioner"
   supervisors: job-name-caesar-legion-supervisors
   canBeAntag: false
+  access:
+  - CaesarLegion
   special:
   - !type:AddComponentSpecial
     components:

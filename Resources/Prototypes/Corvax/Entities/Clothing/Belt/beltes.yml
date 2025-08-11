@@ -1,0 +1,47 @@
+- type: entity
+  parent: N14ClothingBeltStorageBase
+  id: N14ClothingBeltBoSWesternKhignht
+  name: Knight unloading
+  description: The latest generation of unloading combines great convenience with good capacity
+  components:
+  - type: Sprite
+    sprite: Corvax/Clothing/Belt/knightunloading.rsi
+  - type: Clothing
+    sprite: Corvax/Clothing/Belt/knightunloading.rsi
+  - type: Appearance
+  - type: Storage
+    whitelist:
+      tags:
+        - Wrench
+        - Bottle
+        - Spray
+        - Brutepack
+        - Bloodpack
+        - Gauze
+        - Ointment
+        - CigPack
+        - PillCanister
+        - Radio
+        - DiscreteHealthAnalyzer
+        - SurgeryTool
+        - CigPack
+        - N14AmmoCell
+      components:
+        - Hypospray
+        - Injector
+        - Pill
+        - HandLabeler
+        - BallisticAmmoProvider
+        - CartridgeAmmo
+
+- type: entity
+  parent: N14ClothingBeltStorageBase
+  id: N14ClothingBeltBosLeatherunl
+  name: Leatherunl unloading
+  description: Standard leather load-bearing harness. Comfortable and durable
+  components:
+  - type: Sprite
+    sprite: Corvax/Clothing/Belt/leatherunloading.rsi
+  - type: Clothing
+    sprite: Corvax/Clothing/Belt/leatherunloading.rsi
+  - type: Appearance

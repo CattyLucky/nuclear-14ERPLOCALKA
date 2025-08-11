@@ -1,0 +1,92 @@
+- type: entity
+  name: Magneto-laser pistol
+  parent: N14BaseWeaponPowerCellSmall
+  id: N14WeaponLaserMagnetoPistol
+  description: This 1000-watt laser gun has been upgraded with a magnetic calibration system that condenses the laser beam, increasing its penetrating power.
+  components:
+  - type: Sprite
+    sprite: Corvax/Objects/Weapons/Guns/Laser/magnetolaserpistol.rsi
+    layers:
+    - state: base
+      map: ["enum.GunVisualLayers.Base"]
+    - state: mag-unshaded-1
+      map: ["enum.GunVisualLayers.MagUnshaded"]
+      shader: unshaded
+  - type: Clothing
+    sprite: Corvax/Objects/Weapons/Guns/Laser/magnetolaserpistol.rsi
+  - type: MagazineVisuals
+    magState: mag
+    steps: 5
+    zeroVisible: true
+  - type: ItemSlots
+    slots:
+      gun_magazine:
+        name: Magazine
+        startingItem: N14PowerCellMagnetoSmall
+        insertSound: /Audio/Weapons/Guns/MagIn/batrifle_magin.ogg
+        ejectSound: /Audio/Weapons/Guns/MagOut/batrifle_magout.ogg
+        whitelist:
+          tags:
+            - N14PowerCellMagnetoSmall
+  - type: Item
+    size: Small
+    shape:
+    - 0,0,1,1
+    - 0,0,1,1
+  - type: Gun
+    fireRate: 1.5
+    soundGunshot:
+      collection: N14LaserPistolGunshot
+  - type: FollowDistance
+    backStrength: 6
+  - type: StaticPrice
+    price: 80
+  - type: Cautery
+    speed: 0.3
+
+- type: entity
+  name: yk42b pulse rifle 
+  parent: N14BaseWeaponPowerCellMedium
+  id: N14WeaponLaserRifleYk42b
+  description: The YK42B is a pulse weapon developed by the Yuma Flats Consortium. It is considered to be more advanced compared to the YK32 pistol, having greater range and energy capacity.
+  components:
+  - type: Wieldable
+  - type: GunWieldBonus
+    minAngle: -24
+    maxAngle: -58
+  - type: Sprite
+    sprite: Corvax/Objects/Weapons/Guns/Laser/yk42bpulserifle.rsi
+    layers:
+    - state: base
+      map: ["enum.GunVisualLayers.Base"]
+  - type: Clothing
+    sprite: Corvax/Objects/Weapons/Guns/Laser/yk42bpulserifle.rsi
+    quickEquip: false
+    slots:
+    - Back
+    - suitStorage
+  - type: MagazineVisuals
+    magState: mag
+    steps: 5
+    zeroVisible: true
+  - type: ItemSlots
+    slots:
+      gun_magazine:
+        name: Magazine
+        startingItem: N14PowerCellFocusedYk42b
+        insertSound: /Audio/Weapons/Guns/MagIn/batrifle_magin.ogg
+        ejectSound: /Audio/Weapons/Guns/MagOut/batrifle_magout.ogg
+        whitelist:
+          tags:
+            - N14PowerCellFocusedYk42b
+  - type: Gun
+    fireRate: 1
+    soundGunshot:
+      collection: N14WattzGunshot
+    selectedMode: SemiAuto
+    availableModes:
+    - SemiAuto
+  - type: FollowDistance
+    backStrength: 4
+  - type: StaticPrice
+    price: 300
