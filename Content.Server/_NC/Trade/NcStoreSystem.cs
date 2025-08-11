@@ -1,6 +1,10 @@
 using System.Linq;
 using Content.Shared._NC.Trade;
+using Content.Shared.Access;
+using Content.Shared.Access.Components;
+using Content.Shared.Access.Systems;
 using Robust.Server.GameObjects;
+using Robust.Shared.Prototypes;
 
 
 namespace Content.Server._NC.Trade;
@@ -9,6 +13,8 @@ namespace Content.Server._NC.Trade;
 public sealed class NcStoreSystem : EntitySystem
 {
     private static readonly ISawmill Sawmill = Logger.GetSawmill("ncstore");
+
+    [Dependency] private readonly AccessReaderSystem _access = default!;
     [Dependency] private readonly IEntityManager _entMan = default!;
     [Dependency] private readonly IEntitySystemManager _sysMan = default!;
     [Dependency] private readonly TransformSystem _transform = default!;
@@ -27,7 +33,6 @@ public sealed class NcStoreSystem : EntitySystem
             return;
 
         var logic = _sysMan.GetEntitySystem<NcStoreLogicSystem>();
-        // Найти listing по id
         var listing = comp.Listings.FirstOrDefault(x => x.Id == msg.ListingId);
         if (listing == null)
         {
@@ -42,7 +47,6 @@ public sealed class NcStoreSystem : EntitySystem
             result = logic.TrySell(listing.Id, uid, comp, actor);
         else
             Sawmill.Warning($"[Buy] Unsupported listing mode: {listing.Mode}");
-
         if (result)
         {
             Sawmill.Info($"[Buy] {ToPrettyString(actor)} купил '{msg.ListingId}' у {ToPrettyString(uid)}.");
@@ -99,18 +103,79 @@ public sealed class NcStoreSystem : EntitySystem
     {
         if (_entMan.TryGetComponent(storeUid, out NcStoreComponent? storeComp))
         {
+            if (_entMan.TryGetComponent(storeUid, out AccessReaderComponent? reader))
+            {
+                if (!_access.IsAllowed(user, storeUid, reader))
+                {
+                    Sawmill.Warning($"[UI] Нет доступа: {ToPrettyString(user)} -> {ToPrettyString(storeUid)}.");
+                    return false;
+                }
+            }
+            else if (storeComp.Access is { Count: > 0, })
+            {
+                var fake = new AccessReaderComponent();
+                fake.AccessLists.Clear();
+
+                foreach (var group in storeComp.Access)
+                {
+                    var set = new HashSet<ProtoId<AccessLevelPrototype>>();
+
+                    foreach (var token in group)
+                    {
+                        if (IoCManager.Resolve<IPrototypeManager>().TryIndex<AccessLevelPrototype>(token, out _))
+                        {
+                            set.Add(new(token));
+                            continue;
+                        }
+
+                        if (IoCManager.Resolve<IPrototypeManager>().TryIndex<AccessGroupPrototype>(token, out var grp))
+                        {
+                            if (set.Count > 0)
+                            {
+                                fake.AccessLists.Add(set);
+                                set = new();
+                            }
+
+                            foreach (var lvl in grp.Tags)
+                                fake.AccessLists.Add(new() { lvl, });
+
+                            continue;
+                        }
+
+                        Sawmill.Warning(
+                            $"[Access] Unknown access token '{token}' on {ToPrettyString(storeUid)}; skipping.");
+                    }
+
+                    if (set.Count > 0)
+                        fake.AccessLists.Add(set);
+                }
+
+                if (fake.AccessLists.Count == 0)
+                {
+                    Sawmill.Warning(
+                        $"[Access] All access groups invalid/empty on {ToPrettyString(storeUid)}; denying.");
+                    return false;
+                }
+
+                if (!_access.IsAllowed(user, storeUid, fake)) // <— порядок аргументов исправлен
+                {
+                    Sawmill.Warning(
+                        $"[UI] Нет доступа (fallback): {ToPrettyString(user)} -> {ToPrettyString(storeUid)}.");
+                    return false;
+                }
+            }
+
             if (storeComp.CurrentUser == null || storeComp.CurrentUser != user)
             {
                 Sawmill.Warning(
-                    $"[UI] Store busy: {ToPrettyString(storeUid)}. " +
-                    $"Current={ToPrettyString(storeComp.CurrentUser)},  " +
-                    $"Attempt={ToPrettyString(user)}");
+                    $"[UI] Store busy: {ToPrettyString(storeUid)}. Current={ToPrettyString(storeComp.CurrentUser)}, Attempt={ToPrettyString(user)}");
                 return false;
             }
         }
 
         if (!_entMan.EntityExists(user))
             return false;
+
         if (!_entMan.TryGetComponent(storeUid, out TransformComponent? storeXform) ||
             !_entMan.TryGetComponent(user, out TransformComponent? userXform))
             return false;

@@ -17,21 +17,19 @@ namespace Content.Client._NC.Trade;
 [GenerateTypedNameReferences]
 public sealed partial class NcStoreMenu : FancyWindow
 {
-    /* ─────────── палитра Nano для категорий ─────────── */
     private const string CatIdleClass = ContainerButton.StyleClassButton;
-    private static readonly Color CatSelected = new(0xD9, 0xA4, 0x41); // яркое золото
-    private static readonly Color CatIdle = new(0x7C, 0x66, 0x24); // тусклый золото
+    private static readonly Color CatSelected = new(0xD9, 0xA4, 0x41);
+    private static readonly Color CatIdle = new(0x7C, 0x66, 0x24);
 
     private static readonly string[] CatPalette =
     {
-        StyleNano.StyleClassButtonColorGreen, // первый оттенок
-        StyleNano.StyleClassButtonColorRed, // второй оттенок
-        ContainerButton.StyleClassButton // классический серый
+        StyleNano.StyleClassButtonColorGreen,
+        StyleNano.StyleClassButtonColorRed,
+        ContainerButton.StyleClassButton
     };
 
     private readonly List<string> _buyCats = new();
 
-    /* ─────────── состояние ────────── */
     private readonly List<StoreListingData> _items = new();
     private readonly IPrototypeManager _proto;
     private readonly List<string> _sellCats = new();
@@ -58,11 +56,9 @@ public sealed partial class NcStoreMenu : FancyWindow
             RefreshListings();
         };
 
-        /* баланс — крупный жёлтый текст Nano */
         BalanceLabel.StyleClasses.Add(StyleNano.StyleClassLabelHeadingBigger);
     }
 
-    /* ─────────── события ─────────── */
     public event Action<string>? OnSearchChanged;
     public event Action<string>? OnBuyCategoryChanged;
     public event Action<string>? OnSellCategoryChanged;
@@ -70,7 +66,6 @@ public sealed partial class NcStoreMenu : FancyWindow
     public event Action<StoreListingData>? OnSellPressed;
     public event Action<StoreListingData>? OnExchangePressed;
 
-    /* ────────── API ────────── */
     public void Populate(List<StoreListingData> list)
     {
         _items.Clear();
@@ -104,7 +99,6 @@ public sealed partial class NcStoreMenu : FancyWindow
         BalanceInfo.SetMarkup($"[font size=14][color=yellow]{balance}[/color][/font]");
     }
 
-    /* ────────── категории ───────── */
     private void BuildCategoryButtons()
     {
         MakeButtons(
@@ -165,10 +159,16 @@ public sealed partial class NcStoreMenu : FancyWindow
     }
 
 
-    /* ────────── лоты ───────── */
     private void RefreshListings()
     {
         BuildCategoryButtons();
+        BuyCategoryHeader.Text = string.IsNullOrEmpty(_buyCat)
+            ? "Выберите категорию"
+            : _buyCat;
+
+        SellCategoryHeader.Text = string.IsNullOrEmpty(_sellCat)
+            ? "Выберите категорию"
+            : _sellCat;
         FillPane(BuyListingsContainer, StoreMode.Buy, _buyCat, d => OnBuyPressed?.Invoke(d));
         FillPane(SellListingsContainer, StoreMode.Sell, _sellCat, d => OnSellPressed?.Invoke(d));
     }
@@ -227,7 +227,6 @@ public sealed partial class NcStoreMenu : FancyWindow
 
             pane.AddChild(ctrl);
 
-            // тонкая линия между лотами, кроме последнего
             if (i < filtered.Count - 1)
             {
                 pane.AddChild(
@@ -240,7 +239,6 @@ public sealed partial class NcStoreMenu : FancyWindow
         }
     }
 
-    /* ────────── поиск ───────── */
     private bool MatchesSearch(string protoId)
     {
         if (string.IsNullOrWhiteSpace(_search))

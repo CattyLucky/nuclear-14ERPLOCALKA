@@ -20,4 +20,7 @@ public sealed partial class NcStoreComponent : Component
 
     [DataField("preset")]
     public string? Preset;
+
+    [DataField("access")]
+    public List<List<string>>? Access;
 }

@@ -12,23 +12,34 @@ public sealed class StoreSystemStructuredLoader : EntitySystem
     [Dependency] private readonly IPrototypeManager _prototypes = default!;
     [Dependency] private readonly IRobustRandom _random = default!;
 
-    public override void Initialize() => SubscribeLocalEvent<NcStoreComponent, MapInitEvent>(OnMapInit);
+    public override void Initialize()
+    {
+        SubscribeLocalEvent<NcStoreComponent, MapInitEvent>(OnMapInit);
+        SubscribeLocalEvent<NcStoreComponent, ComponentStartup>(OnStartup);
+    }
 
-    private void OnMapInit(EntityUid uid, NcStoreComponent comp, MapInitEvent args)
+    private void OnMapInit(EntityUid uid, NcStoreComponent comp, MapInitEvent args) =>
+        TryLoadPreset(uid, comp, "MapInit");
+
+    private void OnStartup(EntityUid uid, NcStoreComponent comp, ComponentStartup args)
+    {
+        if (comp.Listings.Count == 0)
+            TryLoadPreset(uid, comp, "ComponentStartup");
+    }
+
+    private void TryLoadPreset(EntityUid uid, NcStoreComponent comp, string reason)
     {
         if (string.IsNullOrWhiteSpace(comp.Preset))
         {
-            Sawmill.Warning($"[NcStore] Нет указанного пресета у магазина {ToPrettyString(uid)}");
+            Sawmill.Warning($"[NcStore] Нет пресета у {ToPrettyString(uid)} ({reason})");
             return;
         }
 
         if (!_prototypes.TryIndex<StorePresetStructuredPrototype>(comp.Preset, out var preset))
         {
-            Sawmill.Error($"[NcStore] Пресет '{comp.Preset}' не найден для магазина {ToPrettyString(uid)}");
+            Sawmill.Error($"[NcStore] Пресет '{comp.Preset}' не найден для {ToPrettyString(uid)} ({reason})");
             return;
         }
-
-        Sawmill.Info($"[NcStore] Загружается пресет '{comp.Preset}' для {ToPrettyString(uid)}");
 
         comp.CurrencyWhitelist.Clear();
         comp.Categories.Clear();
@@ -37,7 +48,6 @@ public sealed class StoreSystemStructuredLoader : EntitySystem
         comp.CurrencyWhitelist.Add(preset.Currency);
 
         var count = 0;
-
         foreach (var (modeStr, categories) in preset.Catalog)
         {
             var mode = modeStr switch
@@ -49,7 +59,6 @@ public sealed class StoreSystemStructuredLoader : EntitySystem
 
             foreach (var (category, entries) in categories)
             {
-                // Добавляем категорию в компонент, если ещё не добавлена
                 if (!comp.Categories.Contains(category))
                     comp.Categories.Add(category);
 
@@ -57,22 +66,23 @@ public sealed class StoreSystemStructuredLoader : EntitySystem
                 {
                     var id = $"{mode}_{category}_{entry.Proto}_{_random.Next(100000)}";
 
-                    var listing = new StoreListingPrototype
-                    {
-                        Id = id,
-                        ProductEntity = entry.Proto,
-                        Cost = new() { [preset.Currency] = entry.Price, },
-                        Categories = [category,],
-                        Conditions = new(),
-                        Mode = mode
-                    };
+                    comp.Listings.Add(
+                        new()
+                        {
+                            Id = id,
+                            ProductEntity = entry.Proto,
+                            Cost = new() { [preset.Currency] = entry.Price, },
+                            Categories = [category,],
+                            Conditions = new(),
+                            Mode = mode
+                        });
 
-                    comp.Listings.Add(listing);
-                    count++; // увеличиваем счётчик товаров
+                    count++;
                 }
             }
         }
 
-        Sawmill.Info($"[NcStore] Всего товаров: {count} для {ToPrettyString(uid)}");
+        Sawmill.Info(
+            $"[NcStore] Загружено {count} товаров для {ToPrettyString(uid)} (preset={comp.Preset}, reason={reason})");
     }
 }

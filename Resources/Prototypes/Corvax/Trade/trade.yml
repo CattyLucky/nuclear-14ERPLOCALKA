@@ -6,6 +6,8 @@
   components:
   - type: NcStore
     preset: nuka_store
+    access:
+    - [ "TownieShopkeeper" ]
   - type: UserInterface
     interfaces:
       enum.StoreUiKey.Key:

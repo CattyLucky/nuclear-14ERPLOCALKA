@@ -12,7 +12,6 @@
 
         <!-- ───── Верхняя панель (баланс + поиск) ───── -->
         <BoxContainer Orientation="Horizontal" Margin="4 4 4 0" StyleClasses="PanelBackgroundBaseDark">
-            <!-- Эмодзи монетки -->
             <Label Text="💰" Margin="0 0 4 0"/>
             <RichTextLabel Name="BalanceInfo"
                            StyleClasses="LabelHeading"
@@ -36,32 +35,47 @@
                             <BoxContainer Name="BuyCategoryListContainer" Orientation="Vertical"/>
                         </ScrollContainer>
                     </PanelContainer>
+
                     <!-- Divider -->
                     <PanelContainer MinWidth="1" StyleClasses="HighDivider"/>
-                    <!-- Лоты -->
-                    <ScrollContainer Name="BuyListingsScroll" VerticalExpand="True" HorizontalExpand="True">
-                        <!-- ВАЖНО: убран VerticalExpand! -->
-                        <BoxContainer Name="BuyListingsContainer" Orientation="Vertical"/>
-                    </ScrollContainer>
+
+                    <!-- Правая колонка: Заголовок категории + лоты -->
+                    <BoxContainer Orientation="Vertical" VerticalExpand="True" HorizontalExpand="True" Margin="6 4 6 4">
+                        <!-- Заголовок выбранной категории -->
+                        <Label Name="BuyCategoryHeader"
+                               StyleClasses="LabelHeading"
+                               Margin="0 0 0 6"
+                               Text="Выберите категорию"/>
+
+                        <!-- Лоты -->
+                        <ScrollContainer Name="BuyListingsScroll" VerticalExpand="True" HorizontalExpand="True">
+                            <BoxContainer Name="BuyListingsContainer" Orientation="Vertical"/>
+                        </ScrollContainer>
+                    </BoxContainer>
                 </BoxContainer>
             </PanelContainer>
 
             <!-- Продажа -->
             <PanelContainer Name="Продажа" VerticalExpand="True" StyleClasses="PanelBackgroundBaseDark">
                 <BoxContainer Orientation="Horizontal" VerticalExpand="True">
-                    <!-- Категории -->
                     <PanelContainer VerticalExpand="True" MinWidth="180" StyleClasses="PanelBackgroundBaseDark">
                         <ScrollContainer VerticalExpand="True">
                             <BoxContainer Name="SellCategoryListContainer" Orientation="Vertical"/>
                         </ScrollContainer>
                     </PanelContainer>
-                    <!-- Divider -->
+
                     <PanelContainer MinWidth="1" StyleClasses="HighDivider"/>
-                    <!-- Лоты -->
-                    <ScrollContainer Name="SellListingsScroll" VerticalExpand="True" HorizontalExpand="True">
-                        <!-- ВАЖНО: убран VerticalExpand! -->
-                        <BoxContainer Name="SellListingsContainer" Orientation="Vertical"/>
-                    </ScrollContainer>
+
+                    <BoxContainer Orientation="Vertical" VerticalExpand="True" HorizontalExpand="True" Margin="6 4 6 4">
+                        <Label Name="SellCategoryHeader"
+                               StyleClasses="LabelHeading"
+                               Margin="0 0 0 6"
+                               Text="Выберите категорию"/>
+
+                        <ScrollContainer Name="SellListingsScroll" VerticalExpand="True" HorizontalExpand="True">
+                            <BoxContainer Name="SellListingsContainer" Orientation="Vertical"/>
+                        </ScrollContainer>
+                    </BoxContainer>
                 </BoxContainer>
             </PanelContainer>
         </TabContainer>

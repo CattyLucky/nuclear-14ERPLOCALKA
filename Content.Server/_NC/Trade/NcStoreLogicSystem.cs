@@ -33,6 +33,69 @@ public sealed class NcStoreLogicSystem : EntitySystem
         return total;
     }
 
+    private bool TryPickCurrencyForBuy(
+        NcStoreComponent store,
+        StoreListingPrototype listing,
+        EntityUid user,
+        out string currency,
+        out int price
+    )
+    {
+        currency = string.Empty;
+        price = 0;
+
+        var balances = new Dictionary<string, int>(store.CurrencyWhitelist.Count);
+        foreach (var cur in store.CurrencyWhitelist)
+            balances[cur] = GetBalance(user, cur);
+
+        foreach (var cur in store.CurrencyWhitelist)
+        {
+            if (!listing.Cost.TryGetValue(cur, out var priceF))
+                continue;
+
+            var p = (int) MathF.Ceiling(priceF);
+            if (p <= 0)
+                continue;
+
+            if (!balances.TryGetValue(cur, out var bal) || bal < p)
+                continue;
+
+            currency = cur;
+            price = p;
+            return true;
+        }
+
+        return false;
+    }
+
+
+    private bool TryPickCurrencyForSell(
+        NcStoreComponent store,
+        StoreListingPrototype listing,
+        out string currency,
+        out int price
+    )
+    {
+        currency = string.Empty;
+        price = 0;
+
+        foreach (var cur in store.CurrencyWhitelist)
+        {
+            if (!listing.Cost.TryGetValue(cur, out var priceF))
+                continue;
+
+            var p = (int) MathF.Ceiling(priceF);
+            if (p <= 0)
+                continue;
+
+            currency = cur;
+            price = p;
+            return true;
+        }
+
+        return false;
+    }
+
     public bool TryBuy(string listingId, EntityUid machine, NcStoreComponent? store, EntityUid user)
     {
         if (store == null || store.Listings.Count == 0)
@@ -42,20 +105,25 @@ public sealed class NcStoreLogicSystem : EntitySystem
         if (listing == null)
             return false;
 
-        var price = (int) listing.Cost.First().Value;
-        var currencyStackType = store.CurrencyWhitelist.FirstOrDefault();
-        if (string.IsNullOrEmpty(currencyStackType))
+        if (!_protos.TryIndex<EntityPrototype>(listing.ProductEntity, out _))
             return false;
 
-        if (GetBalance(user, currencyStackType) < price)
-            return false;
-        if (!TryTakeCurrency(user, currencyStackType, price))
+        if (!TryPickCurrencyForBuy(store, listing, user, out var currency, out var price))
             return false;
 
-        SpawnProduct(listing.ProductEntity, user);
-        Sawmill.Info($"TryBuy: BUY success. Spawning {listing.ProductEntity}");
+        if (!TryTakeCurrency(user, currency, price))
+            return false;
+
+        if (!TrySpawnProduct(listing.ProductEntity, user))
+        {
+            GiveCurrency(user, currency, price);
+            return false;
+        }
+
+        Sawmill.Info($"TryBuy: OK {listing.ProductEntity} x1 for {price} {currency}");
         return true;
     }
+
 
     public bool TrySell(string listingId, EntityUid machine, NcStoreComponent? store, EntityUid user)
     {
@@ -66,17 +134,20 @@ public sealed class NcStoreLogicSystem : EntitySystem
         if (listing == null)
             return false;
 
-        var price = Math.Abs((int) listing.Cost.First().Value);
-        var currencyStackType = store.CurrencyWhitelist.FirstOrDefault();
-        if (string.IsNullOrEmpty(currencyStackType))
+        if (!TryPickCurrencyForSell(store, listing, out var currency, out var price))
             return false;
 
-        if (!RemoveItemByProto(user, listing.ProductEntity))
+        if (price <= 0)
             return false;
 
-        GiveCurrency(user, currencyStackType, price);
-        Sawmill.Info(
-            $"TrySell: SELL success. User {user} sold {listing.ProductEntity} for {currencyStackType} ({price})");
+        if (!_protos.TryIndex<StackPrototype>(currency, out _))
+            return false;
+
+        if (!RemoveItemsByProto(user, listing.ProductEntity, 1))
+            return false;
+
+        GiveCurrency(user, currency, price);
+        Sawmill.Info($"TrySell: SELL success. User {user} sold {listing.ProductEntity} for {currency} ({price})");
         return true;
     }
 
@@ -150,77 +221,199 @@ public sealed class NcStoreLogicSystem : EntitySystem
 
     private bool TryTakeCurrency(EntityUid user, string stackType, int amount)
     {
-        foreach (var entity in EnumerateDeepItemsUnique(user))
-            if (_ents.TryGetComponent(entity, out StackComponent? stack)
-                && stack.StackTypeId == stackType)
+        if (amount <= 0)
+            return true;
+
+        var cands = new List<(EntityUid Ent, int Count)>();
+        var total = 0;
+        foreach (var ent in EnumerateDeepItemsUnique(user))
+            if (_ents.TryGetComponent(ent, out StackComponent? st)
+                && st.StackTypeId == stackType
+                && st.Count > 0)
             {
-                var toRemove = Math.Min(stack.Count, amount);
-                _ents.System<SharedStackSystem>().SetCount(entity, stack.Count - toRemove, stack);
-                amount -= toRemove;
-                if (amount <= 0)
-                    return true;
+                cands.Add((ent, st.Count));
+                total += st.Count;
             }
 
-        return false;
+        if (total < amount)
+            return false;
+        cands.Sort((a, b) => a.Count.CompareTo(b.Count));
+
+        var left = amount;
+        foreach (var (ent, have) in cands)
+        {
+            if (left <= 0)
+                break;
+
+            var take = Math.Min(have, left);
+            if (_ents.TryGetComponent(ent, out StackComponent? st))
+            {
+                var newCount = st.Count - take;
+                _stacks.SetCount(ent, newCount, st);
+                if (newCount <= 0 && _ents.EntityExists(ent))
+                    _ents.DeleteEntity(ent);
+            }
+
+            left -= take;
+        }
+
+        return true;
     }
+
 
     private void GiveCurrency(EntityUid user, string stackType, int amount)
     {
         if (amount <= 0)
             return;
 
-        foreach (var ent in EnumerateDeepItemsUnique(user))
-            if (_ents.TryGetComponent(ent, out StackComponent? stack) &&
-                stack.StackTypeId == stackType)
-            {
-                stack.Unlimited = true;
-                _stacks.SetCount(ent, stack.Count + amount, stack);
-                return;
-            }
-
         if (!_protos.TryIndex<StackPrototype>(stackType, out var proto))
             return;
 
-        var coords = _ents.GetComponent<TransformComponent>(user).Coordinates;
-        var spawned = _ents.SpawnEntity(proto.Spawn, coords);
-
-        if (_ents.TryGetComponent(spawned, out StackComponent? newStack))
+        foreach (var ent in EnumerateDeepItemsUnique(user))
         {
-            newStack.Unlimited = true;
-            _stacks.SetCount(spawned, amount, newStack);
-        }
+            if (amount <= 0)
+                break;
 
-        if (_ents.HasComponent<HandsComponent>(user))
-            _hands.TryPickupAnyHand(user, spawned, false);
-    }
+            if (!_ents.TryGetComponent(ent, out StackComponent? st) || st.StackTypeId != stackType)
+                continue;
 
-
-    private bool RemoveItemByProto(EntityUid user, string protoId)
-    {
-        foreach (var entity in EnumerateDeepItemsUnique(user))
-        {
-            var meta = _ents.GetComponent<MetaDataComponent>(entity);
-            if (meta.EntityPrototype?.ID == protoId)
+            if (proto.MaxCount is { } max)
             {
-                if (_ents.TryGetComponent(entity, out StackComponent? stack) && stack.Count > 1)
-                    _stacks.SetCount(entity, stack.Count - 1, stack);
-                else
-                    _ents.DeleteEntity(entity);
-                return true;
+                var canAdd = Math.Max(0, max - st.Count);
+                if (canAdd <= 0)
+                    continue;
+
+                var add = Math.Min(canAdd, amount);
+                _stacks.SetCount(ent, st.Count + add, st);
+                amount -= add;
+            }
+            else
+            {
+                _stacks.SetCount(ent, st.Count + amount, st);
+                amount = 0;
+                break;
             }
         }
 
-        return false;
+        if (amount <= 0)
+            return;
+
+        var coords = _ents.GetComponent<TransformComponent>(user).Coordinates;
+
+        while (amount > 0)
+        {
+            var add = proto.MaxCount is { } maxPerStack
+                ? Math.Min(amount, Math.Max(1, maxPerStack))
+                : amount;
+
+            var spawned = _ents.SpawnEntity(proto.Spawn, coords);
+
+            if (_ents.TryGetComponent(spawned, out StackComponent? newStack))
+                _stacks.SetCount(spawned, add, newStack);
+
+            if (_ents.HasComponent<HandsComponent>(user))
+                _hands.TryPickupAnyHand(user, spawned, false);
+
+            amount -= add;
+        }
     }
 
 
-    private void SpawnProduct(string protoId, EntityUid user)
+    private int CountItemsByProto(EntityUid user, string protoId)
     {
-        var userXform = _ents.GetComponent<TransformComponent>(user);
-        var coords = userXform.Coordinates;
-        var spawned = _ents.SpawnEntity(protoId, coords);
+        var total = 0;
 
-        if (_ents.HasComponent<HandsComponent>(user))
-            _hands.TryPickupAnyHand(user, spawned, false);
+        foreach (var ent in EnumerateDeepItemsUnique(user))
+        {
+            if (!_ents.TryGetComponent(ent, out MetaDataComponent? meta))
+                continue;
+            if (meta.EntityPrototype?.ID != protoId)
+                continue;
+
+            if (_ents.TryGetComponent(ent, out StackComponent? stack))
+                total += Math.Max(stack.Count, 0);
+            else
+                total += 1;
+        }
+
+        return total;
+    }
+
+    private bool RemoveItemsByProto(EntityUid user, string protoId, int count)
+    {
+        if (count <= 0)
+            return true;
+
+        var have = CountItemsByProto(user, protoId);
+        if (have < count)
+            return false;
+
+        var candidates = new List<(EntityUid Ent, int Available, bool IsStack)>();
+        foreach (var ent in EnumerateDeepItemsUnique(user))
+        {
+            if (!_ents.TryGetComponent(ent, out MetaDataComponent? meta))
+                continue;
+            if (meta.EntityPrototype?.ID != protoId)
+                continue;
+
+            if (_ents.TryGetComponent(ent, out StackComponent? stack))
+                candidates.Add((ent, Math.Max(stack.Count, 0), true));
+            else
+                candidates.Add((ent, 1, false));
+        }
+
+        candidates.Sort((a, b) =>
+        {
+            if (a.IsStack != b.IsStack)
+                return a.IsStack ? -1 : 1;
+            return a.Available.CompareTo(b.Available);
+        });
+
+        var left = count;
+        foreach (var (ent, available, isStack) in candidates)
+        {
+            if (left <= 0)
+                break;
+
+            var take = Math.Min(available, left);
+
+            if (isStack)
+            {
+                if (_ents.TryGetComponent(ent, out StackComponent? stack))
+                {
+                    var newCount = stack.Count - take;
+                    _stacks.SetCount(ent, newCount, stack);
+                    if (newCount <= 0 && _ents.EntityExists(ent))
+                        _ents.DeleteEntity(ent);
+                }
+            }
+            else
+            {
+                if (_ents.EntityExists(ent))
+                    _ents.DeleteEntity(ent);
+            }
+
+            left -= take;
+        }
+
+        return left <= 0;
+    }
+
+
+    private bool TrySpawnProduct(string protoId, EntityUid user)
+    {
+        try
+        {
+            var coords = _ents.GetComponent<TransformComponent>(user).Coordinates;
+            var spawned = _ents.SpawnEntity(protoId, coords);
+            if (_ents.HasComponent<HandsComponent>(user))
+                _hands.TryPickupAnyHand(user, spawned, false);
+            return true;
+        }
+        catch (Exception e)
+        {
+            Sawmill.Error($"Spawn failed for {protoId}: {e}");
+            return false;
+        }
     }
 }
