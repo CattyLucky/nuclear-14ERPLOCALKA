@@ -1,7 +1,6 @@
 <controls1:FancyWindow
     xmlns="https://spacestation14.io"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="clr-namespace:Content.Client._NC.Trade"
     xmlns:controls1="clr-namespace:Content.Client.UserInterface.Controls"
     Title="Магазин"
     MinWidth="1100" MinHeight="720"
@@ -12,16 +11,16 @@
 
         <!-- ───── Верхняя панель (баланс + поиск) ───── -->
         <BoxContainer Orientation="Horizontal" Margin="4 4 4 0" StyleClasses="PanelBackgroundBaseDark">
-            <Label Text="💰" Margin="0 0 4 0"/>
+            <Label Text="💰" Margin="0 0 4 0" />
             <RichTextLabel Name="BalanceInfo"
                            StyleClasses="LabelHeading"
-                           HorizontalExpand="False"/>
-            <Control HorizontalExpand="True"/>
-            <Label Text="🔍" Margin="0 0 4 0"/>
+                           HorizontalExpand="False" />
+            <Control HorizontalExpand="True" />
+            <Label Text="🔍" Margin="0 0 4 0" />
             <LineEdit Name="SearchBar"
                       HorizontalExpand="False"
                       MinWidth="250"
-                      Access="Public"/>
+                      Access="Public" />
         </BoxContainer>
 
         <!-- ───── Основные вкладки ───── -->
@@ -32,12 +31,12 @@
                     <!-- Категории -->
                     <PanelContainer VerticalExpand="True" MinWidth="180" StyleClasses="PanelBackgroundBaseDark">
                         <ScrollContainer VerticalExpand="True">
-                            <BoxContainer Name="BuyCategoryListContainer" Orientation="Vertical"/>
+                            <BoxContainer Name="BuyCategoryListContainer" Orientation="Vertical" />
                         </ScrollContainer>
                     </PanelContainer>
 
                     <!-- Divider -->
-                    <PanelContainer MinWidth="1" StyleClasses="HighDivider"/>
+                    <PanelContainer MinWidth="1" StyleClasses="HighDivider" />
 
                     <!-- Правая колонка: Заголовок категории + лоты -->
                     <BoxContainer Orientation="Vertical" VerticalExpand="True" HorizontalExpand="True" Margin="6 4 6 4">
@@ -45,11 +44,11 @@
                         <Label Name="BuyCategoryHeader"
                                StyleClasses="LabelHeading"
                                Margin="0 0 0 6"
-                               Text="Выберите категорию"/>
+                               Text="Выберите категорию" />
 
                         <!-- Лоты -->
                         <ScrollContainer Name="BuyListingsScroll" VerticalExpand="True" HorizontalExpand="True">
-                            <BoxContainer Name="BuyListingsContainer" Orientation="Vertical"/>
+                            <BoxContainer Name="BuyListingsContainer" Orientation="Vertical" />
                         </ScrollContainer>
                     </BoxContainer>
                 </BoxContainer>
@@ -60,20 +59,20 @@
                 <BoxContainer Orientation="Horizontal" VerticalExpand="True">
                     <PanelContainer VerticalExpand="True" MinWidth="180" StyleClasses="PanelBackgroundBaseDark">
                         <ScrollContainer VerticalExpand="True">
-                            <BoxContainer Name="SellCategoryListContainer" Orientation="Vertical"/>
+                            <BoxContainer Name="SellCategoryListContainer" Orientation="Vertical" />
                         </ScrollContainer>
                     </PanelContainer>
 
-                    <PanelContainer MinWidth="1" StyleClasses="HighDivider"/>
+                    <PanelContainer MinWidth="1" StyleClasses="HighDivider" />
 
                     <BoxContainer Orientation="Vertical" VerticalExpand="True" HorizontalExpand="True" Margin="6 4 6 4">
                         <Label Name="SellCategoryHeader"
                                StyleClasses="LabelHeading"
                                Margin="0 0 0 6"
-                               Text="Выберите категорию"/>
+                               Text="Выберите категорию" />
 
                         <ScrollContainer Name="SellListingsScroll" VerticalExpand="True" HorizontalExpand="True">
-                            <BoxContainer Name="SellListingsContainer" Orientation="Vertical"/>
+                            <BoxContainer Name="SellListingsContainer" Orientation="Vertical" />
                         </ScrollContainer>
                     </BoxContainer>
                 </BoxContainer>
@@ -82,14 +81,14 @@
 
         <!-- ───── Футер ───── -->
         <BoxContainer Orientation="Vertical">
-            <PanelContainer StyleClasses="HighDivider"/>
+            <PanelContainer StyleClasses="HighDivider" />
             <BoxContainer Orientation="Horizontal" Margin="10 2 5 0" VerticalAlignment="Bottom">
-                <Label Text="Баланс:" StyleClasses="WindowFooterText"/>
+                <Label Text="Баланс:" StyleClasses="WindowFooterText" />
                 <Label Name="BalanceLabel"
                        StyleClasses="WindowFooterText"
                        HorizontalAlignment="Right"
                        HorizontalExpand="True"
-                       Margin="0 0 5 0"/>
+                       Margin="0 0 5 0" />
             </BoxContainer>
         </BoxContainer>
     </BoxContainer>

@@ -74,7 +74,8 @@ public sealed class StoreSystemStructuredLoader : EntitySystem
                             Cost = new() { [preset.Currency] = entry.Price, },
                             Categories = [category,],
                             Conditions = new(),
-                            Mode = mode
+                            Mode = mode,
+                            RemainingCount = entry.Count ?? -1
                         });
 
                     count++;

@@ -20,11 +20,10 @@ public sealed class NcStoreListingControl : PanelContainer
 
     public NcStoreListingControl(StoreListingData data, SpriteSystem sprites)
     {
-        // Внешние отступы между карточками
         Margin = new(6, 6, 6, 6);
         HorizontalExpand = true;
 
-        // Карточка с фоном и рамкой
+        // Карточка
         var card = new PanelContainer
         {
             HorizontalExpand = true,
@@ -41,7 +40,6 @@ public sealed class NcStoreListingControl : PanelContainer
         };
         AddChild(card);
 
-        // Вся разметка карточки — вертикальная колонка
         var mainCol = new BoxContainer
         {
             Orientation = BoxContainer.LayoutOrientation.Vertical,
@@ -50,7 +48,7 @@ public sealed class NcStoreListingControl : PanelContainer
         };
         card.AddChild(mainCol);
 
-        // ── Заголовок (отдельной строкой) ──
+        // Заголовок
         var pm = IoCManager.Resolve<IPrototypeManager>();
         pm.TryIndex<EntityPrototype>(data.ProductEntity, out var proto);
         var name = (proto?.Name ?? data.ProductEntity).ToUpperInvariant();
@@ -78,7 +76,52 @@ public sealed class NcStoreListingControl : PanelContainer
             row.AddChild(slot);
 
         row.AddChild(MakeDescription(proto));
-        row.AddChild(MakePriceButton(data));
+
+        var actionCol = new BoxContainer
+        {
+            Orientation = BoxContainer.LayoutOrientation.Vertical,
+            SeparationOverride = 4,
+            HorizontalExpand = false,
+            MinSize = new Vector2i(PriceW, PriceH)
+        };
+
+        if (data.Remaining != 0)
+            actionCol.AddChild(MakePriceButton(data));
+        else
+        {
+            actionCol.AddChild(
+                new Label
+                {
+                    Text = data.Mode == StoreMode.Buy
+                        ? "Нет в наличии"
+                        : "Закупка завершена",
+                    HorizontalAlignment = HAlignment.Center,
+                    Modulate = Color.FromHex("#C0C0C0"),
+                    Margin = new(0, 8, 0, 0)
+                });
+        }
+
+        var remainingLbl = new Label
+        {
+            Text = data.Mode == StoreMode.Buy
+                ? $"Осталось: {(data.Remaining < 0 ? "∞" : data.Remaining)}"
+                : $"Скупим: {(data.Remaining < 0 ? "∞" : data.Remaining)}",
+            HorizontalAlignment = HAlignment.Center,
+            Modulate = Color.FromHex("#C0C0C0"),
+            Margin = new(0, 2, 0, 0)
+        };
+        actionCol.AddChild(remainingLbl);
+
+        var ownedLbl = new Label
+        {
+            Text = $"У вас: {data.Owned}",
+            HorizontalAlignment = HAlignment.Center,
+            Modulate = Color.FromHex("#C0C0C0"),
+            Margin = new(0, 2, 0, 0)
+        };
+        actionCol.AddChild(ownedLbl);
+
+        row.AddChild(actionCol);
     }
 
     public event Action? OnBuyPressed;
@@ -147,7 +190,8 @@ public sealed class NcStoreListingControl : PanelContainer
             MaxSize = new Vector2i(PriceW, PriceH),
             ClipText = true,
             Margin = new(8, 0, 0, 0),
-            StyleClasses = { StyleNano.StyleClassButtonBig, }
+            StyleClasses = { StyleNano.StyleClassButtonBig, },
+            Disabled = data.Remaining == 0
         };
         btn.StyleBoxOverride = new StyleBoxFlat
         {
@@ -166,8 +210,10 @@ public sealed class NcStoreListingControl : PanelContainer
 
         if (!string.IsNullOrEmpty(data.CurrencyId))
         {
-            var sprites = IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SpriteSystem>();
-            if (TryGetCurrencyIcon(data.CurrencyId, sprites) is { } tex)
+            // Иконка валюты
+            if (TryGetCurrencyIcon(
+                    data.CurrencyId,
+                    IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SpriteSystem>()) is { } tex)
             {
                 inner.AddChild(
                     new TextureRect

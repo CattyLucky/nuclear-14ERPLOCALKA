@@ -33,6 +33,8 @@ public sealed class NcStoreLogicSystem : EntitySystem
         return total;
     }
 
+    public int GetCountByProto(EntityUid user, string protoId) => CountItemsByProto(user, protoId);
+
     private bool TryPickCurrencyForBuy(
         NcStoreComponent store,
         StoreListingPrototype listing,
@@ -105,6 +107,9 @@ public sealed class NcStoreLogicSystem : EntitySystem
         if (listing == null)
             return false;
 
+        if (listing.RemainingCount == 0)
+            return false;
+
         if (!_protos.TryIndex<EntityPrototype>(listing.ProductEntity, out _))
             return false;
 
@@ -120,6 +125,9 @@ public sealed class NcStoreLogicSystem : EntitySystem
             return false;
         }
 
+        if (listing.RemainingCount > 0)
+            listing.RemainingCount--;
+
         Sawmill.Info($"TryBuy: OK {listing.ProductEntity} x1 for {price} {currency}");
         return true;
     }
@@ -132,6 +140,9 @@ public sealed class NcStoreLogicSystem : EntitySystem
 
         var listing = store.Listings.FirstOrDefault(x => x.Id == listingId && x.Mode == StoreMode.Sell);
         if (listing == null)
+            return false;
+
+        if (listing.RemainingCount == 0)
             return false;
 
         if (!TryPickCurrencyForSell(store, listing, out var currency, out var price))
@@ -147,6 +158,10 @@ public sealed class NcStoreLogicSystem : EntitySystem
             return false;
 
         GiveCurrency(user, currency, price);
+
+        if (listing.RemainingCount > 0)
+            listing.RemainingCount--;
+
         Sawmill.Info($"TrySell: SELL success. User {user} sold {listing.ProductEntity} for {currency} ({price})");
         return true;
     }

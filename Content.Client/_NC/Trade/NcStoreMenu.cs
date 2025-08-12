@@ -73,16 +73,29 @@ public sealed partial class NcStoreMenu : FancyWindow
 
         _buyCats.Clear();
         _sellCats.Clear();
+
         _buyCats.AddRange(
             list.Where(i => i.Mode == StoreMode.Buy)
                 .Select(i => i.Category)
                 .Distinct()
                 .OrderBy(c => c));
+
         _sellCats.AddRange(
             list.Where(i => i.Mode == StoreMode.Sell)
                 .Select(i => i.Category)
                 .Distinct()
                 .OrderBy(c => c));
+
+        const string ReadyCat = "Готово к продаже";
+
+        if (_items.Any(i => i.Mode == StoreMode.Sell && i.Category == ReadyCat))
+        {
+            _sellCats.Remove(ReadyCat);
+            _sellCats.Insert(0, ReadyCat);
+
+            if (string.IsNullOrEmpty(_sellCat))
+                _sellCat = ReadyCat;
+        }
 
         if (!_buyCats.Contains(_buyCat))
             _buyCat = string.Empty;
@@ -92,6 +105,7 @@ public sealed partial class NcStoreMenu : FancyWindow
         BuildCategoryButtons();
         RefreshListings();
     }
+
 
     public void SetBalance(int balance)
     {

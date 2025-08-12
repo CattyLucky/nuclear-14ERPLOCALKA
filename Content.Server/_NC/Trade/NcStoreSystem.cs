@@ -3,7 +3,9 @@ using Content.Shared._NC.Trade;
 using Content.Shared.Access;
 using Content.Shared.Access.Components;
 using Content.Shared.Access.Systems;
+using Robust.Server.Audio;
 using Robust.Server.GameObjects;
+using Robust.Shared.Audio;
 using Robust.Shared.Prototypes;
 
 
@@ -15,6 +17,7 @@ public sealed class NcStoreSystem : EntitySystem
     private static readonly ISawmill Sawmill = Logger.GetSawmill("ncstore");
 
     [Dependency] private readonly AccessReaderSystem _access = default!;
+    [Dependency] private readonly AudioSystem _audio = default!;
     [Dependency] private readonly IEntityManager _entMan = default!;
     [Dependency] private readonly IEntitySystemManager _sysMan = default!;
     [Dependency] private readonly TransformSystem _transform = default!;
@@ -47,9 +50,16 @@ public sealed class NcStoreSystem : EntitySystem
             result = logic.TrySell(listing.Id, uid, comp, actor);
         else
             Sawmill.Warning($"[Buy] Unsupported listing mode: {listing.Mode}");
+
         if (result)
         {
             Sawmill.Info($"[Buy] {ToPrettyString(actor)} купил '{msg.ListingId}' у {ToPrettyString(uid)}.");
+
+            _audio.PlayPvs(
+                "/Audio/Effects/Cargo/ping.ogg",
+                uid,
+                AudioParams.Default.WithVolume(-2f));
+
             _sysMan.GetEntitySystem<StoreStructuredSystem>().UpdateUiState(uid, comp, actor);
         }
         else
@@ -75,11 +85,18 @@ public sealed class NcStoreSystem : EntitySystem
         if (result)
         {
             Sawmill.Info($"[Sell] {ToPrettyString(actor)} продал '{msg.ListingId}' у {ToPrettyString(uid)}.");
+
+            _audio.PlayPvs(
+                "/Audio/Effects/Cargo/ping.ogg",
+                uid,
+                AudioParams.Default.WithVolume(-2f));
+
             _sysMan.GetEntitySystem<StoreStructuredSystem>().UpdateUiState(uid, comp, actor);
         }
         else
             Sawmill.Warning($"[Sell] Продажа не удалась: listingId={msg.ListingId}, user={ToPrettyString(actor)}.");
     }
+
 
     private void OnExchangeRequest(EntityUid uid, NcStoreComponent comp, StoreExchangeListingBoundUiMessage msg)
     {

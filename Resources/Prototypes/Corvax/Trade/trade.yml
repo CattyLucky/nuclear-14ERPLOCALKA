@@ -58,6 +58,7 @@
       Оружие:
       - proto: N14WeaponPistol12mm
         price: 40
+        count: 5
       - proto: N14WeaponRevolver10mm
         price: 35
       - proto: N14WeaponSniper556VarmintRifle
@@ -94,6 +95,7 @@
       Оружие:
       - proto: N14WeaponSMG9mm
         price: 60
+        count: 5
       - proto: N14WeaponSniper556VarmintRifle
         price: 20
       - proto: N14WeaponPistol9mmChinese

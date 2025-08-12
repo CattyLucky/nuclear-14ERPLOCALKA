@@ -27,5 +27,7 @@ public sealed partial class StorePresetStructuredPrototype : IPrototype
 
         [DataField("proto", required: true)]
         public string Proto = string.Empty;
+
+        [DataField("count")] public int? Count { get; private set; }
     }
 }

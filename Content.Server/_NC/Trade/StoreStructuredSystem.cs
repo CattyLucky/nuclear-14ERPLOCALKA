@@ -15,7 +15,7 @@ namespace Content.Server._NC.Trade;
 
 public sealed class StoreStructuredSystem : EntitySystem
 {
-    private const float AutoCloseDistance = 2f;
+    private const float AutoCloseDistance = 3f;
     private const float CheckInterval = 0.2f;
 
     private static readonly ISawmill Sawmill = Logger.GetSawmill("ncstore");
@@ -41,6 +41,7 @@ public sealed class StoreStructuredSystem : EntitySystem
         SubscribeLocalEvent<NcStoreComponent, RequestUiRefreshMessage>(OnUiRefreshRequest);
         SubscribeLocalEvent<AccessReaderComponent, AccessReaderConfigurationChangedEvent>(OnAccessReaderChanged);
     }
+
 
     private void OnUiOpenAttempt(EntityUid uid, NcStoreComponent comp, ref ActivatableUIOpenAttemptEvent ev)
     {
@@ -80,6 +81,7 @@ public sealed class StoreStructuredSystem : EntitySystem
 
         UpdateUiState(uid, comp, user);
     }
+
 
     private void OnUiClosed(EntityUid uid, NcStoreComponent comp, BoundUIClosedEvent ev)
     {
@@ -122,18 +124,50 @@ public sealed class StoreStructuredSystem : EntitySystem
                 var price = (int) MathF.Ceiling(priceF);
                 var cat = l.Categories.Count > 0 ? l.Categories[0] : "Разное";
 
+                var owned = 0;
+                try
+                {
+                    owned = _logic.GetCountByProto(user, l.ProductEntity);
+                }
+                catch
+                {
+                    owned = 0;
+                }
+
                 return new StoreListingData(
                     l.Id,
                     l.ProductEntity,
                     price,
                     cat,
                     currency,
-                    l.Mode);
+                    l.Mode,
+                    owned,
+                    l.RemainingCount
+                );
             })
             .ToList();
 
+
+        const string ReadyCat = "Готово к продаже";
+        var readyToSell = listings
+            .Where(d => d.Mode == StoreMode.Sell && d.Owned > 0 && d.Remaining != 0)
+            .Select(d => new StoreListingData(
+                d.Id,
+                d.ProductEntity,
+                d.Price,
+                ReadyCat,
+                d.CurrencyId,
+                d.Mode,
+                d.Owned,
+                d.Remaining))
+            .ToList();
+
+        if (readyToSell.Count > 0)
+            listings.AddRange(readyToSell);
+
         _ui.SetUiState(uid, StoreUiKey.Key, new StoreUiState(balance, listings));
     }
+
 
     public override void Update(float frameTime)
     {
@@ -247,7 +281,6 @@ public sealed class StoreStructuredSystem : EntitySystem
             return _access.IsAllowed(user, storeUid, fake);
         }
 
-        // Нет ридера и нет настроенных списков — доступ свободный.
         return true;
     }
 }
