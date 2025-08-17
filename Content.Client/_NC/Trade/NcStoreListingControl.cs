@@ -19,8 +19,10 @@ public sealed class NcStoreListingControl : PanelContainer
     private const int PriceH = 32;
     private const int TextMax = 420;
     private const int QtyMaxDigits = 6;
+    private const int MaxTotalDisplay = 999_999;
     private readonly int _maxQty;
-    private readonly LineEdit? _qtyEdit;
+    private readonly LineEdit _qtyEdit;
+
     private Label? _priceLbl;
 
     private int _qty;
@@ -97,14 +99,13 @@ public sealed class NcStoreListingControl : PanelContainer
 
         var remainingCap = data.Remaining >= 0 ? data.Remaining : int.MaxValue;
         var ownedCap = data.Mode == StoreMode.Sell ? data.Owned : int.MaxValue;
-
-        var moneyCap = int.MaxValue;
-        if (data.Mode == StoreMode.Buy)
-            moneyCap = data.Price > 0 ? balanceHint / data.Price : int.MaxValue;
+        var moneyCap = data.Mode == StoreMode.Buy && data.Price > 0
+            ? balanceHint / data.Price
+            : int.MaxValue;
 
         _maxQty = Math.Min(remainingCap, Math.Min(ownedCap, moneyCap));
-        var minAllowed = _maxQty <= 0 ? 0 : 1;
-        _qty = Math.Clamp(initialQty, minAllowed, Math.Max(minAllowed, _maxQty));
+        _qty = Math.Clamp(initialQty, MinAllowed, Math.Max(MinAllowed, _maxQty));
+
         var qtyRow = new BoxContainer
         {
             Orientation = BoxContainer.LayoutOrientation.Horizontal,
@@ -114,18 +115,28 @@ public sealed class NcStoreListingControl : PanelContainer
 
         var minusBtn = new Button { Text = "−", MinSize = new Vector2i(24, 24), };
         var qtyLbl = new Label
-            { Text = _qty.ToString(), MinSize = new Vector2i(28, 24), HorizontalAlignment = HAlignment.Center, };
-        _qtyEdit = new()
+        {
+            Text = _qty.ToString(),
+            MinSize = new Vector2i(28, 24),
+            HorizontalAlignment = HAlignment.Center
+        };
+        var qtyEdit = new LineEdit
         {
             Text = _qty.ToString(),
             MinSize = new Vector2i(40, 24),
             HorizontalExpand = false
         };
+        _qtyEdit = qtyEdit;
         var plusBtn = new Button { Text = "+", MinSize = new Vector2i(24, 24), };
+
+        var noQty = _maxQty <= 0;
+        minusBtn.Disabled = noQty;
+        plusBtn.Disabled = noQty;
+        _qtyEdit.Editable = !noQty;
 
         minusBtn.OnPressed += _ =>
         {
-            if (_qty > 1)
+            if (_qty > MinAllowed)
                 SetQty(_qty - 1, data, qtyLbl);
         };
 
@@ -149,9 +160,10 @@ public sealed class NcStoreListingControl : PanelContainer
                 v = _qty;
 
             var clamped = Math.Clamp(v, MinAllowed, Math.Max(MinAllowed, _maxQty));
-            if (_qtyEdit.Text != clamped.ToString())
+            var newText = clamped.ToString();
+            if (_qtyEdit.Text != newText)
             {
-                _qtyEdit.Text = clamped.ToString();
+                _qtyEdit.Text = newText;
                 _qtyEdit.CursorPosition = _qtyEdit.Text.Length;
             }
 
@@ -179,12 +191,15 @@ public sealed class NcStoreListingControl : PanelContainer
 
         qtyRow.AddChild(minusBtn);
         qtyRow.AddChild(qtyLbl);
-        qtyRow.AddChild(_qtyEdit);
+        qtyRow.AddChild(qtyEdit);
         qtyRow.AddChild(plusBtn);
         actionCol.AddChild(qtyRow);
 
         if (data.Remaining != 0)
+        {
             actionCol.AddChild(MakePriceButton(data));
+            UpdateTotal(data);
+        }
         else
         {
             actionCol.AddChild(
@@ -335,13 +350,12 @@ public sealed class NcStoreListingControl : PanelContainer
 
         _priceLbl = new()
         {
-            Text = (data.Price * _qty).ToString(),
+            Text = data.Price.ToString(),
             HorizontalExpand = true,
             HorizontalAlignment = HAlignment.Center,
             VerticalAlignment = VAlignment.Center
         };
         inner.AddChild(_priceLbl);
-        UpdateTotal(data);
 
         btn.AddChild(inner);
 
@@ -367,12 +381,15 @@ public sealed class NcStoreListingControl : PanelContainer
         return btn;
     }
 
-
     private void SetQty(int v, StoreListingData data, Label qtyLbl)
     {
-        _qty = Math.Clamp(v, MinAllowed, Math.Max(MinAllowed, _maxQty));
+        var newQty = Math.Clamp(v, MinAllowed, Math.Max(MinAllowed, _maxQty));
+        if (newQty == _qty)
+            return;
+
+        _qty = newQty;
         qtyLbl.Text = _qty.ToString();
-        _qtyEdit!.Text = _qty.ToString();
+        _qtyEdit.Text = _qty.ToString();
         _qtyEdit.CursorPosition = _qtyEdit.Text.Length;
         UpdateTotal(data);
         OnQtyChanged?.Invoke(_qty);
@@ -383,7 +400,7 @@ public sealed class NcStoreListingControl : PanelContainer
         if (_priceLbl is null)
             return;
 
-        var total = (long) data.Price * _qty;
-        _priceLbl.Text = total > 999_999 ? "999999+" : total.ToString();
+        var value = _qty <= 0 ? data.Price : (long) data.Price * _qty;
+        _priceLbl.Text = value > MaxTotalDisplay ? $"{MaxTotalDisplay}+" : value.ToString();
     }
 }

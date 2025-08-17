@@ -42,7 +42,6 @@ public sealed partial class NcStoreMenu : FancyWindow
         _sprites = IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SpriteSystem>();
         _proto = IoCManager.Resolve<IPrototypeManager>();
 
-        /* поиск */
         SearchBar.OnTextChanged += _ =>
         {
             _search = SearchBar.Text.Trim();
@@ -96,7 +95,6 @@ public sealed partial class NcStoreMenu : FancyWindow
         if (!_sellCats.Contains(_sellCat))
             _sellCat = string.Empty;
 
-        BuildCategoryButtons();
         RefreshListings();
     }
 
@@ -159,8 +157,9 @@ public sealed partial class NcStoreMenu : FancyWindow
                 Pressed = selected,
                 ModulateSelfOverride = selected ? CatSelected : CatIdle
             };
+
             btn.OnMouseEntered += _ => btn.ModulateSelfOverride = Brighten(CatSelected, 1.2f);
-            btn.OnMouseExited += _ => btn.ModulateSelfOverride = selected ? CatSelected : CatIdle;
+            btn.OnMouseExited += _ => btn.ModulateSelfOverride = btn.Pressed ? CatSelected : CatIdle;
 
             btn.OnPressed += _ => onClick(c);
             parent.AddChild(btn);
