@@ -23,14 +23,11 @@ public sealed class NcStoreLogicSystem : EntitySystem
 
     public int GetBalance(EntityUid user, string stackType)
     {
-        Sawmill.Debug($"GetBalance: user={user}, stackType={stackType}");
         var total = 0;
         foreach (var entity in EnumerateDeepItemsUnique(user))
             if (_ents.TryGetComponent(entity, out StackComponent? stack)
                 && stack.StackTypeId == stackType)
                 total += stack.Count;
-
-        Sawmill.Debug($"GetBalance: user={user}, stackType={stackType}, balance={total}");
         return total;
     }
 
@@ -132,7 +129,7 @@ public sealed class NcStoreLogicSystem : EntitySystem
             if (TrySpawnProduct(listing.ProductEntity, user))
                 spawned++;
             else
-                GiveCurrency(user, currency, unitPrice); // возврат за неудачный спавн
+                GiveCurrency(user, currency, unitPrice);
 
         if (spawned <= 0)
             return false;

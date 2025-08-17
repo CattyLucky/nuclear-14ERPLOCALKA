@@ -66,7 +66,7 @@ public sealed class NcStoreStructuredBoundUi(EntityUid owner, Enum uiKey)
 
     private void OnBuy(StoreListingData data, int qty)
     {
-        if (Actor is not { } actor)
+        if (Actor is null)
             return;
         SendMessage(new StoreBuyListingBoundUiMessage(data.Id, qty));
         RequestRefresh();
@@ -74,7 +74,7 @@ public sealed class NcStoreStructuredBoundUi(EntityUid owner, Enum uiKey)
 
     private void OnSell(StoreListingData data, int qty)
     {
-        if (Actor is not { } actor)
+        if (Actor is null)
             return;
         SendMessage(new StoreSellListingBoundUiMessage(data.Id, qty));
         RequestRefresh();

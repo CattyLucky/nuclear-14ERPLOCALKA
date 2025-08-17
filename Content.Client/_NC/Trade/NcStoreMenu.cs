@@ -25,6 +25,7 @@ public sealed partial class NcStoreMenu : FancyWindow
 
     private readonly List<StoreListingData> _items = new();
     private readonly IPrototypeManager _proto;
+    private readonly Dictionary<string, int> _qtyCache = new();
     private readonly List<string> _sellCats = new();
 
     private readonly SpriteSystem _sprites;
@@ -56,11 +57,14 @@ public sealed partial class NcStoreMenu : FancyWindow
     public event Action<StoreListingData, int>? OnBuyPressed;
     public event Action<StoreListingData, int>? OnSellPressed;
     public event Action<StoreListingData, int>? OnExchangePressed;
+
     public void Populate(List<StoreListingData> list)
     {
         _items.Clear();
         _items.AddRange(list);
-
+        var ids = _items.Select(i => i.Id).ToHashSet();
+        foreach (var key in _qtyCache.Keys.Where(k => !ids.Contains(k)).ToList())
+            _qtyCache.Remove(key);
         _buyCats.Clear();
         _sellCats.Clear();
 
@@ -219,7 +223,13 @@ public sealed partial class NcStoreMenu : FancyWindow
         for (var i = 0; i < filtered.Count; i++)
         {
             var it = filtered[i];
-            var ctrl = new NcStoreListingControl(it, _sprites, _balance);
+
+            var initQty = _qtyCache.TryGetValue(it.Id, out var saved) ? saved : 1;
+
+            var ctrl = new NcStoreListingControl(it, _sprites, _balance, initQty);
+
+            ctrl.OnQtyChanged += newQty => _qtyCache[it.Id] = newQty;
+
             if (mode == StoreMode.Buy)
                 ctrl.OnBuyPressed += qty => emit(it, qty);
             else
@@ -248,6 +258,7 @@ public sealed partial class NcStoreMenu : FancyWindow
             return false;
 
         return p.Name.Contains(_search, StringComparison.OrdinalIgnoreCase)
-            || (p.Description?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false);
+            || !string.IsNullOrEmpty(p.Description)
+            && p.Description.Contains(_search, StringComparison.OrdinalIgnoreCase);
     }
 }
