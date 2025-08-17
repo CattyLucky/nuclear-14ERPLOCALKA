@@ -51,7 +51,6 @@ public sealed class NcStoreStructuredBoundUi(EntityUid owner, Enum uiKey)
 
             _menu.OnBuyPressed += OnBuy;
             _menu.OnSellPressed += OnSell;
-            _menu.OnExchangePressed += OnExchange;
 
             _menu.OnClose += () =>
             {
@@ -65,19 +64,19 @@ public sealed class NcStoreStructuredBoundUi(EntityUid owner, Enum uiKey)
         _menu.Visible = true;
     }
 
-    private void OnBuy(StoreListingData data)
+    private void OnBuy(StoreListingData data, int qty)
     {
         if (Actor is not { } actor)
             return;
-        SendMessage(new StoreBuyListingBoundUiMessage(data.Id, Net(actor)));
+        SendMessage(new StoreBuyListingBoundUiMessage(data.Id, qty));
         RequestRefresh();
     }
 
-    private void OnSell(StoreListingData data)
+    private void OnSell(StoreListingData data, int qty)
     {
         if (Actor is not { } actor)
             return;
-        SendMessage(new StoreSellListingBoundUiMessage(data.Id, Net(actor)));
+        SendMessage(new StoreSellListingBoundUiMessage(data.Id, qty));
         RequestRefresh();
     }
 
@@ -105,7 +104,6 @@ public sealed class NcStoreStructuredBoundUi(EntityUid owner, Enum uiKey)
         {
             _menu.OnBuyPressed -= OnBuy;
             _menu.OnSellPressed -= OnSell;
-            _menu.OnExchangePressed -= OnExchange;
             _menu.Orphan();
             _menu = null;
         }

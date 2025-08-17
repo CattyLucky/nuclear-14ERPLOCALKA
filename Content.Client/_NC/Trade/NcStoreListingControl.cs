@@ -1,3 +1,4 @@
+using System.Linq;
 using Content.Client.Stylesheets;
 using Content.Shared._NC.Trade;
 using Content.Shared.Stacks;
@@ -17,13 +18,19 @@ public sealed class NcStoreListingControl : PanelContainer
     private const int PriceW = 96;
     private const int PriceH = 32;
     private const int TextMax = 420;
+    private const int QtyMaxDigits = 6;
+    private readonly int _maxQty = int.MaxValue;
 
-    public NcStoreListingControl(StoreListingData data, SpriteSystem sprites)
+    private Label? _priceLbl;
+
+    private int _qty = 1;
+    private readonly LineEdit? _qtyEdit;
+
+    public NcStoreListingControl(StoreListingData data, SpriteSystem sprites, int balanceHint = int.MaxValue)
     {
         Margin = new(6, 6, 6, 6);
         HorizontalExpand = true;
 
-        // Карточка
         var card = new PanelContainer
         {
             HorizontalExpand = true,
@@ -48,7 +55,6 @@ public sealed class NcStoreListingControl : PanelContainer
         };
         card.AddChild(mainCol);
 
-        // Заголовок
         var pm = IoCManager.Resolve<IPrototypeManager>();
         pm.TryIndex<EntityPrototype>(data.ProductEntity, out var proto);
         var name = (proto?.Name ?? data.ProductEntity).ToUpperInvariant();
@@ -85,6 +91,97 @@ public sealed class NcStoreListingControl : PanelContainer
             MinSize = new Vector2i(PriceW, PriceH)
         };
 
+        var remainingCap = data.Remaining >= 0 ? data.Remaining : int.MaxValue;
+        var ownedCap     = data.Mode == StoreMode.Sell ? data.Owned : int.MaxValue;
+
+        var moneyCap = int.MaxValue;
+        if (data.Mode == StoreMode.Buy)
+            moneyCap = data.Price > 0 ? balanceHint / data.Price : int.MaxValue;
+
+        _maxQty = Math.Min(remainingCap, Math.Min(ownedCap, moneyCap));
+        if (_maxQty <= 0)
+            _qty = 0;
+        var qtyRow = new BoxContainer
+        {
+            Orientation = BoxContainer.LayoutOrientation.Horizontal,
+            SeparationOverride = 4,
+            HorizontalExpand = false
+        };
+
+        var minusBtn = new Button { Text = "−", MinSize = new Vector2i(24, 24), };
+        var qtyLbl = new Label
+            { Text = _qty.ToString(), MinSize = new Vector2i(28, 24), HorizontalAlignment = HAlignment.Center, };
+        _qtyEdit = new()
+        {
+            Text = _qty.ToString(),
+            MinSize = new Vector2i(40, 24),
+            HorizontalExpand = false
+        };
+        var plusBtn = new Button { Text = "+", MinSize = new Vector2i(24, 24), };
+
+        minusBtn.OnPressed += _ =>
+        {
+            if (_qty > 1)
+                SetQty(_qty - 1, data, qtyLbl);
+        };
+
+        plusBtn.OnPressed += _ =>
+        {
+            if (_qty < _maxQty)
+                SetQty(_qty + 1, data, qtyLbl);
+        };
+
+        _qtyEdit.OnTextChanged += _ =>
+        {
+            var digits = new string(_qtyEdit.Text.Where(char.IsDigit).Take(QtyMaxDigits).ToArray());
+            if (digits.Length == 0)
+            {
+                _qtyEdit.Text = _qty.ToString();
+                _qtyEdit.CursorPosition = _qtyEdit.Text.Length;
+                return;
+            }
+
+            if (!int.TryParse(digits, out var v))
+                v = _qty;
+
+            var minAllowed = _maxQty <= 0 ? 0 : 1;
+            var clamped = Math.Clamp(v, minAllowed, Math.Max(minAllowed, _maxQty));
+
+            var newText = clamped.ToString();
+            if (_qtyEdit.Text != newText)
+            {
+                _qtyEdit.Text = newText;
+                _qtyEdit.CursorPosition = _qtyEdit.Text.Length;
+            }
+
+            SetQty(clamped, data, qtyLbl);
+        };
+
+        _qtyEdit.OnTextEntered += _ =>
+        {
+            if (_maxQty <= 0 || _qty <= 0)
+                return;
+
+            switch (data.Mode)
+            {
+                case StoreMode.Buy:
+                    OnBuyPressed?.Invoke(_qty);
+                    break;
+                case StoreMode.Sell:
+                    OnSellPressed?.Invoke(_qty);
+                    break;
+                case StoreMode.Exchange:
+                    OnExchangePressed?.Invoke(_qty);
+                    break;
+            }
+        };
+
+        qtyRow.AddChild(minusBtn);
+        qtyRow.AddChild(qtyLbl);
+        qtyRow.AddChild(_qtyEdit);
+        qtyRow.AddChild(plusBtn);
+        actionCol.AddChild(qtyRow);
+
         if (data.Remaining != 0)
             actionCol.AddChild(MakePriceButton(data));
         else
@@ -92,41 +189,46 @@ public sealed class NcStoreListingControl : PanelContainer
             actionCol.AddChild(
                 new Label
                 {
-                    Text = data.Mode == StoreMode.Buy
-                        ? "Нет в наличии"
-                        : "Закупка завершена",
+                    Text = data.Mode == StoreMode.Buy ? "Нет в наличии" : "Закупка завершена",
                     HorizontalAlignment = HAlignment.Center,
                     Modulate = Color.FromHex("#C0C0C0"),
                     Margin = new(0, 8, 0, 0)
                 });
         }
 
-        var remainingLbl = new Label
-        {
-            Text = data.Mode == StoreMode.Buy
-                ? $"Осталось: {(data.Remaining < 0 ? "∞" : data.Remaining)}"
-                : $"Скупим: {(data.Remaining < 0 ? "∞" : data.Remaining)}",
-            HorizontalAlignment = HAlignment.Center,
-            Modulate = Color.FromHex("#C0C0C0"),
-            Margin = new(0, 2, 0, 0)
-        };
-        actionCol.AddChild(remainingLbl);
+        var showRemaining = data.Remaining >= 0;
+        var showOwned = data.Owned > 0;
 
-        var ownedLbl = new Label
+        if (showRemaining)
         {
-            Text = $"У вас: {data.Owned}",
-            HorizontalAlignment = HAlignment.Center,
-            Modulate = Color.FromHex("#C0C0C0"),
-            Margin = new(0, 2, 0, 0)
-        };
-        actionCol.AddChild(ownedLbl);
+            var remainingLbl = new Label
+            {
+                Text = data.Mode == StoreMode.Buy ? $"Осталось: {data.Remaining}" : $"Скупим: {data.Remaining}",
+                HorizontalAlignment = HAlignment.Center,
+                Modulate = Color.FromHex("#C0C0C0"),
+                Margin = new(0, 2, 0, 0)
+            };
+            actionCol.AddChild(remainingLbl);
+        }
+
+        if (showOwned)
+        {
+            var ownedLbl = new Label
+            {
+                Text = $"У вас: {data.Owned}",
+                HorizontalAlignment = HAlignment.Center,
+                Modulate = Color.FromHex("#C0C0C0"),
+                Margin = new(0, 2, 0, 0)
+            };
+            actionCol.AddChild(ownedLbl);
+        }
 
         row.AddChild(actionCol);
     }
 
-    public event Action? OnBuyPressed;
-    public event Action? OnSellPressed;
-    public event Action? OnExchangePressed;
+    public event Action<int>? OnBuyPressed;
+    public event Action<int>? OnSellPressed;
+    public event Action<int>? OnExchangePressed;
 
     private static Texture? TryGetCurrencyIcon(string currencyId, SpriteSystem sprites)
     {
@@ -192,6 +294,8 @@ public sealed class NcStoreListingControl : PanelContainer
             Margin = new(8, 0, 0, 0),
             StyleClasses = { StyleNano.StyleClassButtonBig, },
             Disabled = data.Remaining == 0
+                || data.Mode == StoreMode.Sell && data.Owned <= 0
+                || _maxQty <= 0
         };
         btn.StyleBoxOverride = new StyleBoxFlat
         {
@@ -210,10 +314,8 @@ public sealed class NcStoreListingControl : PanelContainer
 
         if (!string.IsNullOrEmpty(data.CurrencyId))
         {
-            // Иконка валюты
-            if (TryGetCurrencyIcon(
-                    data.CurrencyId,
-                    IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SpriteSystem>()) is { } tex)
+            var spriteSys = IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SpriteSystem>();
+            if (TryGetCurrencyIcon(data.CurrencyId, spriteSys) is { } tex)
             {
                 inner.AddChild(
                     new TextureRect
@@ -227,33 +329,57 @@ public sealed class NcStoreListingControl : PanelContainer
             }
         }
 
-        inner.AddChild(
-            new Label
-            {
-                Text = data.Price.ToString(),
-                HorizontalExpand = true,
-                HorizontalAlignment = HAlignment.Center,
-                VerticalAlignment = VAlignment.Center
-            });
+        _priceLbl = new()
+        {
+            Text = (data.Price * _qty).ToString(),
+            HorizontalExpand = true,
+            HorizontalAlignment = HAlignment.Center,
+            VerticalAlignment = VAlignment.Center
+        };
+        inner.AddChild(_priceLbl);
+        UpdateTotal(data);
 
         btn.AddChild(inner);
 
         btn.OnPressed += _ =>
         {
+            if (_maxQty <= 0 || _qty <= 0)
+                return;
+
             switch (data.Mode)
             {
                 case StoreMode.Buy:
-                    OnBuyPressed?.Invoke();
+                    OnBuyPressed?.Invoke(_qty);
                     break;
                 case StoreMode.Sell:
-                    OnSellPressed?.Invoke();
+                    OnSellPressed?.Invoke(_qty);
                     break;
                 case StoreMode.Exchange:
-                    OnExchangePressed?.Invoke();
+                    OnExchangePressed?.Invoke(_qty);
                     break;
             }
         };
 
         return btn;
+    }
+
+
+    private void SetQty(int v, StoreListingData data, Label qtyLbl)
+    {
+        var minAllowed = _maxQty <= 0 ? 0 : 1;
+        _qty = Math.Clamp(v, minAllowed, Math.Max(minAllowed, _maxQty));
+        qtyLbl.Text = _qty.ToString();
+        _qtyEdit!.Text = _qty.ToString();
+        _qtyEdit.CursorPosition = _qtyEdit.Text.Length;
+        UpdateTotal(data);
+    }
+
+    private void UpdateTotal(StoreListingData data)
+    {
+        if (_priceLbl is null)
+            return;
+
+        var total = (long) data.Price * _qty;
+        _priceLbl.Text = total > 999_999 ? "999999+" : total.ToString();
     }
 }

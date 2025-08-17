@@ -4,8 +4,10 @@ using Content.Shared._NC.Trade;
 using Content.Shared.Access;
 using Content.Shared.Access.Components;
 using Content.Shared.Access.Systems;
+using Content.Shared.Stacks;
 using Content.Shared.UserInterface;
 using Robust.Server.GameObjects;
+using Robust.Shared.Containers;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Timing;
 
@@ -40,6 +42,9 @@ public sealed class StoreStructuredSystem : EntitySystem
         SubscribeLocalEvent<NcStoreComponent, BoundUIClosedEvent>(OnUiClosed);
         SubscribeLocalEvent<NcStoreComponent, RequestUiRefreshMessage>(OnUiRefreshRequest);
         SubscribeLocalEvent<AccessReaderComponent, AccessReaderConfigurationChangedEvent>(OnAccessReaderChanged);
+        SubscribeLocalEvent<ContainerManagerComponent, EntInsertedIntoContainerMessage>(OnUserEntInserted);
+        SubscribeLocalEvent<ContainerManagerComponent, EntRemovedFromContainerMessage>(OnUserEntRemoved);
+        SubscribeLocalEvent<StackComponent, StackCountChangedEvent>(OnStackCountChanged);
     }
 
 
@@ -113,21 +118,44 @@ public sealed class StoreStructuredSystem : EntitySystem
             return;
         }
 
-        var currency = comp.CurrencyWhitelist.FirstOrDefault() ?? string.Empty;
-        var balance = string.IsNullOrEmpty(currency) ? 0 : _logic.GetBalance(user, currency);
+        var preferredCurrency = comp.CurrencyWhitelist.FirstOrDefault();
+        var balance = string.IsNullOrEmpty(preferredCurrency) ? 0 : _logic.GetBalance(user, preferredCurrency);
 
         var listings = comp.Listings
             .Where(l => !string.IsNullOrEmpty(l.ProductEntity))
             .Select(l =>
             {
-                var priceF = currency != string.Empty && l.Cost.TryGetValue(currency, out var v) ? v : 0f;
+                string? currencyId = null;
+                var priceF = 0f;
+
+                if (!string.IsNullOrEmpty(preferredCurrency) && l.Cost.TryGetValue(preferredCurrency, out var vPref))
+                {
+                    currencyId = preferredCurrency;
+                    priceF = vPref;
+                }
+                else
+                {
+                    var found = comp.CurrencyWhitelist.FirstOrDefault(c => l.Cost.ContainsKey(c));
+                    if (!string.IsNullOrEmpty(found))
+                    {
+                        currencyId = found;
+                        priceF = l.Cost[found];
+                    }
+                    else if (l.Cost.Count > 0)
+                    {
+                        var kv = l.Cost.First();
+                        currencyId = kv.Key;
+                        priceF = kv.Value;
+                    }
+                }
+
                 var price = (int) MathF.Ceiling(priceF);
                 var cat = l.Categories.Count > 0 ? l.Categories[0] : "Разное";
 
-                var owned = 0;
+                int owned;
                 try
                 {
-                    owned = _logic.GetCountByProto(user, l.ProductEntity);
+                    owned = _logic.GetOwned(user, l.ProductEntity);
                 }
                 catch
                 {
@@ -139,7 +167,7 @@ public sealed class StoreStructuredSystem : EntitySystem
                     l.ProductEntity,
                     price,
                     cat,
-                    currency,
+                    currencyId ?? string.Empty,
                     l.Mode,
                     owned,
                     l.RemainingCount
@@ -147,15 +175,15 @@ public sealed class StoreStructuredSystem : EntitySystem
             })
             .ToList();
 
+        const string readyCat = "Готово к продаже";
 
-        const string ReadyCat = "Готово к продаже";
         var readyToSell = listings
             .Where(d => d.Mode == StoreMode.Sell && d.Owned > 0 && d.Remaining != 0)
             .Select(d => new StoreListingData(
                 d.Id,
                 d.ProductEntity,
                 d.Price,
-                ReadyCat,
+                readyCat,
                 d.CurrencyId,
                 d.Mode,
                 d.Owned,
@@ -221,6 +249,38 @@ public sealed class StoreStructuredSystem : EntitySystem
             }
         }
     }
+
+
+    private void OnUserEntInserted(
+        EntityUid uid,
+        ContainerManagerComponent comp,
+        ref EntInsertedIntoContainerMessage args
+    ) =>
+        RefreshAllOpenStores();
+
+    private void OnUserEntRemoved(
+        EntityUid uid,
+        ContainerManagerComponent comp,
+        ref EntRemovedFromContainerMessage args
+    ) =>
+        RefreshAllOpenStores();
+
+
+    private void OnStackCountChanged(
+        EntityUid uid,
+        StackComponent comp,
+        ref StackCountChangedEvent args
+    ) =>
+        RefreshAllOpenStores();
+
+    private void RefreshAllOpenStores()
+    {
+        var query = EntityQueryEnumerator<NcStoreComponent>();
+        while (query.MoveNext(out var storeUid, out var storeComp))
+            if (storeComp.CurrentUser is { } user)
+                UpdateUiState(storeUid, storeComp, user);
+    }
+
 
     private bool IsAccessAllowed(EntityUid storeUid, NcStoreComponent comp, EntityUid user)
     {

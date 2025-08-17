@@ -31,90 +31,68 @@ public sealed class NcStoreSystem : EntitySystem
 
     private void OnBuyRequest(EntityUid uid, NcStoreComponent comp, StoreBuyListingBoundUiMessage msg)
     {
-        var actor = msg.Actor;
+        if (comp.CurrentUser is not { } actor)
+            return;
         if (!ValidateUiAccess(uid, actor))
             return;
 
         var logic = _sysMan.GetEntitySystem<NcStoreLogicSystem>();
         var listing = comp.Listings.FirstOrDefault(x => x.Id == msg.ListingId);
         if (listing == null)
-        {
-            Sawmill.Warning($"[Buy] Listing not found: {msg.ListingId}");
             return;
-        }
 
-        var result = false;
-        if (listing.Mode == StoreMode.Buy)
-            result = logic.TryBuy(listing.Id, uid, comp, actor);
-        else if (listing.Mode == StoreMode.Sell)
-            result = logic.TrySell(listing.Id, uid, comp, actor);
-        else
-            Sawmill.Warning($"[Buy] Unsupported listing mode: {listing.Mode}");
+        var count = Math.Max(1, msg.Count);
 
-        if (result)
+        var ok = listing.Mode switch
         {
-            Sawmill.Info($"[Buy] {ToPrettyString(actor)} купил '{msg.ListingId}' у {ToPrettyString(uid)}.");
+            StoreMode.Buy => logic.TryBuy(listing.Id, uid, comp, actor, count),
+            StoreMode.Sell => logic.TrySell(listing.Id, uid, comp, actor, count),
+            _ => false
+        };
 
-            _audio.PlayPvs(
-                "/Audio/Effects/Cargo/ping.ogg",
-                uid,
-                AudioParams.Default.WithVolume(-2f));
+        if (!ok)
+            return;
 
-            _sysMan.GetEntitySystem<StoreStructuredSystem>().UpdateUiState(uid, comp, actor);
-        }
-        else
-            Sawmill.Warning($"[Buy] Покупка не удалась: listingId={msg.ListingId}, user={ToPrettyString(actor)}.");
+        _audio.PlayPvs("/Audio/Effects/Cargo/ping.ogg", uid, AudioParams.Default.WithVolume(-2f));
+        _sysMan.GetEntitySystem<StoreStructuredSystem>().UpdateUiState(uid, comp, actor);
     }
 
     private void OnSellRequest(EntityUid uid, NcStoreComponent comp, StoreSellListingBoundUiMessage msg)
     {
-        var actor = msg.Actor;
+        if (comp.CurrentUser is not { } actor)
+            return;
         if (!ValidateUiAccess(uid, actor))
             return;
 
         var logic = _sysMan.GetEntitySystem<NcStoreLogicSystem>();
         var listing = comp.Listings.FirstOrDefault(x => x.Id == msg.ListingId && x.Mode == StoreMode.Sell);
         if (listing == null)
-        {
-            Sawmill.Warning($"[Sell] Listing not found: {msg.ListingId}");
             return;
-        }
 
-        var result = logic.TrySell(listing.Id, uid, comp, actor);
+        var count = Math.Max(1, msg.Count);
+        if (!logic.TrySell(listing.Id, uid, comp, actor, count))
+            return;
 
-        if (result)
-        {
-            Sawmill.Info($"[Sell] {ToPrettyString(actor)} продал '{msg.ListingId}' у {ToPrettyString(uid)}.");
-
-            _audio.PlayPvs(
-                "/Audio/Effects/Cargo/ping.ogg",
-                uid,
-                AudioParams.Default.WithVolume(-2f));
-
-            _sysMan.GetEntitySystem<StoreStructuredSystem>().UpdateUiState(uid, comp, actor);
-        }
-        else
-            Sawmill.Warning($"[Sell] Продажа не удалась: listingId={msg.ListingId}, user={ToPrettyString(actor)}.");
+        _audio.PlayPvs("/Audio/Effects/Cargo/ping.ogg", uid, AudioParams.Default.WithVolume(-2f));
+        _sysMan.GetEntitySystem<StoreStructuredSystem>().UpdateUiState(uid, comp, actor);
     }
-
 
     private void OnExchangeRequest(EntityUid uid, NcStoreComponent comp, StoreExchangeListingBoundUiMessage msg)
     {
-        var actor = msg.Actor;
+        if (comp.CurrentUser is not { } actor)
+            return;
         if (!ValidateUiAccess(uid, actor))
             return;
 
-        var logic = _sysMan.GetEntitySystem<NcStoreLogicSystem>();
-        var result = logic.TryExchange(msg.ListingId, uid, comp, actor, msg);
+        var ok = _sysMan.GetEntitySystem<NcStoreLogicSystem>()
+            .TryExchange(msg.ListingId, uid, comp, actor, msg);
 
-        if (result)
-        {
-            Sawmill.Info($"[Exchange] {ToPrettyString(actor)} обменял '{msg.ListingId}' у {ToPrettyString(uid)}.");
-            _sysMan.GetEntitySystem<StoreStructuredSystem>().UpdateUiState(uid, comp, actor);
-        }
-        else
-            Sawmill.Warning($"[Exchange] Обмен не удался: listingId={msg.ListingId}, user={ToPrettyString(actor)}.");
+        if (!ok)
+            return;
+
+        _sysMan.GetEntitySystem<StoreStructuredSystem>().UpdateUiState(uid, comp, actor);
     }
+
 
     private bool ValidateUiAccess(EntityUid storeUid, EntityUid user)
     {
@@ -124,7 +102,7 @@ public sealed class NcStoreSystem : EntitySystem
             {
                 if (!_access.IsAllowed(user, storeUid, reader))
                 {
-                    Sawmill.Warning($"[UI] Нет доступа: {ToPrettyString(user)} -> {ToPrettyString(storeUid)}.");
+                    Sawmill.Debug($"[UI] Нет доступа: {ToPrettyString(user)} -> {ToPrettyString(storeUid)}.");
                     return false;
                 }
             }
@@ -159,7 +137,7 @@ public sealed class NcStoreSystem : EntitySystem
                             continue;
                         }
 
-                        Sawmill.Warning(
+                        Sawmill.Debug(
                             $"[Access] Unknown access token '{token}' on {ToPrettyString(storeUid)}; skipping.");
                     }
 
@@ -176,7 +154,7 @@ public sealed class NcStoreSystem : EntitySystem
 
                 if (!_access.IsAllowed(user, storeUid, fake)) // <— порядок аргументов исправлен
                 {
-                    Sawmill.Warning(
+                    Sawmill.Debug(
                         $"[UI] Нет доступа (fallback): {ToPrettyString(user)} -> {ToPrettyString(storeUid)}.");
                     return false;
                 }
@@ -184,7 +162,7 @@ public sealed class NcStoreSystem : EntitySystem
 
             if (storeComp.CurrentUser == null || storeComp.CurrentUser != user)
             {
-                Sawmill.Warning(
+                Sawmill.Debug(
                     $"[UI] Store busy: {ToPrettyString(storeUid)}. Current={ToPrettyString(storeComp.CurrentUser)}, Attempt={ToPrettyString(user)}");
                 return false;
             }
@@ -199,7 +177,7 @@ public sealed class NcStoreSystem : EntitySystem
 
         if (!_transform.InRange(storeXform.Coordinates, userXform.Coordinates, 3f))
         {
-            Sawmill.Warning($"[UI] User too far from store: {ToPrettyString(user)} -> {ToPrettyString(storeUid)}.");
+            Sawmill.Debug($"[UI] User too far from store: {ToPrettyString(user)} -> {ToPrettyString(storeUid)}.");
             return false;
         }
 

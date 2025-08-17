@@ -4,15 +4,15 @@ using Robust.Shared.Serialization;
 namespace Content.Shared._NC.Trade;
 
 
-[Serializable, NetSerializable]
+[NetSerializable, Serializable,]
 public sealed class StoreBuyListingBoundUiMessage : BoundUserInterfaceMessage
 {
-    public uint ActorUid;
-    public string ListingId;
-
-    public StoreBuyListingBoundUiMessage(string listingId, uint actorUid)
+    public StoreBuyListingBoundUiMessage(string listingId, int count)
     {
         ListingId = listingId;
-        ActorUid = actorUid;
+        Count = count;
     }
+
+    public string ListingId { get; }
+    public int Count { get; }
 }

@@ -17,16 +17,9 @@ namespace Content.Client._NC.Trade;
 [GenerateTypedNameReferences]
 public sealed partial class NcStoreMenu : FancyWindow
 {
-    private const string CatIdleClass = ContainerButton.StyleClassButton;
     private static readonly Color CatSelected = new(0xD9, 0xA4, 0x41);
     private static readonly Color CatIdle = new(0x7C, 0x66, 0x24);
 
-    private static readonly string[] CatPalette =
-    {
-        StyleNano.StyleClassButtonColorGreen,
-        StyleNano.StyleClassButtonColorRed,
-        ContainerButton.StyleClassButton
-    };
 
     private readonly List<string> _buyCats = new();
 
@@ -35,7 +28,7 @@ public sealed partial class NcStoreMenu : FancyWindow
     private readonly List<string> _sellCats = new();
 
     private readonly SpriteSystem _sprites;
-
+    private int _balance;
     private string _buyCat = string.Empty;
     private string _search = string.Empty;
     private string _sellCat = string.Empty;
@@ -60,12 +53,9 @@ public sealed partial class NcStoreMenu : FancyWindow
     }
 
     public event Action<string>? OnSearchChanged;
-    public event Action<string>? OnBuyCategoryChanged;
-    public event Action<string>? OnSellCategoryChanged;
-    public event Action<StoreListingData>? OnBuyPressed;
-    public event Action<StoreListingData>? OnSellPressed;
-    public event Action<StoreListingData>? OnExchangePressed;
-
+    public event Action<StoreListingData, int>? OnBuyPressed;
+    public event Action<StoreListingData, int>? OnSellPressed;
+    public event Action<StoreListingData, int>? OnExchangePressed;
     public void Populate(List<StoreListingData> list)
     {
         _items.Clear();
@@ -86,15 +76,15 @@ public sealed partial class NcStoreMenu : FancyWindow
                 .Distinct()
                 .OrderBy(c => c));
 
-        const string ReadyCat = "Готово к продаже";
+        const string readyCat = "Готово к продаже";
 
-        if (_items.Any(i => i.Mode == StoreMode.Sell && i.Category == ReadyCat))
+        if (_items.Any(i => i.Mode == StoreMode.Sell && i.Category == readyCat))
         {
-            _sellCats.Remove(ReadyCat);
-            _sellCats.Insert(0, ReadyCat);
+            _sellCats.Remove(readyCat);
+            _sellCats.Insert(0, readyCat);
 
             if (string.IsNullOrEmpty(_sellCat))
-                _sellCat = ReadyCat;
+                _sellCat = readyCat;
         }
 
         if (!_buyCats.Contains(_buyCat))
@@ -109,6 +99,7 @@ public sealed partial class NcStoreMenu : FancyWindow
 
     public void SetBalance(int balance)
     {
+        _balance = balance;
         BalanceLabel.Text = balance.ToString();
         BalanceInfo.SetMarkup($"[font size=14][color=yellow]{balance}[/color][/font]");
     }
@@ -183,16 +174,11 @@ public sealed partial class NcStoreMenu : FancyWindow
         SellCategoryHeader.Text = string.IsNullOrEmpty(_sellCat)
             ? "Выберите категорию"
             : _sellCat;
-        FillPane(BuyListingsContainer, StoreMode.Buy, _buyCat, d => OnBuyPressed?.Invoke(d));
-        FillPane(SellListingsContainer, StoreMode.Sell, _sellCat, d => OnSellPressed?.Invoke(d));
+        FillPane(BuyListingsContainer, StoreMode.Buy, _buyCat, (d, qty) => OnBuyPressed?.Invoke(d, qty));
+        FillPane(SellListingsContainer, StoreMode.Sell, _sellCat, (d, qty) => OnSellPressed?.Invoke(d, qty));
     }
 
-    private void FillPane(
-        Control pane,
-        StoreMode mode,
-        string cat,
-        Action<StoreListingData> emit
-    )
+    private void FillPane(Control pane, StoreMode mode, string cat, Action<StoreListingData, int> emit)
     {
         pane.Children.Clear();
 
@@ -233,11 +219,11 @@ public sealed partial class NcStoreMenu : FancyWindow
         for (var i = 0; i < filtered.Count; i++)
         {
             var it = filtered[i];
-            var ctrl = new NcStoreListingControl(it, _sprites);
+            var ctrl = new NcStoreListingControl(it, _sprites, _balance);
             if (mode == StoreMode.Buy)
-                ctrl.OnBuyPressed += () => emit(it);
+                ctrl.OnBuyPressed += qty => emit(it, qty);
             else
-                ctrl.OnSellPressed += () => emit(it);
+                ctrl.OnSellPressed += qty => emit(it, qty);
 
             pane.AddChild(ctrl);
 
@@ -261,8 +247,7 @@ public sealed partial class NcStoreMenu : FancyWindow
         if (!_proto.TryIndex<EntityPrototype>(protoId, out var p))
             return false;
 
-        var s = _search.ToLowerInvariant();
-        return (p.Name ?? string.Empty).ToLowerInvariant().Contains(s) ||
-            (p.Description ?? string.Empty).ToLowerInvariant().Contains(s);
+        return p.Name.Contains(_search, StringComparison.OrdinalIgnoreCase)
+            || (p.Description?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false);
     }
 }
