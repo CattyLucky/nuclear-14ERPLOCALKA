@@ -285,13 +285,16 @@ public sealed class NcStoreListingControl : PanelContainer
     private Control MakeDescription(EntityPrototype? proto)
     {
         var desc = proto?.Description ?? string.Empty;
-        var r = new RichTextLabel
+        if (string.IsNullOrWhiteSpace(desc))
+            return new();
+
+        return new Label
         {
-            MaxWidth = TextMax,
-            HorizontalExpand = true
+            Text = desc,
+            HorizontalExpand = true,
+            ClipText = true,
+            MaxSize = new Vector2i(TextMax, 0)
         };
-        r.SetMessage(desc);
-        return r;
     }
 
     private Control MakePriceButton(StoreListingData data)

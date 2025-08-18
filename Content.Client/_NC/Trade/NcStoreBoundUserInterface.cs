@@ -11,7 +11,7 @@ namespace Content.Client._NC.Trade;
 public sealed class NcStoreStructuredBoundUi(EntityUid owner, Enum uiKey)
     : BoundUserInterface(owner, uiKey)
 {
-    private static readonly TimeSpan RefreshInterval = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan RefreshInterval = TimeSpan.FromSeconds(1);
 
     private readonly IPlayerManager _player = IoCManager.Resolve<IPlayerManager>();
     private readonly IGameTiming _timing = IoCManager.Resolve<IGameTiming>();
@@ -59,8 +59,8 @@ public sealed class NcStoreStructuredBoundUi(EntityUid owner, Enum uiKey)
             };
         }
 
-        _menu.Populate(st.Listings.ToList());
         _menu.SetBalance(st.Balance);
+        _menu.Populate(st.Listings.ToList());
         _menu.Visible = true;
     }
 
@@ -69,7 +69,7 @@ public sealed class NcStoreStructuredBoundUi(EntityUid owner, Enum uiKey)
         if (Actor is null)
             return;
         SendMessage(new StoreBuyListingBoundUiMessage(data.Id, qty));
-        RequestRefresh();
+        RequestRefresh(true);
     }
 
     private void OnSell(StoreListingData data, int qty)
@@ -77,7 +77,7 @@ public sealed class NcStoreStructuredBoundUi(EntityUid owner, Enum uiKey)
         if (Actor is null)
             return;
         SendMessage(new StoreSellListingBoundUiMessage(data.Id, qty));
-        RequestRefresh();
+        RequestRefresh(true);
     }
 
     private void OnExchange(StoreListingData data)

@@ -9,6 +9,7 @@ using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.XAML;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Timing;
 
 
 namespace Content.Client._NC.Trade;
@@ -19,6 +20,7 @@ public sealed partial class NcStoreMenu : FancyWindow
 {
     private static readonly Color CatSelected = new(0xD9, 0xA4, 0x41);
     private static readonly Color CatIdle = new(0x7C, 0x66, 0x24);
+    private readonly Dictionary<string, (NcStoreListingControl Ctrl, string Sig)> _buyCache = new();
 
 
     private readonly List<string> _buyCats = new();
@@ -26,12 +28,14 @@ public sealed partial class NcStoreMenu : FancyWindow
     private readonly List<StoreListingData> _items = new();
     private readonly IPrototypeManager _proto;
     private readonly Dictionary<string, int> _qtyCache = new();
+    private readonly Dictionary<string, (NcStoreListingControl Ctrl, string Sig)> _sellCache = new();
     private readonly List<string> _sellCats = new();
-
     private readonly SpriteSystem _sprites;
     private int _balance;
     private string _buyCat = string.Empty;
+    private int _renderVersion;
     private string _search = string.Empty;
+    private int _searchToken;
     private string _sellCat = string.Empty;
 
     public NcStoreMenu()
@@ -45,8 +49,16 @@ public sealed partial class NcStoreMenu : FancyWindow
         SearchBar.OnTextChanged += _ =>
         {
             _search = SearchBar.Text.Trim();
-            OnSearchChanged?.Invoke(_search);
-            RefreshListings();
+            var token = ++_searchToken;
+            Timer.Spawn(
+                TimeSpan.FromMilliseconds(120),
+                () =>
+                {
+                    if (token != _searchToken)
+                        return;
+                    OnSearchChanged?.Invoke(_search);
+                    RefreshListings();
+                });
         };
 
         BalanceLabel.StyleClasses.Add(StyleNano.StyleClassLabelHeadingBigger);
@@ -57,6 +69,11 @@ public sealed partial class NcStoreMenu : FancyWindow
     public event Action<StoreListingData, int>? OnSellPressed;
     public event Action<StoreListingData, int>? OnExchangePressed;
 
+    private static string Sig(StoreListingData d, int balance) =>
+        d.Mode == StoreMode.Buy
+            ? $"{d.Price}|{d.Remaining}|{d.Owned}|{d.CurrencyId}|{d.ProductEntity}|B{balance}"
+            : $"{d.Price}|{d.Remaining}|{d.Owned}|{d.CurrencyId}|{d.ProductEntity}";
+
     public void Populate(List<StoreListingData> list)
     {
         _items.Clear();
@@ -64,6 +81,7 @@ public sealed partial class NcStoreMenu : FancyWindow
         var ids = _items.Select(i => i.Id).ToHashSet();
         foreach (var key in _qtyCache.Keys.Where(k => !ids.Contains(k)).ToList())
             _qtyCache.Remove(key);
+
         _buyCats.Clear();
         _sellCats.Clear();
 
@@ -80,12 +98,10 @@ public sealed partial class NcStoreMenu : FancyWindow
                 .OrderBy(c => c));
 
         const string readyCat = "Готово к продаже";
-
         if (_items.Any(i => i.Mode == StoreMode.Sell && i.Category == readyCat))
         {
             _sellCats.Remove(readyCat);
             _sellCats.Insert(0, readyCat);
-
             if (string.IsNullOrEmpty(_sellCat))
                 _sellCat = readyCat;
         }
@@ -94,6 +110,8 @@ public sealed partial class NcStoreMenu : FancyWindow
             _buyCat = string.Empty;
         if (!_sellCats.Contains(_sellCat))
             _sellCat = string.Empty;
+
+        BuildCategoryButtons();
 
         RefreshListings();
     }
@@ -169,16 +187,44 @@ public sealed partial class NcStoreMenu : FancyWindow
 
     private void RefreshListings()
     {
-        BuildCategoryButtons();
-        BuyCategoryHeader.Text = string.IsNullOrEmpty(_buyCat)
-            ? "Выберите категорию"
-            : _buyCat;
+        BuyCategoryHeader.Text = string.IsNullOrEmpty(_buyCat) ? "Выберите категорию" : _buyCat;
+        SellCategoryHeader.Text = string.IsNullOrEmpty(_sellCat) ? "Выберите категорию" : _sellCat;
 
-        SellCategoryHeader.Text = string.IsNullOrEmpty(_sellCat)
-            ? "Выберите категорию"
-            : _sellCat;
         FillPane(BuyListingsContainer, StoreMode.Buy, _buyCat, (d, qty) => OnBuyPressed?.Invoke(d, qty));
         FillPane(SellListingsContainer, StoreMode.Sell, _sellCat, (d, qty) => OnSellPressed?.Invoke(d, qty));
+    }
+
+    private void AddChildrenBatched(Control pane, List<(Control Ctrl, bool Divider)> items)
+    {
+        var version = ++_renderVersion;
+        const int batchSize = 20;
+
+        void AddRange(int start)
+        {
+            if (_renderVersion != version)
+                return;
+
+            var end = Math.Min(items.Count, start + batchSize);
+            for (var i = start; i < end; i++)
+            {
+                var (ctrl, divider) = items[i];
+                pane.AddChild(ctrl);
+                if (divider)
+                {
+                    pane.AddChild(
+                        new PanelContainer
+                        {
+                            MinSize = new Vector2i(0, 1),
+                            StyleClasses = { "LowDivider", }
+                        });
+                }
+            }
+
+            if (end < items.Count)
+                Timer.Spawn(TimeSpan.FromMilliseconds(16), () => AddRange(end));
+        }
+
+        AddRange(0);
     }
 
     private void FillPane(Control pane, StoreMode mode, string cat, Action<StoreListingData, int> emit)
@@ -190,63 +236,58 @@ public sealed partial class NcStoreMenu : FancyWindow
 
         if (!catChosen && !hasSearch)
         {
-            pane.AddChild(
-                new Label
-                {
-                    Text = "Выберите категорию.",
-                    StyleClasses = { "nc-store__hint", }
-                });
+            pane.AddChild(new Label { Text = "Выберите категорию.", StyleClasses = { "nc-store__hint", }, });
             return;
         }
 
         var q = _items.Where(i => i.Mode == mode);
-
         if (catChosen)
             q = q.Where(i => i.Category == cat);
-
         if (hasSearch)
             q = q.Where(i => MatchesSearch(i.ProductEntity));
 
         var filtered = q.ToList();
         if (filtered.Count == 0)
         {
-            pane.AddChild(
-                new Label
-                {
-                    Text = "Ничего не найдено.",
-                    StyleClasses = { "nc-store__hint", }
-                });
+            pane.AddChild(new Label { Text = "Ничего не найдено.", StyleClasses = { "nc-store__hint", }, });
             return;
         }
+
+        var cache = mode == StoreMode.Buy ? _buyCache : _sellCache;
+        var toRender = new List<(Control Ctrl, bool Divider)>(filtered.Count * 2);
 
         for (var i = 0; i < filtered.Count; i++)
         {
             var it = filtered[i];
+            var sig = Sig(it, _balance);
 
-            var initQty = _qtyCache.TryGetValue(it.Id, out var saved) ? saved : 1;
-
-            var ctrl = new NcStoreListingControl(it, _sprites, _balance, initQty);
-
-            ctrl.OnQtyChanged += newQty => _qtyCache[it.Id] = newQty;
-
-            if (mode == StoreMode.Buy)
-                ctrl.OnBuyPressed += qty => emit(it, qty);
+            NcStoreListingControl ctrl;
+            if (cache.TryGetValue(it.Id, out var tuple) && tuple.Sig == sig)
+                ctrl = tuple.Ctrl;
             else
-                ctrl.OnSellPressed += qty => emit(it, qty);
-
-            pane.AddChild(ctrl);
-
-            if (i < filtered.Count - 1)
             {
-                pane.AddChild(
-                    new PanelContainer
-                    {
-                        MinSize = new Vector2i(0, 1),
-                        StyleClasses = { "LowDivider", }
-                    });
+                var initQty = _qtyCache.TryGetValue(it.Id, out var saved) ? saved : 1;
+                ctrl = new(it, _sprites, _balance, initQty);
+                ctrl.OnQtyChanged += newQty => _qtyCache[it.Id] = newQty;
+
+                if (mode == StoreMode.Buy)
+                    ctrl.OnBuyPressed += qty => emit(it, qty);
+                else
+                    ctrl.OnSellPressed += qty => emit(it, qty);
+
+                cache[it.Id] = (ctrl, sig);
             }
+
+            toRender.Add((ctrl, i < filtered.Count - 1));
         }
+
+        AddChildrenBatched(pane, toRender);
+
+        var visible = filtered.Select(f => f.Id).ToHashSet();
+        foreach (var key in cache.Keys.Where(k => !visible.Contains(k)).ToList())
+            cache.Remove(key);
     }
+
 
     private bool MatchesSearch(string protoId)
     {
