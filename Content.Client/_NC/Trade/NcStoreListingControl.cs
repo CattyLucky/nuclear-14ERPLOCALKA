@@ -7,6 +7,7 @@ using Robust.Client.Graphics;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Utility;
 
 
 namespace Content.Client._NC.Trade;
@@ -20,11 +21,12 @@ public sealed class NcStoreListingControl : PanelContainer
     private const int TextMax = 420;
     private const int QtyMaxDigits = 6;
     private const int MaxTotalDisplay = 999_999;
+    private const int DescMaxChars = 220;
+
+
     private readonly int _maxQty;
     private readonly LineEdit _qtyEdit;
-
     private Label? _priceLbl;
-
     private int _qty;
 
     public NcStoreListingControl(
@@ -45,10 +47,7 @@ public sealed class NcStoreListingControl : PanelContainer
                 BackgroundColor = new(0.08f, 0.08f, 0.09f, 0.9f),
                 BorderColor = Color.FromHex("#B08D3B"),
                 BorderThickness = new(1),
-                PaddingLeft = 10,
-                PaddingRight = 10,
-                PaddingTop = 8,
-                PaddingBottom = 8
+                PaddingLeft = 10, PaddingRight = 10, PaddingTop = 8, PaddingBottom = 8
             }
         };
         AddChild(card);
@@ -63,31 +62,49 @@ public sealed class NcStoreListingControl : PanelContainer
 
         var pm = IoCManager.Resolve<IPrototypeManager>();
         pm.TryIndex<EntityPrototype>(data.ProductEntity, out var proto);
-        var name = (proto?.Name ?? data.ProductEntity).ToUpperInvariant();
 
-        var nameLbl = new Label
+        // === ОТДЕЛЬНЫЙ ЗАГОЛОВОК КАРТОЧКИ ===
+        var title = new Label
         {
-            Text = name,
+            Text = proto?.Name ?? data.ProductEntity,
             HorizontalExpand = true,
-            ClipText = true
+            ClipText = true,
+            ToolTip = proto?.Name ?? data.ProductEntity,
+            Margin = new(2, 0, 2, 4)
         };
-        nameLbl.StyleClasses.Add(StyleNano.StyleClassLabelHeading);
-        mainCol.AddChild(nameLbl);
-
-        mainCol.AddChild(new PanelContainer { StyleClasses = { StyleNano.ClassLowDivider, }, });
+        title.StyleClasses.Add(StyleNano.StyleClassLabelHeading);
+        mainCol.AddChild(title);
 
         var row = new BoxContainer
         {
             Orientation = BoxContainer.LayoutOrientation.Horizontal,
-            SeparationOverride = 8,
+            SeparationOverride = 6,
             HorizontalExpand = true
         };
         mainCol.AddChild(row);
 
+        var leftCol = new BoxContainer
+        {
+            Orientation = BoxContainer.LayoutOrientation.Vertical,
+            SeparationOverride = 4,
+            HorizontalExpand = false,
+            MinSize = new Vector2i(SlotPx, 0)
+        };
         if (MakeSlot(data, sprites) is { } slot)
-            row.AddChild(slot);
+            leftCol.AddChild(slot);
+        row.AddChild(leftCol);
 
-        row.AddChild(MakeDescription(proto));
+        var textCol = new BoxContainer
+        {
+            Orientation = BoxContainer.LayoutOrientation.Vertical,
+            SeparationOverride = 2,
+            HorizontalExpand = true,
+            VerticalExpand = false
+        };
+        var desc = MakeDescription(proto);
+        desc.Margin = new(0, 0, 6, 0);
+        textCol.AddChild(desc);
+        row.AddChild(textCol);
 
         var actionCol = new BoxContainer
         {
@@ -99,9 +116,7 @@ public sealed class NcStoreListingControl : PanelContainer
 
         var remainingCap = data.Remaining >= 0 ? data.Remaining : int.MaxValue;
         var ownedCap = data.Mode == StoreMode.Sell ? data.Owned : int.MaxValue;
-        var moneyCap = data.Mode == StoreMode.Buy && data.Price > 0
-            ? balanceHint / data.Price
-            : int.MaxValue;
+        var moneyCap = data.Mode == StoreMode.Buy && data.Price > 0 ? balanceHint / data.Price : int.MaxValue;
 
         _maxQty = Math.Min(remainingCap, Math.Min(ownedCap, moneyCap));
         _qty = Math.Clamp(initialQty, MinAllowed, Math.Max(MinAllowed, _maxQty));
@@ -115,17 +130,9 @@ public sealed class NcStoreListingControl : PanelContainer
 
         var minusBtn = new Button { Text = "−", MinSize = new Vector2i(24, 24), };
         var qtyLbl = new Label
-        {
-            Text = _qty.ToString(),
-            MinSize = new Vector2i(28, 24),
-            HorizontalAlignment = HAlignment.Center
-        };
+            { Text = _qty.ToString(), MinSize = new Vector2i(28, 24), HorizontalAlignment = HAlignment.Center, };
         var qtyEdit = new LineEdit
-        {
-            Text = _qty.ToString(),
-            MinSize = new Vector2i(40, 24),
-            HorizontalExpand = false
-        };
+            { Text = _qty.ToString(), MinSize = new Vector2i(40, 24), HorizontalExpand = false, };
         _qtyEdit = qtyEdit;
         var plusBtn = new Button { Text = "+", MinSize = new Vector2i(24, 24), };
 
@@ -139,7 +146,6 @@ public sealed class NcStoreListingControl : PanelContainer
             if (_qty > MinAllowed)
                 SetQty(_qty - 1, data, qtyLbl);
         };
-
         plusBtn.OnPressed += _ =>
         {
             if (_qty < _maxQty)
@@ -158,7 +164,6 @@ public sealed class NcStoreListingControl : PanelContainer
 
             if (!int.TryParse(digits, out var v))
                 v = _qty;
-
             var clamped = Math.Clamp(v, MinAllowed, Math.Max(MinAllowed, _maxQty));
             var newText = clamped.ToString();
             if (_qtyEdit.Text != newText)
@@ -174,7 +179,6 @@ public sealed class NcStoreListingControl : PanelContainer
         {
             if (_maxQty <= 0 || _qty <= 0)
                 return;
-
             switch (data.Mode)
             {
                 case StoreMode.Buy:
@@ -214,35 +218,36 @@ public sealed class NcStoreListingControl : PanelContainer
 
         var showRemaining = data.Remaining >= 0;
         var showOwned = data.Owned > 0;
-
         if (showRemaining)
         {
-            var remainingLbl = new Label
-            {
-                Text = data.Mode == StoreMode.Buy ? $"Осталось: {data.Remaining}" : $"Скупим: {data.Remaining}",
-                HorizontalAlignment = HAlignment.Center,
-                Modulate = Color.FromHex("#C0C0C0"),
-                Margin = new(0, 2, 0, 0)
-            };
-            actionCol.AddChild(remainingLbl);
+            actionCol.AddChild(
+                new Label
+                {
+                    Text = data.Mode == StoreMode.Buy ? $"Осталось: {data.Remaining}" : $"Скупим: {data.Remaining}",
+                    HorizontalAlignment = HAlignment.Center,
+                    Modulate = Color.FromHex("#C0C0C0"),
+                    Margin = new(0, 2, 0, 0)
+                });
         }
 
         if (showOwned)
         {
-            var ownedLbl = new Label
-            {
-                Text = $"У вас: {data.Owned}",
-                HorizontalAlignment = HAlignment.Center,
-                Modulate = Color.FromHex("#C0C0C0"),
-                Margin = new(0, 2, 0, 0)
-            };
-            actionCol.AddChild(ownedLbl);
+            actionCol.AddChild(
+                new Label
+                {
+                    Text = $"У вас: {data.Owned}",
+                    HorizontalAlignment = HAlignment.Center,
+                    Modulate = Color.FromHex("#C0C0C0"),
+                    Margin = new(0, 2, 0, 0)
+                });
         }
 
         row.AddChild(actionCol);
     }
 
+
     private int MinAllowed => _maxQty <= 0 ? 0 : 1;
+
 
     public event Action<int>? OnBuyPressed;
     public event Action<int>? OnSellPressed;
@@ -284,18 +289,38 @@ public sealed class NcStoreListingControl : PanelContainer
 
     private Control MakeDescription(EntityPrototype? proto)
     {
-        var desc = proto?.Description ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(desc))
+        var full = proto?.Description ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(full))
             return new();
 
-        return new Label
+
+        var trimmed = TrimToChars(full, DescMaxChars);
+
+        var msg = new FormattedMessage();
+        msg.AddText(trimmed);
+
+        var rtl = new RichTextLabel
         {
-            Text = desc,
-            HorizontalExpand = true,
-            ClipText = true,
-            MaxSize = new Vector2i(TextMax, 0)
+            HorizontalExpand = false,
+            VerticalExpand = false,
+            MaxWidth = TextMax,
+            ToolTip = full
         };
+        rtl.SetMessage(msg);
+        return rtl;
     }
+
+    private static string TrimToChars(string text, int max)
+    {
+        if (max <= 0 || string.IsNullOrEmpty(text) || text.Length <= max)
+            return text;
+        var cut = Math.Max(0, max - 1);
+        var span = text.AsSpan(0, cut);
+        var lastSpace = span.LastIndexOf(' ');
+        var end = lastSpace > 0 ? lastSpace : cut;
+        return text.Substring(0, end) + "…";
+    }
+
 
     private Control MakePriceButton(StoreListingData data)
     {

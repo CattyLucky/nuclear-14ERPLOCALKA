@@ -18,22 +18,35 @@ namespace Content.Client._NC.Trade;
 [GenerateTypedNameReferences]
 public sealed partial class NcStoreMenu : FancyWindow
 {
+    private const int SearchDebounceMs = 120;
+    private const int PageSize = 96;
+
     private static readonly Color CatSelected = new(0xD9, 0xA4, 0x41);
     private static readonly Color CatIdle = new(0x7C, 0x66, 0x24);
+
     private readonly Dictionary<string, (NcStoreListingControl Ctrl, string Sig)> _buyCache = new();
 
+    private readonly Dictionary<string, Button> _buyCatButtons = new();
 
     private readonly List<string> _buyCats = new();
 
     private readonly List<StoreListingData> _items = new();
+
     private readonly IPrototypeManager _proto;
+
     private readonly Dictionary<string, int> _qtyCache = new();
     private readonly Dictionary<string, (NcStoreListingControl Ctrl, string Sig)> _sellCache = new();
+    private readonly Dictionary<string, Button> _sellCatButtons = new();
     private readonly List<string> _sellCats = new();
     private readonly SpriteSystem _sprites;
+
     private int _balance;
+
     private string _buyCat = string.Empty;
-    private int _renderVersion;
+
+    private int _pageBuy = 1;
+    private int _pageSell = 1;
+
     private string _search = string.Empty;
     private int _searchToken;
     private string _sellCat = string.Empty;
@@ -51,11 +64,12 @@ public sealed partial class NcStoreMenu : FancyWindow
             _search = SearchBar.Text.Trim();
             var token = ++_searchToken;
             Timer.Spawn(
-                TimeSpan.FromMilliseconds(120),
+                TimeSpan.FromMilliseconds(SearchDebounceMs),
                 () =>
                 {
                     if (token != _searchToken)
                         return;
+                    ResetPaging();
                     OnSearchChanged?.Invoke(_search);
                     RefreshListings();
                 });
@@ -69,15 +83,18 @@ public sealed partial class NcStoreMenu : FancyWindow
     public event Action<StoreListingData, int>? OnSellPressed;
     public event Action<StoreListingData, int>? OnExchangePressed;
 
-    private static string Sig(StoreListingData d, int balance) =>
-        d.Mode == StoreMode.Buy
-            ? $"{d.Price}|{d.Remaining}|{d.Owned}|{d.CurrencyId}|{d.ProductEntity}|B{balance}"
-            : $"{d.Price}|{d.Remaining}|{d.Owned}|{d.CurrencyId}|{d.ProductEntity}";
+    public void SetBalance(int balance)
+    {
+        _balance = balance;
+        BalanceLabel.Text = balance.ToString();
+        BalanceInfo.SetMarkup($"[font size=14][color=yellow]{balance}[/color][/font]");
+    }
 
     public void Populate(List<StoreListingData> list)
     {
         _items.Clear();
         _items.AddRange(list);
+
         var ids = _items.Select(i => i.Id).ToHashSet();
         foreach (var key in _qtyCache.Keys.Where(k => !ids.Contains(k)).ToList())
             _qtyCache.Remove(key);
@@ -112,27 +129,213 @@ public sealed partial class NcStoreMenu : FancyWindow
             _sellCat = string.Empty;
 
         BuildCategoryButtons();
-
+        ResetPaging();
         RefreshListings();
     }
 
-
-    public void SetBalance(int balance)
+    private void RefreshListings()
     {
-        _balance = balance;
-        BalanceLabel.Text = balance.ToString();
-        BalanceInfo.SetMarkup($"[font size=14][color=yellow]{balance}[/color][/font]");
+        var hasSearch = !string.IsNullOrWhiteSpace(_search);
+        var buyCount = Filtered(StoreMode.Buy, _buyCat).Count();
+        var sellCount = Filtered(StoreMode.Sell, _sellCat).Count();
+
+        BuyCategoryHeader.Visible = !string.IsNullOrEmpty(_buyCat) || hasSearch;
+        SellCategoryHeader.Visible = !string.IsNullOrEmpty(_sellCat) || hasSearch;
+
+        if (BuyCategoryHeader.Visible)
+        {
+            BuyCategoryHeader.Text = !string.IsNullOrEmpty(_buyCat)
+                ? _buyCat
+                : $"Результаты поиска ({buyCount})";
+        }
+        else
+            BuyCategoryHeader.Text = string.Empty;
+
+        if (SellCategoryHeader.Visible)
+        {
+            SellCategoryHeader.Text = !string.IsNullOrEmpty(_sellCat)
+                ? _sellCat
+                : $"Результаты поиска ({sellCount})";
+        }
+        else
+            SellCategoryHeader.Text = string.Empty;
+
+        FillPaneFull(BuyListingsContainer, StoreMode.Buy, _buyCat, (d, qty) => OnBuyPressed?.Invoke(d, qty));
+        FillPaneFull(SellListingsContainer, StoreMode.Sell, _sellCat, (d, qty) => OnSellPressed?.Invoke(d, qty));
+    }
+
+
+    private IEnumerable<StoreListingData> Filtered(StoreMode mode, string cat)
+    {
+        var q = _items.Where(i => i.Mode == mode);
+
+        var hasCat = !string.IsNullOrEmpty(cat);
+        var hasSearch = !string.IsNullOrWhiteSpace(_search);
+        if (!hasCat && !hasSearch)
+            return Enumerable.Empty<StoreListingData>();
+        if (hasCat)
+            q = q.Where(i => i.Category == cat);
+
+        if (hasSearch)
+            q = q.Where(i => MatchesSearch(i.ProductEntity));
+
+        return q;
+    }
+
+    private void FillPaneFull(Control pane, StoreMode mode, string cat, Action<StoreListingData, int> emit)
+    {
+        pane.Children.Clear();
+
+        var filtered = Filtered(mode, cat).ToList();
+
+        if (string.IsNullOrEmpty(cat) && string.IsNullOrWhiteSpace(_search))
+            return;
+
+        if (filtered.Count == 0)
+        {
+            pane.AddChild(new Label { Text = "Выберите категорию.", });
+            return;
+        }
+
+        var take = Math.Min(filtered.Count, PageSize * (mode == StoreMode.Buy ? _pageBuy : _pageSell));
+        var slice = filtered.GetRange(0, take);
+
+        AddListingRange(pane, mode, filtered, 0, slice.Count, emit);
+        AddOrUpdateMoreButton(pane, mode, filtered.Count, take, cat, emit);
+    }
+
+    private void AppendNextPage(Control pane, StoreMode mode, string cat, Action<StoreListingData, int> emit)
+    {
+        var filtered = Filtered(mode, cat).ToList();
+        var page = mode == StoreMode.Buy ? _pageBuy : _pageSell;
+        var take = Math.Min(filtered.Count, PageSize * page);
+
+        var already = 0;
+        foreach (var ch in pane.Children)
+            if (ch is NcStoreListingControl)
+                already++;
+
+        var toAddStart = already;
+        var toAddEnd = Math.Min(take, filtered.Count);
+
+        if (toAddStart < toAddEnd)
+            AddListingRange(pane, mode, filtered, toAddStart, toAddEnd, emit);
+
+        RemoveMoreButtons(pane);
+        AddOrUpdateMoreButton(pane, mode, filtered.Count, take, cat, emit);
+    }
+
+    private void AddListingRange(
+        Control pane,
+        StoreMode mode,
+        List<StoreListingData> source,
+        int startExclusive,
+        int endExclusive,
+        Action<StoreListingData, int> emit
+    )
+    {
+        var cache = mode == StoreMode.Buy ? _buyCache : _sellCache;
+
+        for (var i = startExclusive; i < endExclusive; i++)
+        {
+            var it = source[i];
+            var sig = Sig(it, _balance);
+
+            NcStoreListingControl ctrl;
+            if (cache.TryGetValue(it.Id, out var tuple) && tuple.Sig == sig)
+                ctrl = tuple.Ctrl;
+            else
+            {
+                var initQty = _qtyCache.TryGetValue(it.Id, out var saved) ? saved : 1;
+                ctrl = new(it, _sprites, _balance, initQty);
+                ctrl.OnQtyChanged += newQty => _qtyCache[it.Id] = newQty;
+
+                switch (mode)
+                {
+                    case StoreMode.Buy:
+                        ctrl.OnBuyPressed += qty => emit(it, qty);
+                        break;
+                    case StoreMode.Sell:
+                        ctrl.OnSellPressed += qty => emit(it, qty);
+                        break;
+                    case StoreMode.Exchange:
+                        ctrl.OnExchangePressed += qty => OnExchangePressed?.Invoke(it, qty);
+                        break;
+                }
+
+                cache[it.Id] = (ctrl, sig);
+            }
+
+            pane.AddChild(ctrl);
+
+            if (i < endExclusive - 1)
+            {
+                pane.AddChild(
+                    new PanelContainer
+                    {
+                        MinSize = new Vector2i(0, 1),
+                        StyleClasses = { "LowDivider", }
+                    });
+            }
+        }
+    }
+
+    private static void RemoveMoreButtons(Control pane)
+    {
+        foreach (var ch in pane.Children.ToList())
+            if (ch is Button b && b.Text != null && b.Text.StartsWith("Показать ещё (", StringComparison.Ordinal))
+                pane.RemoveChild(b);
+    }
+
+    private void AddOrUpdateMoreButton(
+        Control pane,
+        StoreMode mode,
+        int totalCount,
+        int shown,
+        string cat,
+        Action<StoreListingData, int> emit
+    )
+    {
+        if (shown >= totalCount)
+            return;
+
+        var left = totalCount - shown;
+
+        var more = new Button
+        {
+            Text = $"Показать ещё ({left})",
+            HorizontalExpand = true,
+            Margin = new(0, 8, 0, 8)
+        };
+
+        more.OnPressed += _ =>
+        {
+            if (mode == StoreMode.Buy)
+                _pageBuy++;
+            else
+                _pageSell++;
+
+            AppendNextPage(pane, mode, cat, emit);
+        };
+
+        pane.AddChild(more);
     }
 
     private void BuildCategoryButtons()
     {
+        _buyCatButtons.Clear();
+        _sellCatButtons.Clear();
+
         MakeButtons(
             _buyCats,
             BuyCategoryListContainer,
             _buyCat,
+            _buyCatButtons,
             cat =>
             {
-                _buyCat = cat == _buyCat ? string.Empty : cat;
+                _buyCat = _buyCat == cat ? string.Empty : cat;
+                UpdateCatVisuals(_buyCatButtons, _buyCat);
+                ResetPaging();
                 RefreshListings();
             });
 
@@ -140,25 +343,24 @@ public sealed partial class NcStoreMenu : FancyWindow
             _sellCats,
             SellCategoryListContainer,
             _sellCat,
+            _sellCatButtons,
             cat =>
             {
-                _sellCat = cat == _sellCat ? string.Empty : cat;
+                _sellCat = _sellCat == cat ? string.Empty : cat;
+                UpdateCatVisuals(_sellCatButtons, _sellCat);
+                ResetPaging();
                 RefreshListings();
             });
-    }
 
-    private static Color Brighten(Color c, float f) =>
-        new(
-            MathF.Min(c.R * f, 1.0f),
-            MathF.Min(c.G * f, 1.0f),
-            MathF.Min(c.B * f, 1.0f),
-            c.A
-        );
+        UpdateCatVisuals(_buyCatButtons, _buyCat);
+        UpdateCatVisuals(_sellCatButtons, _sellCat);
+    }
 
     private static void MakeButtons(
         IEnumerable<string> cats,
         Control parent,
         string current,
+        Dictionary<string, Button> registry,
         Action<string> onClick
     )
     {
@@ -176,118 +378,41 @@ public sealed partial class NcStoreMenu : FancyWindow
                 ModulateSelfOverride = selected ? CatSelected : CatIdle
             };
 
-            btn.OnMouseEntered += _ => btn.ModulateSelfOverride = Brighten(CatSelected, 1.2f);
-            btn.OnMouseExited += _ => btn.ModulateSelfOverride = btn.Pressed ? CatSelected : CatIdle;
+            btn.OnMouseEntered += _ =>
+                btn.ModulateSelfOverride = btn.Pressed ? Brighten(CatSelected, 1.2f) : Brighten(CatIdle, 1.2f);
+            btn.OnMouseExited += _ =>
+                btn.ModulateSelfOverride = btn.Pressed ? CatSelected : CatIdle;
 
             btn.OnPressed += _ => onClick(c);
+
             parent.AddChild(btn);
+            registry[c] = btn;
         }
     }
 
-
-    private void RefreshListings()
+    private static void UpdateCatVisuals(Dictionary<string, Button> map, string current)
     {
-        BuyCategoryHeader.Text = string.IsNullOrEmpty(_buyCat) ? "Выберите категорию" : _buyCat;
-        SellCategoryHeader.Text = string.IsNullOrEmpty(_sellCat) ? "Выберите категорию" : _sellCat;
-
-        FillPane(BuyListingsContainer, StoreMode.Buy, _buyCat, (d, qty) => OnBuyPressed?.Invoke(d, qty));
-        FillPane(SellListingsContainer, StoreMode.Sell, _sellCat, (d, qty) => OnSellPressed?.Invoke(d, qty));
+        foreach (var (name, btn) in map)
+        {
+            var selected = name == current;
+            btn.Pressed = selected;
+            btn.ModulateSelfOverride = selected ? CatSelected : CatIdle;
+        }
     }
 
-    private void AddChildrenBatched(Control pane, List<(Control Ctrl, bool Divider)> items)
+    private static Color Brighten(Color c, float f) =>
+        new(MathF.Min(c.R * f, 1f), MathF.Min(c.G * f, 1f), MathF.Min(c.B * f, 1f), c.A);
+
+    private void ResetPaging()
     {
-        var version = ++_renderVersion;
-        const int batchSize = 20;
-
-        void AddRange(int start)
-        {
-            if (_renderVersion != version)
-                return;
-
-            var end = Math.Min(items.Count, start + batchSize);
-            for (var i = start; i < end; i++)
-            {
-                var (ctrl, divider) = items[i];
-                pane.AddChild(ctrl);
-                if (divider)
-                {
-                    pane.AddChild(
-                        new PanelContainer
-                        {
-                            MinSize = new Vector2i(0, 1),
-                            StyleClasses = { "LowDivider", }
-                        });
-                }
-            }
-
-            if (end < items.Count)
-                Timer.Spawn(TimeSpan.FromMilliseconds(16), () => AddRange(end));
-        }
-
-        AddRange(0);
+        _pageBuy = 1;
+        _pageSell = 1;
     }
 
-    private void FillPane(Control pane, StoreMode mode, string cat, Action<StoreListingData, int> emit)
-    {
-        pane.Children.Clear();
-
-        var catChosen = !string.IsNullOrEmpty(cat);
-        var hasSearch = !string.IsNullOrWhiteSpace(_search);
-
-        if (!catChosen && !hasSearch)
-        {
-            pane.AddChild(new Label { Text = "Выберите категорию.", StyleClasses = { "nc-store__hint", }, });
-            return;
-        }
-
-        var q = _items.Where(i => i.Mode == mode);
-        if (catChosen)
-            q = q.Where(i => i.Category == cat);
-        if (hasSearch)
-            q = q.Where(i => MatchesSearch(i.ProductEntity));
-
-        var filtered = q.ToList();
-        if (filtered.Count == 0)
-        {
-            pane.AddChild(new Label { Text = "Ничего не найдено.", StyleClasses = { "nc-store__hint", }, });
-            return;
-        }
-
-        var cache = mode == StoreMode.Buy ? _buyCache : _sellCache;
-        var toRender = new List<(Control Ctrl, bool Divider)>(filtered.Count * 2);
-
-        for (var i = 0; i < filtered.Count; i++)
-        {
-            var it = filtered[i];
-            var sig = Sig(it, _balance);
-
-            NcStoreListingControl ctrl;
-            if (cache.TryGetValue(it.Id, out var tuple) && tuple.Sig == sig)
-                ctrl = tuple.Ctrl;
-            else
-            {
-                var initQty = _qtyCache.TryGetValue(it.Id, out var saved) ? saved : 1;
-                ctrl = new(it, _sprites, _balance, initQty);
-                ctrl.OnQtyChanged += newQty => _qtyCache[it.Id] = newQty;
-
-                if (mode == StoreMode.Buy)
-                    ctrl.OnBuyPressed += qty => emit(it, qty);
-                else
-                    ctrl.OnSellPressed += qty => emit(it, qty);
-
-                cache[it.Id] = (ctrl, sig);
-            }
-
-            toRender.Add((ctrl, i < filtered.Count - 1));
-        }
-
-        AddChildrenBatched(pane, toRender);
-
-        var visible = filtered.Select(f => f.Id).ToHashSet();
-        foreach (var key in cache.Keys.Where(k => !visible.Contains(k)).ToList())
-            cache.Remove(key);
-    }
-
+    private static string Sig(StoreListingData d, int balance) =>
+        d.Mode == StoreMode.Buy
+            ? $"{d.Price}|{d.Remaining}|{d.Owned}|{d.CurrencyId}|{d.ProductEntity}|B{balance}"
+            : $"{d.Price}|{d.Remaining}|{d.Owned}|{d.CurrencyId}|{d.ProductEntity}";
 
     private bool MatchesSearch(string protoId)
     {
