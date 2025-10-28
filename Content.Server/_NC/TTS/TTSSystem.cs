@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Content.Server.Chat.Systems;
 using Content.Server.Language;
+using Content.Server.Radio.Components;
 using Content.Shared._NC.CorvaxVars;
 using Content.Shared._NC.TTS;
 using Content.Shared.GameTicking;
@@ -105,6 +106,9 @@ public sealed partial class TTSSystem : EntitySystem
             if (!_netCfg.GetClientCVar(channel, CorvaxVars.LocalTTSEnabled)) 
                 return; 
         }
+
+        if (HasComp<ActiveRadioComponent>(uid))
+            await Task.Delay(1000);
         
         var voiceId = component.VoicePrototypeId; 
         if (!_isEnabled || 
