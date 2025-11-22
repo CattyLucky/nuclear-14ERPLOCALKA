@@ -1,83 +1,83 @@
 - type: trait
   id: N14Blindness
   category: Visual
-  points: 10
+  points: 5 # Forge-Change
   requirements:
-    - !type:CharacterJobRequirement # Corvax-Change
-      inverted: true
-      jobs:
-        - WastelandReporter
-        - TribalElder
-        - TownMayor
-        - TownSheriff
-        - NCRLT
-        - NCRRangerVeteran
-        - NCRRanger
-        - NCRSGT
-        - CaravanLeader
-        - BoSMidPaladinCommander
-        - BoSMidPaladin
-        - Overseer
-        - VaultSecurity
-    - !type:CharacterTraitRequirement
-      inverted: true
-      traits:
-        - N14Photophobia
-        - N14Nearsighted
-        - N14GooglyEyes
+  - !type:CharacterJobRequirement # Forge-Change
+    inverted: true
+    jobs:
+    - WastelandReporter
+    - TribalElder
+    - TownMayor
+    - TownSheriff
+    - NCRLT
+    - NCRRangerVeteran
+    - NCRRanger
+    - NCRSGT
+#    - CaravanLeader
+    - BoSMidPaladinCommander
+    - BoSMidPaladin
+    - Overseer
+    - VaultSecurity
+  - !type:CharacterTraitRequirement
+    inverted: true
+    traits:
+    - N14Photophobia
+    - N14Nearsighted
+    - N14GooglyEyes
   functions:
-    - !type:TraitAddComponent
-      components:
-        - type: PermanentBlindness
+  - !type:TraitAddComponent
+    components:
+    - type: PermanentBlindness
 
 - type: trait
   id: N14Nearsighted
   category: Visual
   points: 1
   requirements:
-    - !type:CharacterTraitRequirement
-      inverted: true
-      traits:
-        - N14Blindness
-        - N14GooglyEyes
+  - !type:CharacterTraitRequirement
+    inverted: true
+    traits:
+    - N14Blindness
+    - N14GooglyEyes
   functions:
-    - !type:TraitAddComponent
-      components:
-        - type: PermanentBlindness
-          blindness: 4
+  - !type:TraitAddComponent
+    components:
+    - type: PermanentBlindness
+      blindness: 4
 
 - type: trait
   id: N14GooglyEyes #It's technically an augmentation and should be in the physical file & category, but effects sight and gotta put something in this category.
   category: Visual
   points: -5
   requirements:
-    - !type:CharacterTraitRequirement
-      inverted: true
-      traits:
-        - N14ExtremeAugScribe
-        - N14ExtremeAugPaladin
+  - !type:CharacterTraitRequirement
+    inverted: true
+    traits:
+    - N14ExtremeAugScribe
+    - N14ExtremeAugPaladin
   functions:
-    - !type:TraitAddComponent
-      components:
-        - type: FlashImmunity
-        - type: EyeProtection
+  - !type:TraitAddComponent
+    components:
+    - type: FlashImmunity
+    - type: EyeProtection
 
 - type: trait
   id: N14Photophobia
   category: Visual
   points: 1
   requirements:
-    - !type:CharacterTraitRequirement
-      inverted: true
-      traits:
-        - N14ExtremeAugScribe
-        - N14ExtremeAugPaladin
-        - N14GooglyEyes
-        - N14Blindness
+  - !type:CharacterTraitRequirement
+    inverted: true
+    traits:
+    - N14ExtremeAugScribe
+    - N14ExtremeAugPaladin
+    - N14GooglyEyes
+    - N14Blindness
   functions:
-    - !type:TraitReplaceComponent
-      components:
-        - type: Flashable
-          eyeDamageChance: 0.3
-          eyeDamage: 1
-          durationMultiplier: 1.5
+  - !type:TraitReplaceComponent
+    components:
+    - type: Flashable
+      eyeDamageChance: 0.3
+      eyeDamage: 1
+      durationMultiplier: 1.5

@@ -25,24 +25,28 @@
 - type: npcFaction
   id: BrotherhoodWest
   hostile:
+  - WastelandInsect
+  - WastelandAnimal
+  - Raider
+  - HostileRobot
+  - Feral
+
+- type: npcFaction
+  id: BrotherhoodWestSecureArea
+  hostile:
   - Wastelander
-  - BrotherhoodMidwest
   - BrotherhoodWashington
-  - BrotherhoodMidwestSecureArea # turrets
-  - BrotherhoodWashingtonSecureArea # turrets
   - CaravanCompany
-  - CaravanCompanySecureArea # turrets
   - NCR
-  - NCRSecureArea # turrets
   - Rangers
   - Townsfolk
   - Tribal
   - Vault
-  - VaultSecureArea # turrets
-  - WastelandInsect
-  - WastelandAnimal
   - Zetan
-  - Feral
-  - HostileRobot
+  - WastelandAnimal
+  - WastelandInsect
   - Raider
   - CaesarLegion
+  - HostileRobot
+  - Feral
+  - BrotherhoodMidwest

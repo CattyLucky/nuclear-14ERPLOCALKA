@@ -68,6 +68,7 @@
     intervalSeconds: 300
     minimumEntitiesSpawned: 1
     maximumEntitiesSpawned: 1
+    ignoreSpawnBlock: true # Forge-Change
   - type: Reproductive
     breedChance: 0.005 # Low
     birthPopup: reproductive-birth-popup
@@ -175,3 +176,23 @@
         Base: legion
       Dead:
         Base: legion-dead
+
+- type: entity
+  parent: N14MobBrahdoLight
+  id: N14MobBrahdoLighttribal
+  name: brahdo
+  description: "ehhoh cowboy! Jump on the brado and let's go chase the Brahmins"
+  suffix: tribal
+  components:
+  - type: Sprite
+    drawdepth: Mobs
+    layers:
+    - map: ["enum.DamageStateVisualLayers.Base"]
+      state: tribal
+      sprite: Corvax/Mobs/Animals/tribaldrahdo.rsi
+  - type: DamageStateVisuals
+    states:
+      Alive:
+        Base: tribal
+      Dead:
+        Base: tribal-dead

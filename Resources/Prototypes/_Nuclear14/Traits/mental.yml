@@ -44,7 +44,7 @@
         - NCREngineer
         - NCRSoldier
         - NCRCadet
-        - CaravanGuard
+#        - CaravanGuard
         - BoSWashingtonCommander
         - BoSWashingtonPaladin
         - BoSWashingtonKnight
@@ -180,27 +180,27 @@
         - type: GhostRoleMobSpawner
           prototype: N14MobPetPigrat
 
-- type: trait
-  id: N14PetAnt
-  category: Mental
-  points: -5
-  requirements:
-    - !type:CharacterDepartmentRequirement
-      departments:
-        - CaravanCompany
-    - !type:CharacterTraitRequirement
-      inverted: true
-      traits:
-        - N14PetDogCC
-  functions:
-    - !type:TraitAddComponent
-      components:
-        - type: GhostRole
-          name: ghost-role-information-n14pet-ant-name
-          description: ghost-role-information-n14pet-hauler-description
-          rules: ghost-role-component-default-rules
-        - type: GhostRoleMobSpawner
-          prototype: N14MobPetAnt
+#- type: trait
+#  id: N14PetAnt
+#  category: Mental
+#  points: -5
+#  requirements:
+#    - !type:CharacterDepartmentRequirement
+#      departments:
+#        - CaravanCompany
+#    - !type:CharacterTraitRequirement
+#      inverted: true
+#      traits:
+#        - N14PetDogCC
+#  functions:
+#    - !type:TraitAddComponent
+#      components:
+#        - type: GhostRole
+#          name: ghost-role-information-n14pet-ant-name
+#          description: ghost-role-information-n14pet-hauler-description
+#          rules: ghost-role-component-default-rules
+#        - type: GhostRoleMobSpawner
+#          prototype: N14MobPetAnt
 
 # All the eyebots shall be here.
 - type: trait
@@ -349,29 +349,29 @@
         - type: GhostRoleMobSpawner
           prototype: N14MobPetDogWBoS
 
-- type: trait
-  id: N14PetDogCC
-  category: Mental
-  points: -5
-  requirements:
-    - !type:CharacterOverallTimeRequirement
-      min: 72000
-    - !type:CharacterDepartmentRequirement
-      departments:
-        - CaravanCompany
-    - !type:CharacterTraitRequirement
-      inverted: true
-      traits:
-        - N14PetAnt
-  functions:
-    - !type:TraitAddComponent
-      components:
-        - type: GhostRole
-          name: ghost-role-information-n14pet-dog-cc-name
-          description: ghost-role-information-n14pet-generic-description
-          rules: ghost-role-component-default-rules
-        - type: GhostRoleMobSpawner
-          prototype: N14MobPetDogCC
+# - type: trait
+#   id: N14PetDogCC
+#   category: Mental
+#   points: -5
+#   requirements:
+#     - !type:CharacterOverallTimeRequirement
+#       min: 72000
+#     - !type:CharacterDepartmentRequirement
+#       departments:
+#         - CaravanCompany
+#     - !type:CharacterTraitRequirement
+#       inverted: true
+#       traits:
+#         - N14PetAnt
+#   functions:
+#     - !type:TraitAddComponent
+#       components:
+#         - type: GhostRole
+#           name: ghost-role-information-n14pet-dog-cc-name
+#           description: ghost-role-information-n14pet-generic-description
+#           rules: ghost-role-component-default-rules
+#         - type: GhostRoleMobSpawner
+#           prototype: N14MobPetDogCC
 
 - type: trait
   id: N14PetDogNCR

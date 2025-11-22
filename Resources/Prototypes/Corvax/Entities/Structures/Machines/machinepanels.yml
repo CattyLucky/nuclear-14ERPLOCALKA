@@ -1,0 +1,9 @@
+- type: entity
+  parent: N14MachineRackTelecomsServer
+  id: N14MachineRackTelecomsServerWestBOS
+  suffix: WESTBOS
+  components:
+  - type: ContainerFill
+    containers:
+      key_slots:
+      - EncryptionKeyBrotherhoodWest

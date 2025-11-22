@@ -145,3 +145,27 @@
     - state: green
     - state: gunsmith
 
+- type: entity
+  id: N14SpawnPointTownsfolkTownShopkeeperHelper
+  parent: N14SpawnPointTownsfolkTownsperson
+  name: town shopkeeper helper
+  components:
+  - type: SpawnPoint
+    job_id: TownShopkeeperHelper
+  - type: Sprite
+    layers:
+      - state: green
+      - state: shopkeeper
+
+- type: entity
+  id: N14SpawnPointBoSMidInquisitor
+  parent: N14SpawnPointBoSMidPaladin
+  name: BoS mid inquisitor
+  components:
+  - type: SpawnPoint
+    job_id: BoSMidInquisitor
+  - type: Sprite
+    sprite: Corvax/Markers/jobs.rsi
+    layers:
+      - state: green
+      - state: inquisitor

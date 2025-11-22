@@ -1,30 +1,47 @@
-- type: loadout
-  id: LoadoutBlueLineCCOveralls
-  category: Roles
-  cost: 0
-  exclusive: true
-  requirements:
-    - !type:CharacterJobRequirement
-      jobs:
-        - CaravanGuard
-        - CaravanTrader
-  items:
-    - N14ClothingUniformJumpsuitCaravanOveralls
-
-
-
-- type: loadout
-  id: LoadoutBlueLineCCCap
-  category: Roles
-  cost: 0
-  exclusive: true
-  requirements:
-    - !type:CharacterJobRequirement
-      jobs:
-        - CaravanGuard
-        - CaravanTrader
-  items:
-    - N14ClothingHeadHatCaravan
-
-
-
+#- type: loadout
+#  id: LoadoutBlueLineCCOveralls
+#  category: Roles
+#  cost: 1
+#  exclusive: true
+#  requirements:
+#    - !type:CharacterJobRequirement
+#      jobs:
+#        - CaravanGuard
+#        - CaravanTrader
+#  items:
+#    - N14ClothingUniformJumpsuitCaravanOveralls
+#
+#
+#
+#- type: loadout
+#  id: LoadoutBlueLineCCCap
+#  category: Roles
+#  cost: 1
+#  exclusive: true
+#  requirements:
+#    - !type:CharacterJobRequirement
+#      jobs:
+#        - CaravanGuard
+#        - CaravanTrader
+#  items:
+#    - N14ClothingHeadHatCaravan
+#
+#
+#
+##Corvax-Add Start
+#
+## Tools
+#- type: loadout
+#  id: LoadoutBlueLineCCTradeCatalog
+#  category: Items
+#  cost: 2
+#  exclusive: true
+#  requirements:
+#  - !type:CharacterJobRequirement
+#      jobs:
+#        - CaravanLeader
+#        - CaravanTrader
+#  items:
+#    - N14ToolsTradeCatalog
+#
+##Corvax-Add End

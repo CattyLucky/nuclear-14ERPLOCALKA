@@ -26,7 +26,7 @@ namespace Content.Server._N14.PortalAutoLink
             var entityEnumerator = EntityQueryEnumerator<PortalAutoLinkComponent>();
             while (entityEnumerator.MoveNext(out var currentEntityUid, out var currentAutoLinkComponent))
             {
-                if (entity.Comp == currentAutoLinkComponent)
+                if (entity.Owner == currentEntityUid) // Forge-Change
                     continue;
 
                 if (entity.Comp.LinkKey == currentAutoLinkComponent.LinkKey)

@@ -1,0 +1,17 @@
+ent-PrizeTicket = талон каравана
+   .desc = Талон, используемый для обмена при помощи специального "торгового автомата". Позволяет заполучить довольно мощное оружие, если конечно хватит талончиков.
+ent-PrizeTicket1 = { ent-PrizeTicket }
+   .suffix = 1
+   .desc = { ent-PrizeTicket.desc }
+ent-PrizeTicket10  = { ent-PrizeTicket }
+   .suffix = 10
+   .desc = { ent-PrizeTicket.desc }
+ent-PrizeTicket30  = { ent-PrizeTicket }
+   .suffix = 30
+   .desc = { ent-PrizeTicket.desc }
+ent-PrizeTicket60  = { ent-PrizeTicket }
+   .suffix = 60
+   .desc = { ent-PrizeTicket.desc }
+ncstore-no-access = нету доступа
+ncstore-busy = занято
+ncstore-too-far = слишком далеко

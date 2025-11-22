@@ -27,3 +27,23 @@
   - type: HideLayerClothing
     slots:
     - Hair
+
+- type: entity
+  parent: N14ClothingHeadSuitbase
+  id: N14ClothingHeadHatHelmetRadHelmetEnclave
+  name: radiation suit helmet Enclave
+  description: A advance helmet used pre war to handle radioactive material.
+  components:
+  - type: Sprite
+    sprite: Corvax/Clothing/Head/Hoods/enclavehelmetrad.rsi
+  - type: Clothing
+    sprite: Corvax/Clothing/Head/Hoods/enclavehelmetrad.rsi
+  - type: IdentityBlocker
+  - type: Armor
+    modifiers:
+      coefficients:
+        Radiation: 0.75
+  - type: Tag
+    tags:
+    - HidesHair
+    - HidesBeard

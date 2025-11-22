@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Numerics;
+using Content.Server._NC.Sponsor; // Forge-Change
 using Content.Server.GameTicking;
 using Content.Server.Ghost.Components;
 using Content.Server.Mind;
@@ -44,6 +45,7 @@ namespace Content.Server.Ghost
         [Dependency] private readonly TransformSystem _transformSystem = default!;
         [Dependency] private readonly VisibilitySystem _visibilitySystem = default!;
         [Dependency] private readonly MetaDataSystem _metaData = default!;
+        [Dependency] private readonly SponsorManager _sponsors = default!; // Forge-Change
 
         private EntityQuery<GhostComponent> _ghostQuery;
         private EntityQuery<PhysicsComponent> _physicsQuery;
@@ -437,7 +439,34 @@ namespace Content.Server.Ghost
                 return null;
             }
 
-            var ghost = SpawnAtPosition(GameTicker.ObserverPrototypeName, spawnPosition.Value);
+            // Forge-Change-Start
+            var user = mind.Comp.UserId;
+            EntityUid ghost;
+            try
+            {
+                if (user != null && _sponsors.TryGetSponsor(user.Value, out var level)
+                    && _sponsors.TryGetSponsorGhost(level, out var sponsorGhost))
+                {
+                    ghost = Spawn(sponsorGhost, spawnPosition.Value);
+                }
+                else
+                {
+                    ghost = Spawn(GameTicker.ObserverPrototypeName, spawnPosition.Value);
+                }
+
+                if (!HasComp<GhostComponent>(ghost))
+                {
+                    AddComp<GhostComponent>(ghost);
+                    Log.Warning($"Added missing GhostComponent to {ToPrettyString(ghost)}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Failed to spawn ghost: {ex}");
+                return null;
+            }
+            // Forge-Change-End
+
             var ghostComponent = Comp<GhostComponent>(ghost);
 
             // Try setting the ghost entity name to either the character name or the player name.

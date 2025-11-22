@@ -263,3 +263,45 @@
   icon:
     sprite: Corvax/Interface/Misc/job_icons.rsi
     state: wastelandFarmer
+
+- type: jobIcon
+  parent: JobIcon
+  id: JobIconlegionerRecruit
+  icon:
+    sprite: Corvax/Interface/Misc/job_icons.rsi
+    state: legionerRecruit
+
+- type: jobIcon
+  parent: JobIcon
+  id: JobIconlegionerWarrior
+  icon:
+    sprite: Corvax/Interface/Misc/job_icons.rsi
+    state: legionerWarrior
+
+- type: jobIcon
+  parent: JobIcon
+  id: JobIconlegionerVeteran
+  icon:
+    sprite: Corvax/Interface/Misc/job_icons.rsi
+    state: legionerVeteran
+
+- type: jobIcon
+  parent: JobIcon
+  id: JobIconlegionerDean
+  icon:
+    sprite: Corvax/Interface/Misc/job_icons.rsi
+    state: dean
+
+- type: jobIcon
+  parent: JobIcon
+  id: JobIconlegionerVenator
+  icon:
+    sprite: Corvax/Interface/Misc/job_icons.rsi
+    state: venator
+
+- type: jobIcon
+  parent: JobIcon
+  id: JobIconlegionerCenturion
+  icon:
+    sprite: Corvax/Interface/Misc/job_icons.rsi
+    state: centurion

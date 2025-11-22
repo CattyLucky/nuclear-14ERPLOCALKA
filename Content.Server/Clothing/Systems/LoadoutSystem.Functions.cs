@@ -46,4 +46,23 @@ public sealed partial class LoadoutFiledStorage : LoadoutFunction
         loadoutSys.InsertBack(uid, loadout);
     }
 }
+
+/// <summary>
+///     Данная функция позволяет удалить шлем при необходимости
+/// </summary>
+[UsedImplicitly]
+public sealed partial class LoadoutDeleteHelmet : LoadoutFunction
+{
+    public override void OnPlayerSpawn(
+        EntityUid uid,
+        EntityUid loadout,
+        IComponentFactory factory,
+        IEntityManager entityManager,
+        ISerializationManager serializationManager
+    )
+    {
+        var loadoutSys = entityManager.System<LoadoutSystem>();
+        loadoutSys.DeleteHelmet(uid);
+    }
+}
 // Corvax-Change-End

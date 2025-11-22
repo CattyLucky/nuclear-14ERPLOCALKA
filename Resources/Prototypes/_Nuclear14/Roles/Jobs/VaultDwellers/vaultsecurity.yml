@@ -10,11 +10,13 @@
   - !type:CharacterDepartmentTimeRequirement
     department: Vault
     min: 18000 # 5 hours
+  setPreference: true
+  overrideConsoleVisibility: true
+  canBeAntag: false
   startingGear: VaultSecurityGear
   alwaysUseSpawner: true
-  icon: "JobIconVaultSecurity" # Corvax-Change
+  icon: "JobIconVaultSecurity" # Forge-Change
   supervisors: job-supervisors-vault
-  canBeAntag: false
   access:
   - VaultDweller
   - VaultSecurity
@@ -23,13 +25,14 @@
     components:
       - type: NpcFactionMember
         factions:
+          - Wastelander
           - Vault
 
 - type: startingGear
   id: VaultSecurityGear
   equipment:
     jumpsuit: N14ClothingUniformJumpsuitVault14
-    back: N14ClothingBackpackVaultBlue # Corvax-Change
+    back: N14ClothingBackpackVaultBlue # Forge-Change
     shoes: N14ClothingBootsBlack
     eyes: N14ClothingEyesSunGlasses
     head: N14ClothingHeadHatVaultRiot
@@ -39,7 +42,7 @@
     pocket2: Handcuffs
     ears: N14ClothingHeadsetVaultDweller
     belt: N14PoliceBaton
-  storage: # Corvax-Change
+  storage: # Forge-Change
     back:
     - N14Bandage
     - N14CurrencyPrewarMoney100

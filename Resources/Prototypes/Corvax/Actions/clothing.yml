@@ -1,0 +1,17 @@
+- type: entity
+  id: N14OpenCloseHelmet
+  name: Опустить/Поднять Забрало
+  description: нажмите чтобы опустить/поднять забрало.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: InstantAction
+    checkCanInteract: true
+    checkConsciousness: true
+    itemIconStyle: NoItem
+    icon:
+      sprite: Corvax/Clothing/Head/PowerArmorHelmets/paladinKiller.rsi
+      state: icon-sealed
+    iconOn:
+      sprite: Corvax/Clothing/Head/PowerArmorHelmets/paladinKiller.rsi
+      state: icon
+    event: !type:SealClothingEvent { }

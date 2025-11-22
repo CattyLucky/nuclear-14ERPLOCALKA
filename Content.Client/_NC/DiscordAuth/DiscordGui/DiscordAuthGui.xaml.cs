@@ -3,6 +3,7 @@ using Robust.Client.Console;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.XAML;
+using Robust.Shared.Timing;
 
 namespace Content.Client._NC.DiscordAuth.DiscordGui;
 
@@ -11,6 +12,8 @@ public sealed partial class DiscordAuthGui : Control
 {
     [Dependency] private readonly IClientConsoleHost _consoleHost = default!;
     [Dependency] private readonly DiscordAuthManager _discordAuthManager = default!;
+    [Dependency] private readonly IGameTiming _gameTiming = default!;
+    private TimeSpan? _skipButtonResetOn;
 
     public DiscordAuthGui()
     {
@@ -20,14 +23,59 @@ public sealed partial class DiscordAuthGui : Control
 
         var link = _discordAuthManager.AuthLink;
 
+        AuthLinkEdit.SetText(link);
+        DLinkEdit.SetText(DiscordAuthManager.DiscordServerLink);
+        InfoLabel.SetMessage(Loc.GetString("stalker-discord-info"));
+        ErrorMessage.SetMessage(_discordAuthManager.ErrorMessage);
+        if (_discordAuthManager.QrCodeTexture == null)
+            QrCodeDisplay.Visible = false;
+        QrCodeDisplay.Texture = _discordAuthManager.QrCodeTexture;
+
+        var uriOpener = IoCManager.Resolve<IUriOpener>();
+
         QuitButton.OnPressed += _ =>
         {
-            _consoleHost.ExecuteCommand("quit");
+            _consoleHost.ExecuteCommand("disconnect");
         };
 
         AuthorizeButton.OnPressed += _ =>
         {
-            IoCManager.Resolve<IUriOpener>().OpenUri(link);
+            uriOpener.OpenUri(link);
         };
+
+        DiscordButton.OnPressed += _ =>
+        {
+            uriOpener.OpenUri(DiscordAuthManager.DiscordServerLink);
+        };
+        SkipButton.OnPressed += OnSkipButtonPressed;
+    }
+
+    protected override void FrameUpdate(FrameEventArgs args)
+    {
+        base.FrameUpdate(args);
+
+        if (_skipButtonResetOn != null && _gameTiming.CurTime > _skipButtonResetOn)
+            ResetSkipButton();
+    }
+
+    private void OnSkipButtonPressed(BaseButton.ButtonEventArgs args)
+    {
+        if (_skipButtonResetOn is null)
+        {
+            _skipButtonResetOn = _gameTiming.CurTime.Add(TimeSpan.FromSeconds(3));
+            SkipButton.ModulateSelfOverride = Color.DarkRed;
+            SkipButton.Text = Loc.GetString("stalker-discord-auth-skip-confirm");
+            return;
+        }
+
+        _discordAuthManager.OnAuthSkip();
+        ResetSkipButton();
+    }
+
+    private void ResetSkipButton()
+    {
+        _skipButtonResetOn = null;
+        SkipButton.ModulateSelfOverride = null;
+        SkipButton.Text = Loc.GetString("stalker-discord-auth-skip");
     }
 }

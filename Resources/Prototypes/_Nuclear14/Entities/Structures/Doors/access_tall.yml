@@ -286,7 +286,6 @@
     access: [["TownieMayor"]]
   - type: Wires
     layoutId: AirlockService
-
 #MARK: Vault
 - type: entity
   parent: N14DoorAirlockTall

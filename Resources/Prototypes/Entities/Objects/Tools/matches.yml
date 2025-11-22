@@ -49,6 +49,15 @@
       path: /Audio/Weapons/Guns/Hits/energy_meat1.ogg
     endSound:
       path: /Audio/Weapons/Guns/Hits/energy_meat1.ogg
+  - type: Extractable # Forge-Add-Start
+    grindableSolutionName: matchstick
+  - type: SolutionContainerManager
+    solutions:
+      matchstick:
+        maxVol: 1
+        reagents:
+        - ReagentId: Sulfur
+          Quantity: 1 # Forge-Add-End
 
 - type: entity
   parent: Matchstick
@@ -60,6 +69,15 @@
       - state: match_burnt
   - type: Matchstick
     state: Burnt
+  - type: Extractable # Forge-Add-Start
+    grindableSolutionName: matchstick
+  - type: SolutionContainerManager
+    solutions:
+      matchstick:
+        maxVol: 0
+        reagents:
+        - ReagentId: Sulfur
+          Quantity: 0 # Forge-Add-End
 
 - type: entity
   name: match box

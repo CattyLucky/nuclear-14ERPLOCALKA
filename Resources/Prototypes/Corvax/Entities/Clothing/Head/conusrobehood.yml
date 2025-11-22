@@ -1,0 +1,22 @@
+- type: entity
+  parent: ClothingHeadBase
+  id: N14ClothingHeadHatConusRobeHood
+  name: Капюшон Ку-Конус-Клана
+  description: Скромный тканевый мешок, с прорезью для глаз,увенчанный дорожным конусом, искусно прикреплённым таинственным образом.
+  components:
+  - type: Sprite
+    sprite: Corvax/Clothing/Head/Hoods/conusrobehood.rsi
+  - type: Clothing
+    sprite: Corvax/Clothing/Head/Hoods/conusrobehood.rsi
+  - type: IdentityBlocker
+  - type: Armor
+    modifiers:
+      coefficients:
+        Blunt: 0.95
+        Slash: 0.95
+        Piercing: 0.95
+        Heat: 0.95
+  - type: Tag
+    tags:
+    - HidesHair
+    - HidesBeard

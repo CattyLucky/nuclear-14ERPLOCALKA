@@ -1,0 +1,1 @@
+ent-Magazine545Rifle = магазин (5.45mm)

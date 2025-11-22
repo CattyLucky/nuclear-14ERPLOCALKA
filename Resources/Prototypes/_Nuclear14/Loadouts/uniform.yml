@@ -13,7 +13,29 @@
       departments:
         - Vault
 
+- type: loadout #Forge-Add-Start
+  id: N14LoadoutUniformJumpskirtVault14
+  category: Uniform
+  cost: 2
+  exclusive: true
+  items:
+    - N14ClothingUniformJumpskirtVault14
+  requirements:
+    - !type:CharacterItemGroupRequirement
+      group: N14LoadoutUniform
+    - !type:CharacterDepartmentRequirement
+      departments:
+        - Vault #Forge-Add-End
 # wastelander and townfolk jumpsuits
+
+- type: loadout
+  id: N14LoadoutUniformJumpsuitAsylumDress
+  category: Uniform
+  cost: 2
+  exclusive: true
+  items:
+    - N14ClothingUniformJumpskirtAsylumDress
+
 - type: loadout
   id: N14LoadoutUniformJumpsuitDetectiveAlt
   category: Uniform
@@ -133,7 +155,7 @@
       departments:
         - Wastelander
         - Townsfolk
-        - CaravanCompany
+#        - CaravanCompany
 
 - type: loadout
   id: N14LoadoutUniformJumpsuitTrader
@@ -149,7 +171,7 @@
       departments:
         - Wastelander
         - Townsfolk
-        - CaravanCompany
+        # - CaravanCompany
 
 - type: loadout
   id: N14LoadoutUniformJumpsuitCaravan
@@ -165,7 +187,7 @@
       departments:
         - Wastelander
         - Townsfolk
-        - CaravanCompany
+        # - CaravanCompany
 
 - type: loadout
   id: N14LoadoutUniformJumpsuitMechanic

@@ -5,11 +5,11 @@
   description: A one of a kind pen that uses a ballpoint for versatility. Reads Wasteland News.
   components:
   - type: Sprite
-    sprite: _Nuclear14/Structures/Misc/pens.rsi
-    state: penreporter
+    sprite: _Nuclear14/Objects/Misc/clutter.rsi       # Forge-Change Обновленная концелярия
+    state: pen
   - type: Item
-    sprite: _Nuclear14/Structures/Misc/pens.rsi
-    heldPrefix: penreporter
+    sprite: _Nuclear14/Objects/Misc/clutter.rsi       # Forge-Change Обновленная концелярия
+    heldPrefix: pen
     size: Tiny
   - type: PhysicalComposition
     materialComposition:

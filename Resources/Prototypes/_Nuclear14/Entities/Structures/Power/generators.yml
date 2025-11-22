@@ -270,8 +270,8 @@
 - type: entity
   parent: N14BaseGenerator
   id: N14GeneratorVaultTecReactor
-  description: A fusion reactor built by vault-tec.
-  name: vault-tec reactor
+  description: A fusion reactor built by Vault-Tec.
+  name: Vault-Tec reactor
   components:
   - type: Fixtures
     fixtures:
@@ -386,6 +386,8 @@
       layers:
       - state: diesel-off
         map: [ "enum.GeneratorVisualLayers.Body" ]
+    - type: StaticPrice # Forge-Changes
+      price: 30
     - type: GenericVisualizer
       visuals:
         enum.GeneratorVisuals.Running:

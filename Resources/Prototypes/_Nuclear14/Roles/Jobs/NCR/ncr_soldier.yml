@@ -1,6 +1,8 @@
 - type: job
   id: NCRSoldier
   setPreference: true
+  overrideConsoleVisibility: false
+  canBeAntag: false
   name: job-name-ncr-soldier
   description: job-description-ncr-soldier
   playTimeTracker: NCRSoldier
@@ -15,7 +17,6 @@
   startingGear: NCRSoldierGear
   icon: "JobIconNcrSoldier" # Corvax-Change
   supervisors: job-supervisors-ncr
-  canBeAntag: false
   alwaysUseSpawner: true
   access:
   - NCR
@@ -24,6 +25,7 @@
     components:
       - type: NpcFactionMember
         factions:
+          - Wastelander
           - NCR
 
 - type: startingGear
@@ -32,6 +34,7 @@
     head: N14ClothingHeadHatNCRHelmetMetalDesert # Corvax-Change
     back: N14ClothingBackpackNCR # Corvax-Change
     jumpsuit: N14ClothingUniformNCRDesert # Corvax-Change
+    outerClothing: N14ClothingOuterNCRVestDesert # Forge-Change
     shoes: N14ClothingBootsLeatherFilled
     id: N14IDNCRDogtag
     pocket1: NCRtrooperloadoutkits

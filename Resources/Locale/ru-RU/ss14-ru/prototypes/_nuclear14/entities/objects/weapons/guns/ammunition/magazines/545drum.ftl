@@ -1,0 +1,1 @@
+ent-MagazineDrum545Rifle = барабанный магазин (5.45mm)

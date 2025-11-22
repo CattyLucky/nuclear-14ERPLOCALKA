@@ -1,0 +1,42 @@
+# MARK: BoS Squire Midwest Kits
+- type: entity
+  name: Brotherhood Squire default Midwest Kit
+  parent: KitBase
+  id: KitSquireDefaultBoSMidwest
+  description: A crate containing everything a member of the Brotherhood might need for their default needs.
+  components:
+  - type: Sprite
+    state: marksman
+  - type: Item
+    size: Huge
+  - type: SpawnItemsOnUse
+    items:
+      - id: N14WeaponSMG9mm
+      - id: N14WeaponPistol10mm
+      - id: N14MagazineSMG9mm
+        amount: 3
+      - id: N14MagazinePistol10mm
+        amount: 2
+      - id: N14Stimpak
+      - id: N14BoxCardboardMREBoxKFilled
+
+- type: entity
+  name: Brotherhood Squire Sniper Midwest Kit
+  parent: KitBase
+  id: KitSquireSniperBoSMidwest
+  description: A crate containing everything a member of the Brotherhood might need for their sniper needs.
+  components:
+  - type: Sprite
+    state: marksman
+  - type: Item
+    size: Huge
+  - type: SpawnItemsOnUse
+    items:
+      - id: N14WeaponSniper44LeverCarbine
+      - id: N14WeaponPistol10mm
+      - id: MagazineBox44
+        amount: 1
+      - id: N14MagazinePistol10mm
+        amount: 1
+      - id: N14Stimpak
+      - id: N14BoxCardboardMREBoxKFilled 

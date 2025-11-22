@@ -1,0 +1,119 @@
+- type: entity
+  parent: N14DoorWoodWhiteTall
+  id: N14DoorWoodSecureLockedLegion
+  suffix: Legion, Locked, Legion
+  components:
+  - type: AccessReader
+    access: [["CaesarLegion"]]
+  - type: Wires
+    layoutId: AirlockService
+
+- type: entity
+  parent: N14DoorMetalBarTall
+  id: N14DoorCellMetalLockedLegion
+  suffix: Legion, Locked
+  components:
+  - type: AccessReader
+    access: [["CaesarLegion"]]
+  - type: Wires
+    layoutId: AirlockService
+
+- type: entity
+  parent: N14DoorMetalRedTall
+  id: N14DoorMetalSecureLockedRedLegion
+  suffix: Legion, Locked
+  components:
+  - type: AccessReader
+    access: [["CaesarLegion"]]
+  - type: Wires
+    layoutId: HighSec
+
+- type: entity
+  parent: N14DoorWoodWhiteTall
+  id: N14DoorWoodSecureLockedLegionDean
+  suffix: Legion, Locked, Legion Dean
+  components:
+  - type: AccessReader
+    access: [["CaesarLegionDean"]]
+  - type: Wires
+    layoutId: AirlockService
+
+- type: entity
+  parent: N14DoorMetalBarTall
+  id: N14DoorCellMetalLockedLegionDean
+  suffix: Legion, Locked, Legion Dean
+  components:
+  - type: AccessReader
+    access: [["CaesarLegionDean"]]
+  - type: Wires
+    layoutId: AirlockService
+
+- type: entity
+  parent: N14DoorMetalRedTall
+  id: N14DoorMetalSecureLockedRedLegionDean
+  suffix: Legion, Locked, Legion Dean
+  components:
+  - type: AccessReader
+    access: [["CaesarLegionDean"]]
+  - type: Wires
+    layoutId: HighSec
+
+- type: entity
+  parent: N14DoorWoodWhiteTall
+  id: N14DoorWoodSecureLockedLegionCenturion
+  suffix: Legion, Locked, Legion Centurion
+  components:
+  - type: AccessReader
+    access: [["CaesarLegionCenturion"]]
+  - type: Wires
+    layoutId: AirlockService
+
+- type: entity
+  parent: N14DoorMetalBarTall
+  id: N14DoorCellMetalLockedLegionCenturion
+  suffix: Legion, Locked, Legion Centurion
+  components:
+  - type: AccessReader
+    access: [["CaesarLegionCenturion"]]
+  - type: Wires
+    layoutId: AirlockService
+
+- type: entity
+  parent: N14DoorMetalRedTall
+  id: N14DoorMetalSecureLockedRedLegionCenturion
+  suffix: Legion, Locked, Legion Centurion
+  components:
+  - type: AccessReader
+    access: [["CaesarLegionCenturion"]]
+  - type: Wires
+    layoutId: HighSec
+
+- type: entity
+  parent: N14DoorWoodWhiteTall
+  id: N14DoorWoodSecureLockedPersonTall
+  suffix: Townie, Locked, Person
+  components:
+  - type: AccessReader
+    access: [["TownsPerson"]]
+  - type: Wires
+    layoutId: AirlockService
+
+- type: entity
+  parent: N14DoorMetalBarTall
+  id: N14DoorCellMetalLockedPersonTall
+  suffix: Townie, Locked, Person
+  components:
+  - type: AccessReader
+    access: [["TownsPerson"]]
+  - type: Wires
+    layoutId: AirlockService
+
+- type: entity
+  parent: N14DoorMetalRedTall
+  id: N14DoorMetalSecureLockedPersonTall
+  suffix: Townie, Locked, Person
+  components:
+  - type: AccessReader
+    access: [["TownsPerson"]]
+  - type: Wires
+    layoutId: HighSec

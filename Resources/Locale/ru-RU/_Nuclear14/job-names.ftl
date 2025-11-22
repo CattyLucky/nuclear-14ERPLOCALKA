@@ -10,6 +10,8 @@ job-name-bos-mid-scribe = скриптер СЗБС
 job-description-bos-mid-scribe = Проводите научные миссии и исследования для вашего отделения Братства.
 job-name-bos-mid-squire = оруженосец СЗБС
 job-description-bos-mid-squire = Следуйте за своим рыцарем в бой и выполняйте его приказы.
+job-name-bos-mid-inquisitor = инквизитор СЗБС
+job-description-bos-mid-inquisitor = Дезертиры... Вы тот, кого они боятся. Инквизитор, исполняющий роль Военной Полиции на территории братства, карайте врагов и подчиняйтесь командиру.
 # ВБС
 job-name-bos-washington-commander = командир ВБС
 job-description-bos-washington-commander = Ведите Вашингтонское Братство Стали к выполнению вашей задачи.
@@ -96,6 +98,8 @@ job-name-townmechanic = городской механик
 job-description-townmechanic = Поддерживайте городские службы и инфраструктуру в рабочем состоянии, а также подрабатывайте на стороне, помогая другим за деньги.
 job-name-townshopkeeper = городской лавочник
 job-description-townshopkeeper = Откройте магазин в городе, организуйте торговые партнерства и продавайте свои товары бродягам Пустоши. Остерегайтесь налогового инспекции от НКР!
+job-name-townshopkeeperhelper = помощник лавочника
+job-description-townshopkeeperhelper = Обеспечивайте помощь лавочнику, станьте его верным помощником, торгуйте и поддерживайте лавку в чистоте.
 job-name-towndeputy = помощник шерифа
 job-description-towndeputy = Заместитель хранителя порядка в городе. Поддерживайте мир и помогайте шерифу.
 job-name-townsheriff = городской шериф

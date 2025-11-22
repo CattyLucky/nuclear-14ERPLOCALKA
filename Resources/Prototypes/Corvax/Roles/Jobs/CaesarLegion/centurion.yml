@@ -20,9 +20,13 @@
     gender: Male
   startingGear: CaesarLegionCenturionGear
   alwaysUseSpawner: true
-  icon: "JobIconLegioner"
+  icon: "JobIconlegionerCenturion"
   supervisors: job-name-caesar-legion
   canBeAntag: false
+  access:
+  - CaesarLegionCenturion
+  - CaesarLegion
+  - CaesarLegionDean
   special:
   - !type:AddComponentSpecial
     components:

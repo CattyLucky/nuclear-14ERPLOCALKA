@@ -39,21 +39,10 @@
 
 - type: markingPoints
   id: MobGhoulMarkingLimits
+  onlyWhitelisted: true # Forge-Change ещё удалил ненужные слоты
   points:
-    Hair:
-      points: 0
-      required: false
-    FacialHair:
-      points: 0
-      required: false
     Snout:
       points: 1
-      required: false
-    Tail:
-      points: 0
-      required: false
-    HeadTop: # the cat ear joke
-      points: 0
       required: false
     Chest:
       points: 1

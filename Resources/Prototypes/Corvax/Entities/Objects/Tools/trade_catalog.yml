@@ -1,0 +1,14 @@
+- type: entity
+  parent: BaseItem
+  id: N14ToolsTradeCatalog
+  name: trade catalog
+  description: List of all prices in the world.
+  components:
+  - type: Sprite
+    sprite: Corvax/Objects/Tools/trade_catalog.rsi
+    state: icon
+  - type: Item
+    sprite: Corvax/Objects/Tools/trade_catalog.rsi
+  - type: PriceGun
+  - type: UseDelay
+    delay: 2

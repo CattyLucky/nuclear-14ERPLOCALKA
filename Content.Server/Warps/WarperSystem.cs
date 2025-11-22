@@ -2,6 +2,8 @@ using Content.Server.Ghost.Components;
 using Content.Server.Popups;
 using Content.Shared.Ghost;
 using Content.Shared.Interaction;
+using Content.Shared.Movement.Pulling.Components;
+using Content.Shared.Movement.Pulling.Systems;
 using Robust.Shared.Map;
 using Robust.Shared.Physics;
 using Robust.Shared.Physics.Components;
@@ -16,6 +18,8 @@ public class WarperSystem : EntitySystem
     [Dependency] private readonly PopupSystem _popupSystem = default!;
     [Dependency] private readonly SharedPhysicsSystem _physics = default!;
     [Dependency] private readonly WarpPointSystem _warpPointSystem = default!;
+    [Dependency] private readonly SharedTransformSystem _sharedTransform = default!;
+    [Dependency] private readonly PullingSystem _pullingSystem = default!;
 
     public override void Initialize()
     {
@@ -64,12 +68,27 @@ public class WarperSystem : EntitySystem
             }
         }
 
-        var xform = entMan.GetComponent<TransformComponent>(args.User);
-        xform.Coordinates = destXform.Coordinates;
-        xform.AttachToGridOrMap();
-        if (entMan.TryGetComponent(uid, out PhysicsComponent? phys))
+        // Forge-Change-Start
+        if (TryComp(args.User, out PullerComponent? puller) && puller.Pulling != null)
         {
-            _physics.SetLinearVelocity(uid, Vector2.Zero);
+            var pullerItem = puller.Pulling.Value;
+            _sharedTransform.SetCoordinates(pullerItem, destXform.Coordinates);
+            _sharedTransform.AttachToGridOrMap(pullerItem);
+            _sharedTransform.SetCoordinates(args.User, destXform.Coordinates);
+            _sharedTransform.AttachToGridOrMap(args.User);
+            _pullingSystem.TryStartPull(args.User, pullerItem); // Срёт ошибкой на клиенте, не критично, но не приятно.
         }
+
+        else
+        {
+            _sharedTransform.SetCoordinates(args.User, destXform.Coordinates);
+            _sharedTransform.AttachToGridOrMap(args.User);
+        }
+
+        if (HasComp<PhysicsComponent>(args.User))
+        {
+            _physics.SetLinearVelocity(args.User, Vector2.Zero);
+        }
+        // Forge-Change-End
     }
 }

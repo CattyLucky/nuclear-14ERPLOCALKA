@@ -1,0 +1,65 @@
+- type: entity
+  parent: ClothingHeadBase
+  id: N14ClothingHeadHatBanganeBoS
+  name: bangane brotherhood Western
+  description: A great bandana for a great fighter
+  components:
+  - type: Sprite
+    sprite: Corvax/Clothing/Head/Hats/banganebos.rsi
+  - type: Clothing
+    sprite: Corvax/Clothing/Head/Hats/banganebos.rsi
+
+- type: entity
+  parent: ClothingHeadBase
+  id: N14ClothingHeadHatBeretknighBoS
+  name: beret knight brotherhood Western
+  description: Knights beret. Distinguishing mark of an experienced soldier
+  components:
+  - type: Sprite
+    sprite: Corvax/Clothing/Head/Hats/beretknighbos.rsi
+  - type: Clothing
+    sprite: Corvax/Clothing/Head/Hats/beretknighbos.rsi
+
+- type: entity
+  parent: ClothingHeadBase
+  id: N14ClothingHeadHatCapkhighBoS
+  name: cap knight brotherhood Western
+  description: Knights cap. Convenient, easy, practical
+  components:
+  - type: Sprite
+    sprite: Corvax/Clothing/Head/Hats/capknighbos.rsi
+  - type: Clothing
+    sprite: Corvax/Clothing/Head/Hats/capknighbos.rsi
+
+- type: entity
+  parent: ClothingHeadBase
+  id: N14ClothingHeadHatCapkhighbluBoS
+  name: cap knigh stripe blu
+  description: A knights cap with the distinctive symbol of an experienced fighter. Convenient, easy, and practical
+  components:
+  - type: Sprite
+    sprite: Corvax/Clothing/Head/Hats/capkhighblubos.rsi
+  - type: Clothing
+    sprite: Corvax/Clothing/Head/Hats/capkhighblubos.rsi
+
+- type: entity
+  parent: ClothingHeadBase
+  id: N14ClothingHeadHatCapPaladin
+  name: cap paladin
+  description: The cap of a paladin who can shape destinies
+  components:
+  - type: Sprite
+    sprite: Corvax/Clothing/Head/Hats/cappaladin.rsi
+  - type: Clothing
+    sprite: Corvax/Clothing/Head/Hats/cappaladin.rsi
+
+- type: entity
+  parent: ClothingHeadBase
+  id: N14ClothingHeadHatCapScout
+  name: cap scout
+  description: A young soldiers cap. It smells of sweat and the future
+  components:
+  - type: Sprite
+    sprite: Corvax/Clothing/Head/Hats/capscout.rsi
+  - type: Clothing
+    sprite: Corvax/Clothing/Head/Hats/capscout.rsi

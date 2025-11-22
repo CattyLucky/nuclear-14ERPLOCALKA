@@ -1,7 +1,7 @@
 {
   "version": 1,
   "license": "CC-BY-NC-SA-3.0",
-  "copyright": "Taken from Fortuna at commit https://github.com/FortunaSS13/Fortuna/commit/704aa5e9e3b86d6e1dbf64a29ba976f7ef53a4ab.",
+  "copyright": "Made by baohe (discord)",
   "size": {
     "x": 32,
     "y": 32
@@ -12,33 +12,7 @@
     },
     {
       "name": "equipped-OUTERCLOTHING",
-      "directions": 4,
-      "delays": [
-        [
-          0.3,
-          0.3,
-          0.3,
-          0.3
-        ],
-        [
-          0.3,
-          0.3,
-          0.3,
-          0.3
-        ],
-        [
-          0.3,
-          0.3,
-          0.3,
-          0.3
-        ],
-        [
-          0.3,
-          0.3,
-          0.3,
-          0.3
-        ]
-      ]
+      "directions": 4
     },
     {
       "name": "inhand-left",

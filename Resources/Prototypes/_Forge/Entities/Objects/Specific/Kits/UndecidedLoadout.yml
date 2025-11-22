@@ -1,0 +1,36 @@
+
+#MARK: Squire
+- type: entity
+  id: N14BoSMidwestSquirekits
+  name: Undecided BoS Squire Midwest Kit
+  parent: NCRcadetloadoutkits
+  components:
+  - type: Sprite
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: rifleman
+  - type: UndecidedLoadoutBackpack
+    possibleSets:
+    - BoSSquiredefaultSet
+    - BoSSquiresniperSet 
+
+
+#MARK: BoS Midwest Kitss
+- type: UndecidedLoadoutBackpackSet
+  id: BoSSquiredefaultSet
+  name: undecided-loadout-category-bos-squiredefault-name
+  description: undecided-loadout-category-bos-squiredefault-description
+  sprite:
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: marksman
+  content:
+  - KitSquireDefaultBoSMidwest
+
+- type: UndecidedLoadoutBackpackSet
+  id: BoSSquiresniperSet
+  name: undecided-loadout-category-bos-squiresniper-name
+  description: undecided-loadout-category-bos-squiresniper-description
+  sprite:
+    sprite: _Nuclear14/Objects/Misc/kits.rsi
+    state: marksman
+  content:
+  - KitSquireSniperBoSMidwest

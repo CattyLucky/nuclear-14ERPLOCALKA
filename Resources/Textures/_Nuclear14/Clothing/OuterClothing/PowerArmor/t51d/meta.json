@@ -1,7 +1,7 @@
 {
   "version": 1,
   "license": "CC-BY-NC-SA-3.0",
-  "copyright": "Taken from Blah blah blah at placeholder https://github.com/tgstation/tgstation/commit/40d89d11ea4a5cb81d61dc1018b46f4e7d32c62a. Further modifications and derivate works (inhand-left and inhand-right) under same license.",
+  "copyright": "Made by baohe (discord)",
   "size": {
     "x": 32,
     "y": 32
@@ -12,7 +12,7 @@
     },
     {
       "name": "equipped-OUTERCLOTHING",
-      "directions": 4,
+      "directions": 4
     },
     {
       "name": "inhand-left",

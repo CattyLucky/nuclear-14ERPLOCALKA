@@ -216,9 +216,9 @@
   requirements:
     - !type:CharacterJobRequirement
       jobs:
-        - NCRLT
+        - NCRMedic # Forge-Change
     - !type:CharacterPlaytimeRequirement
-      tracker: NCROfficer
+      tracker: NCRDoctor # Forge-Change
       min: 72000 # 20 hours veterancy unlock
   items:
     - ClothingNeckPinNCRChiefPhysician
@@ -248,6 +248,47 @@
         - NCRSGT
   items:
     - N14ClothingHeadHatNCRHelmetMetalWoods
+
+- type: loadout
+  id: LoadoutClothingEyesGlassesGoggles
+  category: Roles
+  cost: 1
+  exclusive: true
+  requirements:
+    - !type:CharacterJobRequirement
+      jobs:
+        - NCRSoldier
+        - NCRCadet
+        - NCRSGT
+  items:
+    - N14ClothingEyesGlassesGoggles
+
+- type: loadout
+  id: LoadoutClothingHandsGlovesNCR
+  category: Roles
+  cost: 1
+  exclusive: true
+  requirements:
+    - !type:CharacterJobRequirement
+      jobs:
+        - NCRSoldier
+        - NCRCadet
+        - NCRSGT
+  items:
+    - N14ClothingHandsGlovesNCR
+
+- type: loadout
+  id: LoadoutNCRWoodsHelmetGhillie
+  category: Roles
+  cost: 1
+  exclusive: true
+  requirements:
+    - !type:CharacterJobRequirement
+      jobs:
+        - NCRSoldier
+        - NCRSGT
+  items:
+    - N14ClothingHeadHatNCRHelmetMetalGhillie
 
 - type: loadout
   id: LoadoutNCRWhiteBoonie
@@ -287,6 +328,19 @@
         - NCRSGT
   items:
     - N14ClothingNeckCloakNCR
+
+- type: loadout
+  id: LoadoutNCRCloakNCRGhillie
+  category: Roles
+  cost: 1
+  exclusive: true
+  requirements:
+    - !type:CharacterJobRequirement
+      jobs:
+        - NCRSoldier
+        - NCRSGT
+  items:
+    - N14ClothingNeckCloakGhillie
 
 - type: loadout
   id: LoadoutNCRCloakNCRSnow

@@ -16,9 +16,11 @@
     min: 3600 # 1 hour
   startingGear: CaesarLegionLegionnaireRecruitGear
   alwaysUseSpawner: true
-  icon: "JobIconLegioner"
+  icon: "JobIconlegionerRecruit"
   supervisors: job-name-caesar-legion-other
   canBeAntag: false
+  access:
+  - CaesarLegion
   special:
   - !type:AddComponentSpecial
     components:

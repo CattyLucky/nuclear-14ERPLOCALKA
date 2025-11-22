@@ -197,5 +197,16 @@ public sealed class LoadoutSystem : EntitySystem
             }
         }
     }
+    
+    public void DeleteHelmet(EntityUid uid)
+    {
+        if (!_inventory.TryGetSlotEntity(uid, "head", out var helmet))
+        {
+            _sawmill.Error("Не найти шлем");
+            return;
+        }    
+
+        EntityManager.DeleteEntity(helmet);
+    }
     // Corvax-Change-End
 }

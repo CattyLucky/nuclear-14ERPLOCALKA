@@ -13,9 +13,11 @@
   weight: 20
   startingGear: OverseerGear
   alwaysUseSpawner: true
-  icon: "JobIconVaultOverseer" # Corvax-Change
+  icon: "JobIconVaultOverseer" # Forge-Change
   requireAdminNotify: true
   joinNotifyCrew: true
+  setPreference: true
+  overrideConsoleVisibility: false
   canBeAntag: false
   supervisors: job-supervisors-vault-overseer
   accessGroups:
@@ -25,20 +27,21 @@
     components:
       - type: NpcFactionMember
         factions:
+          - Wastelander
           - Vault
 
 - type: startingGear
   id: OverseerGear
   equipment:
     jumpsuit: N14ClothingUniformJumpsuitVault14
-    back: N14ClothingBackpackVaultBlue # Corvax-Change
+    back: N14ClothingBackpackVaultBlue # Forge-Change
     shoes: N14ClothingBootsBlack
     eyes: ClothingEyesGlassesSunglasses
     id: N14VaultOverseerPDA
     ears: N14ClothingHeadsetVaultDweller
     pocket1: N14WeaponPistol10mm
   innerClothingSkirt: N14ClothingUniformJumpsuitVault14
-  storage: # Corvax-Change
+  storage: # Forge-Change
     back:
     - N14Bandage
     - N14CurrencyPrewarMoney500

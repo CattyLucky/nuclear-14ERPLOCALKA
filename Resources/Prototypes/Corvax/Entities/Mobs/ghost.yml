@@ -1,0 +1,26 @@
+- type: entity
+  parent: MobObserver
+  id: SponsorGhost1
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Corvax/Mobs/Ghost/sponsorGhostLvL3.rsi
+    state: animated
+
+- type: entity
+  parent: MobObserver
+  id: SponsorGhost2
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Corvax/Mobs/Ghost/sponsorGhostLvL4.rsi
+    state: animated
+
+- type: entity
+  parent: MobObserver
+  id: SponsorGhost3
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Corvax/Mobs/Ghost/sponsorGhostLvL5.rsi
+    state: animated

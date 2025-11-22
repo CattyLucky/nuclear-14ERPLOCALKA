@@ -82,11 +82,11 @@
   id: N14RadioTable
   components:
   - type: Sprite #states aren't quite working, will need to address, would like to have it toggle state when you turn on and off the radio
-    sprite: _Nuclear14/Structures/Misc/radiostation/tableradio.rsi
+    sprite: Corvax/Structures/Misc/tableradio.rsi # Forge-Change
     offset: 0,0.25
     drawdepth: SmallObjects
     layers:
-      - sprite: _Nuclear14/Structures/Misc/radiostation/tableradio.rsi
+      - sprite: Corvax/Structures/Misc/tableradio.rsi # Forge-Change
         state: base
         map: [ "base" ]
       - state: on
@@ -112,6 +112,7 @@
     broadcastChannel: PBS
     toggleOnInteract: false
     frequency: 1667
+  - type: TTS # Forge-Change
 
 - type: entity # Prototype for radio receivers
   name: standing microphone

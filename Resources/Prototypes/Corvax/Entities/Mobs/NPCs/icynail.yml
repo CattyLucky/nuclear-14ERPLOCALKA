@@ -1,0 +1,20 @@
+- type: entity
+  name: Ice deathclaw
+  id: N14MobDeathclawicy
+  parent: N14MobDeathclawAlbino
+  description: The Ice Claw. They say they didn't become like this because of their lifestyle. Many people wonder how they survived in the caves without food, but no one knows
+  components:
+  - type: Sprite
+    drawdepth: Mobs
+    layers:
+    - map: ["enum.DamageStateVisualLayers.Base"]
+      state: deathclaw
+      sprite: Corvax/Mobs/Animals/icynail.rsi
+  - type: DamageStateVisuals
+    states:
+      Alive:
+        Base: deathclaw
+      Critical:
+        Base: crit
+      Dead:
+        Base: dead

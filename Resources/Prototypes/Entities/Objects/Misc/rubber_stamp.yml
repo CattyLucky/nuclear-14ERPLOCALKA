@@ -1,5 +1,5 @@
 - type: entity
-  name: generic rubber stamp
+  name: generic rubber stamp               # Forge-Change  изменены спрайты - для работы бумаги
   parent: BaseItem
   id: RubberStampBase
   description: A rubber stamp for stamping important documents.
@@ -15,7 +15,7 @@
         volume: -2
         maxDistance: 5
   - type: Sprite
-    sprite: Objects/Misc/stamps.rsi
+    sprite: _Nuclear14/Objects/Misc/clutter.rsi  # Forge-Change-Start
     state: stamp-mime
   - type: Item
     size: Tiny
@@ -46,9 +46,9 @@
   - type: Stamp
     stampedName: stamp-component-stamped-name-captain
     stampedColor: "#3681bb"
-    stampState: "paper_stamp-cap"
+    stampState: "paper_stamp-ok"
   - type: Sprite
-    state: stamp-cap
+    state: stamp-ok
 
 - type: entity
   name: CentCom rubber stamp
@@ -59,9 +59,9 @@
   - type: Stamp
     stampedName: stamp-component-stamped-name-centcom
     stampedColor: "#006600"
-    stampState: "paper_stamp-centcom"
+    stampState: "paper_stamp-ok"
   - type: Sprite
-    state: stamp-centcom
+    state: stamp-ok
 
 - type: entity
   name: chaplain's rubber stamp
@@ -72,9 +72,9 @@
   - type: Stamp
     stampedName: stamp-component-stamped-name-chaplain
     stampedColor: "#d70601"
-    stampState: "paper_stamp-chaplain"
+    stampState: "paper_stamp-deny"
   - type: Sprite
-    state: stamp-chaplain
+    state: stamp-deny
 
 - type: entity
   name: clown's rubber stamp
@@ -85,9 +85,9 @@
   - type: Stamp
     stampedName: stamp-component-stamped-name-clown
     stampedColor: "#ff33cc"
-    stampState: "paper_stamp-clown"
+    stampState: "paper_stamp-ok"
   - type: Sprite
-    state: stamp-clown
+    state: stamp-deny
   - type: Tag
     tags:
       - ClownRubberStamp
@@ -101,9 +101,9 @@
   - type: Stamp
     stampedName: stamp-component-stamped-name-ce
     stampedColor: "#c69b17"
-    stampState: "paper_stamp-ce"
+    stampState: "paper_stamp-ok"
   - type: Sprite
-    state: stamp-ce
+    state: stamp-ok
 
 - type: entity
   name: chief medical officer's rubber stamp
@@ -114,9 +114,9 @@
   - type: Stamp
     stampedName: stamp-component-stamped-name-cmo
     stampedColor: "#33ccff"
-    stampState: "paper_stamp-cmo"
+    stampState: "paper_stamp-ok"
   - type: Sprite
-    state: stamp-cmo
+    state: stamp-ok
 
 - type: entity
   name: head of personnel's rubber stamp
@@ -127,9 +127,9 @@
   - type: Stamp
     stampedName: stamp-component-stamped-name-hop
     stampedColor: "#6ec0ea"
-    stampState: "paper_stamp-hop"
+    stampState: "paper_stamp-ok"
   - type: Sprite
-    state: stamp-hop
+    state: stamp-ok
 
 - type: entity
   name: head of security's rubber stamp
@@ -140,9 +140,9 @@
   - type: Stamp
     stampedName: stamp-component-stamped-name-hos
     stampedColor: "#cc0000"
-    stampState: "paper_stamp-hos"
+    stampState: "paper_stamp-deny"
   - type: Sprite
-    state: stamp-hos
+    state: stamp-ok
 
 - type: entity
   name: mime's rubber stamp
@@ -153,10 +153,10 @@
   - type: Stamp
     stampedName: stamp-component-stamped-name-mime
     stampedColor: "#777777"
-    stampState: "paper_stamp-mime"
+    stampState: "paper_stamp-ok"
     sound: null
   - type: Sprite
-    state: stamp-mime
+    state: stamp-ok
 
 - type: entity
   name: logistics officer's rubber stamp # DeltaV - Logistics Department replacing Cargo
@@ -167,9 +167,9 @@
     - type: Stamp
       stampedName: stamp-component-stamped-name-qm
       stampedColor: "#a23e3e"
-      stampState: "paper_stamp-qm"
+      stampState: "paper_stamp-deny"
     - type: Sprite
-      state: stamp-qm
+      state: stamp-deny
 
 - type: entity
   name: mystagogue's rubber stamp # DeltaV - Epistemics Department replacing Science
@@ -180,9 +180,9 @@
     - type: Stamp
       stampedName: stamp-component-stamped-name-rd
       stampedColor: "#1f66a0"
-      stampState: "paper_stamp-rd"
+      stampState: "paper_stamp-ok"
     - type: Sprite
-      state: stamp-rd
+      state: stamp-ok
 
 - type: entity
   name: trader's rubber stamp
@@ -192,9 +192,9 @@
   - type: Stamp
     stampedName: stamp-component-stamped-name-trader
     stampedColor: "#000000"
-    stampState: "paper_stamp-trader"
+    stampState: "paper_stamp-ok"
   - type: Sprite
-    state: stamp-trader
+    state: stamp-deny
 
 - type: entity
   name: syndicate rubber stamp
@@ -205,9 +205,9 @@
   - type: Stamp
     stampedName: stamp-component-stamped-name-syndicate
     stampedColor: "#850000"
-    stampState: "paper_stamp-syndicate"
+    stampState: "paper_stamp-deny"
   - type: Sprite
-    state: stamp-syndicate
+    state: stamp-deny
 
 - type: entity
   name: warden's rubber stamp
@@ -218,9 +218,9 @@
   - type: Stamp
     stampedName: stamp-component-stamped-name-warden
     stampedColor: "#5b0000"
-    stampState: "paper_stamp-warden"
+    stampState: "paper_stamp-deny"
   - type: Sprite
-    state: stamp-warden
+    state: stamp-deny
 
 - type: entity
   name: APPROVED rubber stamp
@@ -255,6 +255,6 @@
   - type: Stamp
     stampedName: stamp-component-stamped-name-detective
     stampedColor: "#FC0A0A"
-    stampState: "paper_stamp-detective"
+    stampState: "paper_stamp-deny"
   - type: Sprite
-    state: stamp-detective
+    state: stamp-deny                 # Forge-Change-End

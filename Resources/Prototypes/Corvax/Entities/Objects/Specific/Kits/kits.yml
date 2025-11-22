@@ -530,7 +530,7 @@
       - id: N14StimpakDirty
         amount: 2
       - id: N14HealingPoultice
-        amount: 8
+        amount: 2
       - id: Brutepack
       - id: Ointment
       - id: N14FoodTinK
@@ -670,7 +670,6 @@
       - id: N14WeaponLaserPistol
       - id: N14PowerCellSmall
         amount: 2
-      - id: N14WeaponPlasmaMultiplas
       - id: N14PlasmaCartridge
         amount: 3
       - id: N14Stimpak
@@ -796,3 +795,408 @@
       - id: BoxMRE
     sound:
       path: /Audio/Effects/unwrap.ogg
+
+# Ranger
+
+- type: entity
+  name: Рейнджерский набор пистолета-пулемёта
+  parent: KitBase
+  id: KitSMGRanger
+  components:
+  - type: Sprite
+    state: rifleman
+  - type: Item
+    size: Huge
+  - type: SpawnItemsOnUse
+    items:
+      - id: ClothingBeltNCR
+      - id: N14WeaponSMG9mm
+      - id: N14MagazineSMG9mm
+        amount: 4
+      - id: MagazineBox9mm
+      - id: N14Stimpak
+        amount: 2
+      - id: N14BoxCardboardMREBoxKFilled
+      - id: N14CombatKnife
+    sound:
+      path: /Audio/Effects/unwrap.ogg
+
+#All of the Broother Western kits
+- type: entity
+  name: elderss laser kit
+  parent: KitBase
+  id: KitBrootherWest_Elderlas
+  description: Standard Laser kit
+  components:
+  - type: Sprite
+    state: rifleman
+  - type: Item
+    size: Huge
+  - type: SpawnItemsOnUse
+    items:
+      - id: N14WeaponLaserRifleYk42b
+      - id: N14WeaponLaserMagnetoPistol
+      - id: N14PowerCellMagnetoSmall
+        amount: 2
+      - id: N14PowerCellFocusedYk42b
+        amount: 3
+      - id: N14CleanGauze10
+      - id: N14Stimpak
+      - id: N14PlasmaGrenade
+
+- type: entity
+  name: elderss Rifle kit
+  parent: KitBase
+  id: KitBrootherWest_Elderrifle
+  description: Standard Rifle kit
+  components:
+  - type: Sprite
+    state: rifleman
+  - type: Item
+    size: Huge
+  - type: SpawnItemsOnUse
+    items:
+      - id: N14WeaponRifleAk112pn
+      - id: N14WeaponPistol45Colt
+      - id: N14MagazinePistol45
+        amount: 3
+      - id: MagazineDrum545Rifle
+        amount: 2
+      - id: N14CleanGauze10
+      - id: N14Stimpak
+      - id: MagazineBox545
+      - id: GrenadeShrapnel
+
+- type: entity
+  name: Paladin laser kit
+  parent: KitBase
+  id: KitBrootherWest_Paladinlas
+  description: Standard Laser kit
+  components:
+  - type: Sprite
+    state: rifleman
+  - type: Item
+    size: Huge
+  - type: SpawnItemsOnUse
+    items:
+      - id: N14WeaponLaserRifleAuto
+      - id: N14WeaponLaserPistol
+      - id: N14PowerCellSmall
+        amount: 2
+      - id: N14PowerCellHigh
+        amount: 3
+      - id: N14CleanGauze10
+      - id: N14Stimpak
+
+- type: entity
+  name: Paladin Rifle kit
+  parent: KitBase
+  id: KitBrootherWest_Paladinrifle
+  description: Standard Rifle kit
+  components:
+  - type: Sprite
+    state: rifleman
+  - type: Item
+    size: Huge
+  - type: SpawnItemsOnUse
+    items:
+      - id: N14WeaponRifleAk112pn
+      - id: N14WeaponPistol45Colt
+      - id: N14MagazinePistol45
+        amount: 3
+      - id: MagazineDrum545Rifle
+        amount: 2
+      - id: N14CleanGauze10
+      - id: N14Stimpak
+      - id: MagazineBox545
+
+- type: entity
+  name: Paladin PlasmaRifle kit
+  parent: KitBase
+  id: KitBrootherWest_Paladinplasma
+  description: Standard Rifle kit
+  components:
+  - type: Sprite
+    state: rifleman
+  - type: Item
+    size: Huge
+  - type: SpawnItemsOnUse
+    items:
+      - id: N14WeaponPlasmaRifle
+      - id: N14WeaponLaserMagnetoPistol
+      - id: N14PowerCellMagnetoSmall
+        amount: 2
+      - id: N14PlasmaCartridge
+        amount: 3
+      - id: N14CleanGauze10
+      - id: N14Stimpak
+      - id: CigaretteWeldingFuel
+
+- type: entity
+  name: knight Rifle kit
+  parent: KitBase
+  id: KitBrootherWest_Knightrifle
+  description: Standard Rifle kit
+  components:
+  - type: Sprite
+    state: rifleman
+  - type: Item
+    size: Huge
+  - type: SpawnItemsOnUse
+    items:
+      - id: N14WeaponRifleAk112
+      - id: N14WeaponPistol45Colt
+      - id: N14MagazinePistol45
+        amount: 2
+      - id: Magazine545Rifle
+        amount: 3
+      - id: N14CleanGauze10
+      - id: N14Stimpak
+      - id: MagazineBox545
+      - id: N14ClothingHeadHatBrotherCapralHelmet
+      - id: ClothingMaskGasBrootherWestern
+      - id: N14ClothingEyesGlassesMachinegun
+
+- type: entity
+  name: knight Laser kit
+  parent: KitBase
+  id: KitBrootherWest_Knightlaser
+  description: Standard Rifle kit
+  components:
+  - type: Sprite
+    state: rifleman
+  - type: Item
+    size: Huge
+  - type: SpawnItemsOnUse
+    items:
+      - id: N14WeaponLaserRifle
+      - id: N14WeaponLaserPistol
+      - id: N14PowerCellSmall
+        amount: 2
+      - id: N14PowerCellHigh
+        amount: 3
+      - id: N14CleanGauze10
+      - id: N14Stimpak
+      - id: N14ClothingHeadHatBeretknighBoS
+      - id: N14ClothingEyesGlassesMachinegun
+      - id: ClothingMaskGasBrootherWestern
+
+- type: entity
+  name: knight Plasma kit
+  parent: KitBase
+  id: KitBrootherWest_Knightplasma
+  description: Standard Rifle kit
+  components:
+  - type: Sprite
+    state: rifleman
+  - type: Item
+    size: Huge
+  - type: SpawnItemsOnUse
+    items:
+      - id: N14WeaponPlasmaRifleCrude
+      - id: N14WeaponPistol12mm
+      - id: N14MagazinePistol12mm
+        amount: 2
+      - id: N14PlasmaCartridge
+        amount: 3
+      - id: N14CleanGauze10
+      - id: N14Stimpak
+      - id: N14NukaNade
+      - id: N14ClothingHeadHatCapkhighbluBoS
+      - id: N14ClothingEyesGlassesMachinegun
+      - id: ClothingMaskGasBrootherWestern
+
+- type: entity
+  name: squire Rifle kit
+  parent: KitBase
+  id: KitBrootherWest_Squirerifle
+  description: Standard Rifle kit
+  components:
+  - type: Sprite
+    state: rifleman
+  - type: Item
+    size: Huge
+  - type: SpawnItemsOnUse
+    items:
+      - id: N14WeaponRifleAk112
+      - id: Magazine545Rifle
+        amount: 3
+      - id: N14CleanGauze10
+      - id: N14Stimpak
+      - id: MagazineBox545
+      - id: N14ClothingHeadHatBrotherHelmet
+      - id: N14ClothingEyesGlassesMachinegun
+      - id: ClothingMaskGasBrootherWestern
+
+- type: entity
+  name: squire Laser kit
+  parent: KitBase
+  id: KitBrootherWest_Squirelaser
+  description: Standard Rifle kit
+  components:
+  - type: Sprite
+    state: rifleman
+  - type: Item
+    size: Huge
+  - type: SpawnItemsOnUse
+    items:
+      - id: N14WeaponLaserRifleCrude
+      - id: N14PowerCellHigh
+        amount: 3
+      - id: N14CleanGauze10
+      - id: N14Stimpak
+      - id: N14ClothingEyesGlassesMachinegun
+
+- type: entity
+  name: squire Plasma kit
+  parent: KitBase
+  id: KitBrootherWest_Squireplasma
+  description: Standard Rifle kit
+  components:
+  - type: Sprite
+    state: rifleman
+  - type: Item
+    size: Huge
+  - type: SpawnItemsOnUse
+    items:
+      - id: N14WeaponPlasmaPistol
+      - id: N14PlasmaCartridge
+        amount: 2
+      - id: N14CleanGauze10
+      - id: N14Stimpak
+      - id: N14NukaNade
+        amount: 2
+      - id: ClothingMaskGasBrootherWestern
+
+- type: entity
+  name: Scribe rifle kit
+  parent: KitBase
+  id: KitBrootherWest_Scriberifle
+  description: Standard Rifle kit
+  components:
+  - type: Sprite
+    state: rifleman
+  - type: Item
+    size: Huge
+  - type: SpawnItemsOnUse
+    items:
+      - id: N14WeaponShotgunSawedOff
+      - id: MagazineBox12gauge
+      - id: N14CleanGauze10
+      - id: N14Stimpak
+      - id: N14ClothingBeltBosLeatherunl
+      - id: N14Gunpowder10
+      - id: N14IngotLead1
+        amount: 5
+
+- type: entity
+  name: Scribe laser kit
+  parent: KitBase
+  id: KitBrootherWest_Scribelaser
+  description: Standard laser kit
+  components:
+  - type: Sprite
+    state: rifleman
+  - type: Item
+    size: Huge
+  - type: SpawnItemsOnUse
+    items:
+      - id: N14WeaponLaserMagnetoPistol
+      - id: N14PowerCellMagnetoSmall
+        amount: 3
+      - id: N14HandheldHealthAnalyzer
+      - id: N14Stimpak
+      - id: N14MedkitFilled
+      - id: N14ClothingBeltMedicalFilled
+
+- type: entity
+  name: Scribe Plasma kit
+  parent: KitBase
+  id: KitBrootherWest_Scribeplasma
+  description: Standard Plasma kit
+  components:
+  - type: Sprite
+    state: rifleman
+  - type: Item
+    size: Huge
+  - type: SpawnItemsOnUse
+    items:
+      - id: N14WeaponPlasmaPistol
+      - id: N14PlasmaCell
+        amount: 2
+      - id: N14ClothingOuterRadSuit
+      - id: N14Stimpak
+      - id: N14ClothingMaskHazmatHelmet
+      - id: N14ClothingBeltUtilityFilled
+      - id: SheetSteel
+      - id: SheetGlass
+
+##MARK: Inquisitor Midwest Kits
+- type: entity
+  name: Inquisitor Inspector Kit
+  parent: KitBase
+  id: KitInquisitorInspector
+  description: Standard Inspector kit
+  components:
+  - type: Sprite
+    state: rifleman
+  - type: Item
+    size: Huge
+  - type: SpawnItemsOnUse
+    items:
+      - id: N14WeaponRevolver45-70Hunter
+      - id: N14CeremonialSword
+      - id: ClothingBeltRevolver
+      - id: N14Stimpak
+        amount: 2
+      - id: N14MedkitCombatFilled
+      - id: SpeedLoader45-70
+        amount: 2
+      - id: MagazineBox45-70
+      - id: N14BoxCardboardMREBoxKFilled
+      - id: N14CleanGauze10
+
+- type: entity
+  name: Inquisitor Crusader Kit
+  parent: KitBase
+  id: KitInquisitorCrusader
+  description: Standard Crusader kit
+  components:
+  - type: Sprite
+    state: rifleman
+  - type: Item
+    size: Huge
+  - type: SpawnItemsOnUse
+    items:
+      - id: N14WeaponRifle556Carbine
+      - id: N14ClothingBeltBoSWebbing
+      - id: N14Stimpak
+        amount: 2
+      - id: LongMagazine556Rifle
+        amount: 3
+      - id: MagazineBox556
+      - id: N14BoxCardboardMREBoxKFilled
+      - id: N14CleanGauze10
+
+- type: entity
+  name: Inquisitor Plasma Kit
+  parent: KitBase
+  id: KitInquisitorPlasma
+  description: Standard Plasma kit
+  components:
+  - type: Sprite
+    state: rifleman
+  - type: Item
+    size: Huge
+  - type: SpawnItemsOnUse
+    items:
+      - id: N14WeaponPlasmaRifleAuto
+      - id: N14ClothingBeltBoSWebbing
+      - id: N14Stimpak
+        amount: 2
+      - id: N14PlasmaCartridge
+        amount: 3
+      - id: N14SuperStimpak
+      - id: N14BoxCardboardMREBoxKFilled
+      - id: N14CleanGauze10
+      - id: N14Ointment10

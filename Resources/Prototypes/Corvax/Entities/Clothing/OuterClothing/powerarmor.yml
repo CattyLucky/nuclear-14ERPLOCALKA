@@ -11,7 +11,11 @@
     equipDelay: 3
     unequipDelay: 6
   - type: ToggleableClothing
-    clothingPrototype: N14ClothingHeadHelmetPowerArmorT51China
+    clothingPrototypes:
+      head: N14ClothingHeadHelmetPowerArmorT51China
+      gloves: N14ClothingPAGauntlets
+      shoes: N14ClothingPABoots
+      back: N14ClothingPowerSystemsBack
 
 - type: entity
   parent: N14ClothingOuterPowerArmorT51
@@ -26,10 +30,15 @@
     equipDelay: 3
     unequipDelay: 6
   - type: ClothingSpeedModifier
-    walkModifier: 0.85
-    sprintModifier: 0.85
+    walkModifier: 0.15
+    sprintModifier: 0.15
   - type: ToggleableClothing
-    clothingPrototype: N14ClothingHeadHelmetPowerArmorT51NCR
+    clothingPrototypes:
+      head: N14ClothingHeadHelmetPowerArmorT51NCR
+      gloves: N14ClothingPAGauntlets
+      shoes: N14ClothingPABoots
+      back: N14ClothingPowerSystemsBack
+
 
 - type: entity
   parent: N14ClothingOuterPowerArmorT60
@@ -44,10 +53,15 @@
     equipDelay: 3
     unequipDelay: 6
   - type: ClothingSpeedModifier
-    walkModifier: 0.9
-    sprintModifier: 0.9
+    walkModifier: 0.15
+    sprintModifier: 0.15
   - type: ToggleableClothing
-    clothingPrototype: N14ClothingHeadHelmetPowerArmorT60NCR
+    clothingPrototypes:
+      head: N14ClothingHeadHelmetPowerArmorT60NCR
+      gloves: N14ClothingPAGauntlets
+      shoes: N14ClothingPABoots
+      back: N14ClothingPowerSystemsBack
+
 
 - type: entity
   parent: N14ClothingOuterPowerArmorAdvanced1
@@ -61,11 +75,16 @@
     sprite: Corvax/Clothing/OuterClothing/PowerArmor/advanced1NCR.rsi
     equipDelay: 3
     unequipDelay: 6
-  - type: ToggleableClothing
-    clothingPrototype: N14ClothingHeadHelmetPowerArmorX01NCR
   - type: ClothingSpeedModifier
-    walkModifier: 0.870
-    sprintModifier: 0.870
+    walkModifier: 0.17
+    sprintModifier: 0.17
+  - type: ToggleableClothing
+    clothingPrototypes:
+      head: N14ClothingHeadHelmetPowerArmorX01NCR
+      gloves: N14ClothingPAGauntletsDark
+      shoes: N14ClothingPABootsDark
+      back: N14ClothingPowerSystemsBack
+
 
 - type: entity
   parent: N14ClothingOuterPowerArmorAdvanced2
@@ -77,11 +96,16 @@
     sprite: Corvax/Clothing/OuterClothing/PowerArmor/advanced2Tesla.rsi
   - type: Clothing
     sprite: Corvax/Clothing/OuterClothing/PowerArmor/advanced2Tesla.rsi
-  - type: ToggleableClothing
-    clothingPrototype: N14ClothingHeadHelmetPowerArmorX02Tesla
   - type: Reflect
     reflectProb: 0.325
     spread: 300
+  - type: ToggleableClothing
+    clothingPrototypes:
+      head: N14ClothingHeadHelmetPowerArmorX02Tesla
+      gloves: N14ClothingPAGauntletsDark
+      shoes: N14ClothingPABootsDark
+      back: N14ClothingPowerSystemsBack
+
 
 - type: entity
   parent: N14ClothingOuterPowerArmorT45
@@ -94,4 +118,55 @@
   - type: Clothing
     sprite: Corvax/Clothing/OuterClothing/PowerArmor/T45Siera.rsi
   - type: ToggleableClothing
-    clothingPrototype: N14ClothingHeadHelmetPowerArmorT45Sierra
+    clothingPrototypes:
+      head: N14ClothingHeadHelmetPowerArmorT45Sierra
+      gloves: N14ClothingPAGauntlets
+      shoes: N14ClothingPABoots
+      back: N14ClothingPowerSystemsBack
+  - type: Storage
+    grid:
+    - 0,0,2,1
+  - type: ContainerContainer
+    containers:
+      storagebase: !type:Container
+        ents: []
+  - type: UserInterface
+    interfaces:
+      enum.StorageUiKey.Key:
+        type: StorageBoundUserInterface
+      enum.ToggleClothingUiKey.Key:
+        type: ToggleableClothingBoundUserInterface
+
+- type: entity
+  parent: N14ClothingOuterPowerArmorT45
+  id: N14ClothingOuterPowerArmorT45West
+  name: T-45 West BoS Power Armor
+  description: A fully functional suit of power armor with servos. Rare and issued exclusively to veterans of the Republic Armed Forces. The left shoulder pad features a stuffed bear head. You may see it for the first and last time in your life.
+  components:
+  - type: Sprite
+    sprite: Corvax/Clothing/OuterClothing/PowerArmor/t45westbos.rsi
+  - type: Clothing
+    sprite: Corvax/Clothing/OuterClothing/PowerArmor/t45westbos.rsi
+  - type: ToggleableClothing
+    clothingPrototypes:
+      head: N14ClothingHeadHelmetPowerArmorT45WestBOS
+      gloves: N14ClothingPAGauntlets
+      shoes: N14ClothingPABoots
+      back: N14ClothingPowerSystemsBack
+
+- type: entity
+  parent: N14ClothingOuterPowerArmorT51BC
+  id: N14ClothingOuterPowerArmorT51Elder
+  name: T-51 Elder Power Armor
+  description: A fully functional suit of power armor with servos. Rare and issued exclusively to veterans of the Republic Armed Forces. The left shoulder pad features a stuffed bear head. You may see it for the first and last time in your life.
+  components:
+  - type: Sprite
+    sprite: Corvax/Clothing/OuterClothing/PowerArmor/t51westboselder.rsi
+  - type: Clothing
+    sprite: Corvax/Clothing/OuterClothing/PowerArmor/t51westboselder.rsi
+  - type: ToggleableClothing
+    clothingPrototypes:
+      head: N14ClothingHeadHelmetPowerArmorT51WestBOSElder
+      gloves: N14ClothingPAGauntlets
+      shoes: N14ClothingPABoots
+      back: N14ClothingPowerSystemsBack

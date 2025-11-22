@@ -40,21 +40,21 @@
     Paper: 50
 
 #MARK: Caravan
-- type: latheRecipe
-  id: PassportCaravan
-  result: N14IDPassportCaravan
-  category: N14Identification
-  completetime: 5
-  materials:
-    Paper: 50
-
-- type: latheRecipe
-  id: PassportCaravanTrader
-  result: N14IDPassportCaravanTrader
-  category: N14Identification
-  completetime: 5
-  materials:
-    Paper: 50
+#- type: latheRecipe
+#  id: PassportCaravan
+#  result: N14IDPassportCaravan
+#  category: N14Identification
+#  completetime: 5
+#  materials:
+#    Paper: 50
+#
+#- type: latheRecipe
+#  id: PassportCaravanTrader
+#  result: N14IDPassportCaravanTrader
+#  category: N14Identification
+#  completetime: 5
+#  materials:
+#    Paper: 50
 
 #MARK: Brotherhood Midwest
 - type: latheRecipe

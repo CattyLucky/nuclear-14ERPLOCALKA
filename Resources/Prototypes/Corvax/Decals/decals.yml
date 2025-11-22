@@ -1,0 +1,125 @@
+# MARK: Skulls
+
+- type: decal
+  id: ForgeBonesSkull
+  sprite:
+    sprite: Corvax/Decals/bones.rsi
+    state: skull
+
+- type: decal
+  id: ForgeBonesSkullDeathclaw
+  sprite:
+    sprite: Corvax/Decals/bones.rsi
+    state: skullDeathclaw
+
+# MARK: Grass
+
+- type: decal
+  id: ForgeGrass1
+  sprite:
+    sprite: Corvax/Decals/grass.rsi
+    state: grass-1
+
+- type: decal
+  id: ForgeGrass2
+  sprite:
+    sprite: Corvax/Decals/grass.rsi
+    state: grass-2
+
+- type: decal
+  id: ForgeGrass3
+  sprite:
+    sprite: Corvax/Decals/grass.rsi
+    state: grass-3
+
+- type: decal
+  id: ForgeGrass4
+  sprite:
+    sprite: Corvax/Decals/grass.rsi
+    state: grass-4
+
+# MARK: Cactus
+
+- type: decal
+  id: ForgeKactus1
+  sprite:
+    sprite: Corvax/Decals/kactus.rsi
+    state: kactus-1
+
+- type: decal
+  id: ForgeKactus2
+  sprite:
+    sprite: Corvax/Decals/kactus.rsi
+    state: kactus-2
+
+- type: decal
+  id: ForgeKactus3
+  sprite:
+    sprite: Corvax/Decals/kactus.rsi
+    state: kactus-3
+
+#MARK: Cactus good
+
+- type: decal
+  id: ForgeKactusGood1
+  sprite:
+    sprite: Corvax/Decals/kactus-good.rsi
+    state: kactus-good-1
+
+- type: decal
+  id: ForgeKactusGood2
+  sprite:
+    sprite: Corvax/Decals/kactus-good.rsi
+    state: kactus-good-2
+
+#MARK: Desert Grass
+
+- type: decal
+  id: ForgeDesertGrass1
+  sprite:
+    sprite: Corvax/Decals/desertgrass.rsi
+    state: trava1
+
+- type: decal
+  id: ForgeDesertGrass2
+  sprite:
+    sprite: Corvax/Decals/desertgrass.rsi
+    state: trava2
+
+- type: decal
+  id: ForgeDesertGrass3
+  sprite:
+    sprite: Corvax/Decals/desertgrass.rsi
+    state: trava3
+
+- type: decal
+  id: ForgeDesertGrass4
+  sprite:
+    sprite: Corvax/Decals/desertgrass.rsi
+    state: trava4
+
+- type: decal
+  id: ForgeDesertGrass5
+  sprite:
+    sprite: Corvax/Decals/desertgrass.rsi
+    state: trava5
+
+#MARK: Crater
+
+- type: decal
+  id: ForgeCrater1
+  sprite:
+    sprite: Corvax/Decals/crater.rsi
+    state: boom1
+
+- type: decal
+  id: ForgeCrater2
+  sprite:
+    sprite: Corvax/Decals/crater.rsi
+    state: boom2
+
+- type: decal
+  id: ForgeCrater3
+  sprite:
+    sprite: Corvax/Decals/crater.rsi
+    state: boom3

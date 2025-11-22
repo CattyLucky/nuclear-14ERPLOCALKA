@@ -15,18 +15,34 @@
 - type: accessLevel
   id: TownieDoctor
   name: id-card-access-level-townie-doctor
-  
+
 - type: accessLevel
   id: TownieMechanic
-  name: id-card-access-level-townie-mechanic  
+  name: id-card-access-level-townie-mechanic
 
 - type: accessLevel
   id: WastelandBartender
-  name: id-card-access-level-townie-bartender  
+  name: id-card-access-level-townie-bartender
 
 - type: accessLevel
   id: WastelandReporter
   name: id-card-access-level-townie-reporter
+
+- type: accessLevel # Corvax-Change begin
+  id: TownsPerson
+  name: id-card-access-level-townie-person # Corvax-Change end
+
+- type: accessLevel
+  id: InnRoomOne
+  name: id-card-access-level-townie-inn1
+
+- type: accessLevel
+  id: InnRoomTwo
+  name: id-card-access-level-townie-inn2
+
+- type: accessLevel
+  id: InnRoomThree
+  name: id-card-access-level-townie-inn3
 
 - type: accessGroup
   id: Townie
@@ -39,12 +55,17 @@
   - WastelandBartender
   - WastelandReporter
   - WastelandChaplain # Corvax-Change
+  - TownsPerson # Corvax-Change
+  - WastelandFarmer # Corvax-Change
+  - InnRoomOne
+  - InnRoomTwo
+  - InnRoomThree
 
 # Wastelander
 
 - type: accessLevel
   id: WastelandChaplain
-  name: id-card-access-level-waste-chaplain  
+  name: id-card-access-level-waste-chaplain
 
 - type: accessLevel
   id: WastelandFarmer
@@ -59,7 +80,7 @@
 - type: accessLevel
   id: TribeChief
   name: id-card-access-level-tribe-chief
-  
+
 #MARK: Followers
 
 - type: accessLevel
@@ -165,3 +186,8 @@
 - type: accessLevel
   id: DungeonCommon
   name: id-card-access-level-common
+
+# Misc ancient bunker airlock access
+- type: accessLevel
+  id: AncientBunker
+  name: id-card-access-level-ancient

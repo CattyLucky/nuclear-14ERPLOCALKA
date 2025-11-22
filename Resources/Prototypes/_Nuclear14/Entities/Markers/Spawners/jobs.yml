@@ -138,42 +138,42 @@
       - state: scribe
 
 # Caravan Company
-- type: entity
-  id: N14SpawnPointCaravanLeader
-  parent: N14SpawnPointWastelander
-  name: caravan leader
-  components:
-  - type: SpawnPoint
-    job_id: CaravanLeader
-  - type: Sprite
-    sprite: _Nuclear14/Markers/Jobs/caravan.rsi
-    layers:
-      - state: green
-      - state: leader
-
-- type: entity
-  id: N14SpawnPointCaravanTrader
-  parent: N14SpawnPointCaravanLeader
-  name: caravan trader
-  components:
-  - type: SpawnPoint
-    job_id: CaravanTrader
-  - type: Sprite
-    layers:
-      - state: green
-      - state: trader
-
-- type: entity
-  id: N14SpawnPointCaravanGuard
-  parent: N14SpawnPointCaravanLeader
-  name: caravan guard
-  components:
-  - type: SpawnPoint
-    job_id: CaravanGuard
-  - type: Sprite
-    layers:
-      - state: green
-      - state: guard
+#- type: entity
+#  id: N14SpawnPointCaravanLeader
+#  parent: N14SpawnPointWastelander
+#  name: caravan leader
+#  components:
+#  - type: SpawnPoint
+#    job_id: CaravanLeader
+#  - type: Sprite
+#    sprite: _Nuclear14/Markers/Jobs/caravan.rsi
+#    layers:
+#      - state: green
+#      - state: leader
+#
+#- type: entity
+#  id: N14SpawnPointCaravanTrader
+#  parent: N14SpawnPointCaravanLeader
+#  name: caravan trader
+#  components:
+#  - type: SpawnPoint
+#    job_id: CaravanTrader
+#  - type: Sprite
+#    layers:
+#      - state: green
+#      - state: trader
+#
+#- type: entity
+#  id: N14SpawnPointCaravanGuard
+#  parent: N14SpawnPointCaravanLeader
+#  name: caravan guard
+#  components:
+#  - type: SpawnPoint
+#    job_id: CaravanGuard
+#  - type: Sprite
+#    layers:
+#      - state: green
+#      - state: guard
 
 # NCR
 - type: entity

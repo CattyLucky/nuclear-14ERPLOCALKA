@@ -5,14 +5,19 @@
   name: Urist McHands
   abstract: true
   components:
-  - type: Hunger # Corvax-Change
+  - type: Perishable
+    rotAfter: 1800 # Half an in-game day.
+  - type: Hunger # Forge-Change
     hungerThresholdDecayModifiers:
       Overfed: 1
       Okay: 0.6
       Peckish: 0.5
       Starving: 0.4
       Dead: 0
-    starvingSlowdownModifier: 0.85
+    starvationDamage:
+      types:
+        Cold: 0.15
+    starvingSlowdownModifier: 0.5
   - type: Icon # It will not have an icon in the adminspawn menu without this. Body parts seem fine for whatever reason.
     sprite: Mobs/Species/Human/parts.rsi
     state: full
@@ -21,8 +26,8 @@
   - type: Butcherable
     butcheringType: Spike
     spawned:
-    - id: FoodMeatHuman
-      amount: 5
+      - id: FoodMeatHuman
+        amount: 5
   - type: HumanoidAppearance
     species: Human
     hideLayersOnEquip:
@@ -35,6 +40,7 @@
     - English
   - type: FootPrints
   - type: PsionicInsulation
+  - type: Ghoulify
 
 - type: entity
   parent: BaseSpeciesDummy

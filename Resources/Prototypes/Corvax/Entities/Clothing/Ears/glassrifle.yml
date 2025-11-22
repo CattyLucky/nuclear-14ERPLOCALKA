@@ -1,0 +1,10 @@
+- type: entity
+  parent: ClothingEyesBase
+  id: N14ClothingEyesGlassesMachinegun 
+  name: machine gun glasses
+  description: Machine gun goggles that protect the eyes from flashes and dust
+  components:
+  - type: Sprite
+    sprite: Corvax/Clothing/Eyes/rifleglass.rsi
+  - type: Clothing
+    sprite: Corvax/Clothing/Eyes/rifleglass.rsi

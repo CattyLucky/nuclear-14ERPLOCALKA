@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "license": "CC-BY-NC-SA-3.0",
+  "copyright": "Taken from Mars36 - Discord : mars33_2.0 other Bing - Discord : bing1758",
+  "size": {
+    "x": 64,
+    "y": 64
+  },
+  "states": [
+    {
+      "name": "deathclaw",
+      "directions": 4
+    },
+    {
+      "name": "crit"
+    },
+    {
+      "name": "dead"
+    }
+  ]
+}

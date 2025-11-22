@@ -88,6 +88,18 @@
     },
     {
       "name": "papercutter"
+    },
+    {
+      "name": "paper_stamp-generic"
+    },
+    {
+      "name": "corpslip"
+    },
+    {
+      "name": "corpslip_words"
+    },
+    {
+      "name": "paper_stamp-signature"
     }
   ]
 }

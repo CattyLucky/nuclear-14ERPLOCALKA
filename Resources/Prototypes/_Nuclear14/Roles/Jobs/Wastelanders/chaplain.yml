@@ -1,27 +1,30 @@
 - type: job
   id: WastelandChaplain
   setPreference: true
+  overrideConsoleVisibility: false
+  canBeAntag: false
   name: job-name-chaplain
   description: job-description-chaplain
   playTimeTracker: WastelandChaplain
   requirements:
-    - !type:CharacterSpeciesRequirement # Corvax-Add
+    - !type:CharacterSpeciesRequirement # Forge-Add
       species:
       - Human
       - Ghoul
-    - !type:CharacterDepartmentTimeRequirement # Corvax-Add
+    - !type:CharacterDepartmentTimeRequirement # Forge-Add
       department: Townsfolk
       min: 7200 # 2 hours
   startingGear: WastelandChaplainGear
-  icon: "JobIconWastelandChaplain" # Corvax-Change
+  icon: "JobIconWastelandChaplain" # Forge-Change
   supervisors: job-supervisors-townsfolk
   access:
   - WastelandChaplain
+  - TownsPerson # Forge-Change
   special:
   - !type:AddComponentSpecial
     components:
     - type: BibleUser #Lets them heal with bibles
-    - type: NpcFactionMember # Corvax-Add
+    - type: NpcFactionMember # Forge-Add
       factions:
         - Townsfolk
 
@@ -29,13 +32,13 @@
   id: WastelandChaplainGear
   equipment:
     jumpsuit: N14ClothingUniformJumpsuitFollowers
-    back: N14ClothingBackpackTrekker # Corvax-Change
+    back: N14ClothingBackpackTrekker # Forge-Change
     shoes: N14ClothingBootsBlack
-    id: N14IDPassportWasteChaplain # Corvax-Change
+    id: N14IDPassportWasteChaplain
   innerClothingSkirt: N14ClothingUniformJumpsuitFollowers
   satchel: N14ClothingBackpackSatchelChaplainFilled
   duffelbag: N14ClothingBackpackDuffelChaplainFilled
-  storage: # Corvax-Change
+  storage: # Forge-Change
     back:
     - N14BoxPlasticFilledWastelander
     - Bible

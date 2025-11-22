@@ -29,14 +29,14 @@
 - type: startingGear
   id: BoSWestGunsmithGear
   equipment:
-    jumpsuit: N14ClothingUniformJumpsuitBOSGreen
+    jumpsuit: N14ClothingUniformJumpsuitBOSWestScout
     back: N14ClothingBackpackMilitary
     shoes: N14ClothingBootsCombatFilled
-    head: N14ClothingHeadHatArmyCap
-    outerClothing: N14ClothingOuterMidwestArmor
-    pocket1: NCRBoSMidwestkits
-    id: N14IDBrotherhoodHolotagSquire
-    belt: ClothingBeltMilitary
+    head: N14ClothingHeadHatCapScout
+    outerClothing: N14ClothingOuterRecruitWesternArmor
+    pocket1: BoSWesternSquireKits
+    id: N14IDBrotherhoodWestHolotagGunsmith
+    belt: N14ClothingBeltBosLeatherunl
   storage:
     back:
     - N14BoxPlasticFilledMilitary

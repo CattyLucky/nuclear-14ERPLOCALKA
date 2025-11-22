@@ -5,7 +5,7 @@
   suffix: NCR, Locked
   components:
   - type: AccessReader
-    access: [["NCR"]]
+    access: [ [ "NCR" ] ]
   - type: Wires
     layoutId: AirlockSecurity
 
@@ -15,7 +15,7 @@
   suffix: NCR, Locked, NCO
   components:
   - type: AccessReader
-    access: [["NCRSGT"]]
+    access: [ [ "NCRSGT" ] ]
   - type: Wires
     layoutId: AirlockSecurity
 
@@ -25,7 +25,7 @@
   suffix: NCR, Locked, Medic
   components:
   - type: AccessReader
-    access: [["NCRMedic"]]
+    access: [ [ "NCRMedic" ] ]
   - type: Wires
     layoutId: AirlockSecurity
 
@@ -35,7 +35,7 @@
   suffix: NCR, Locked, SGT
   components:
   - type: AccessReader
-    access: [["NCRSGT"]]
+    access: [ [ "NCRSGT" ] ]
   - type: Wires
     layoutId: AirlockSecurity
 
@@ -45,7 +45,7 @@
   suffix: NCR, Locked, SGT
   components:
   - type: AccessReader
-    access: [["NCRSGT"]]
+    access: [ [ "NCRSGT" ] ]
   - type: Wires
     layoutId: AirlockSecurity
 
@@ -55,7 +55,7 @@
   suffix: NCR, Locked, LT
   components:
   - type: AccessReader
-    access: [["NCRLT"]]
+    access: [ [ "NCRLT" ] ]
   - type: Wires
     layoutId: AirlockSecurity
 
@@ -65,7 +65,7 @@
   suffix: NCR, Locked, Ranger
   components:
   - type: AccessReader
-    access: [["NCRRanger"]]
+    access: [ [ "NCRRanger" ] ]
   - type: Wires
     layoutId: HighSec
 
@@ -299,7 +299,7 @@
   suffix: Townie, Locked, Sheriff
   components:
   - type: AccessReader
-    access: [["TownieLaw"]]
+    access: [ [ "TownieLaw" ] ]
   - type: Wires
     layoutId: AirlockService
 
@@ -309,7 +309,7 @@
   suffix: Townie, Locked, Sheriff
   components:
   - type: AccessReader
-    access: [["TownieLaw"]]
+    access: [ [ "TownieLaw" ] ]
   - type: Wires
     layoutId: AirlockService
 
@@ -319,17 +319,17 @@
   suffix: Townie, Locked, Mayor
   components:
   - type: AccessReader
-    access: [["TownieMayor"]]
+    access: [ [ "TownieMayor" ] ]
   - type: Wires
     layoutId: AirlockService
-    
+
 - type: entity
   parent: N14DoorWoodSecure
   id: N14DoorWoodSecureLockedMechanic
   suffix: Townie, Locked, Mechanic
   components:
   - type: AccessReader
-    access: [["TownieMechanic"]]
+    access: [ [ "TownieMechanic" ] ]
   - type: Wires
     layoutId: AirlockService
 
@@ -339,17 +339,47 @@
   suffix: Townie, Locked, Bartender
   components:
   - type: AccessReader
-    access: [["WastelandBartender"]]
+    access: [ [ "WastelandBartender" ] ]
   - type: Wires
     layoutId: AirlockService
-    
+
+- type: entity
+  parent: N14DoorWoodSecure
+  id: N14DoorWoodSecureLockedInnRoom1
+  suffix: Townie, Locked, Inn
+  components:
+  - type: AccessReader
+    access: [ [ "InnRoomOne" ] ]
+  - type: Wires
+    layoutId: AirlockService
+
+- type: entity
+  parent: N14DoorWoodSecure
+  id: N14DoorWoodSecureLockedInnRoom2
+  suffix: Townie, Locked, Inn
+  components:
+  - type: AccessReader
+    access: [ [ "InnRoomTwo" ] ]
+  - type: Wires
+    layoutId: AirlockService
+
+- type: entity
+  parent: N14DoorWoodSecure
+  id: N14DoorWoodSecureLockedInnRoom3
+  suffix: Townie, Locked, Inn
+  components:
+  - type: AccessReader
+    access: [ [ "InnRoomThree" ] ]
+  - type: Wires
+    layoutId: AirlockService
+
 - type: entity
   parent: N14DoorWoodSecure
   id: N14DoorWoodSecureLockedReporter
   suffix: Townie, Locked, Reporter
   components:
   - type: AccessReader
-    access: [["WastelandReporter"]]
+    access: [ [ "WastelandReporter" ] ]
   - type: Wires
     layoutId: AirlockService
 
@@ -359,7 +389,7 @@
   suffix: Tribal, Locked
   components:
   - type: AccessReader
-    access: [["TribeMember"]]
+    access: [ [ "TribeMember" ] ]
   - type: Wires
     layoutId: AirlockService
 
@@ -369,29 +399,29 @@
   suffix: Tribal, Locked, Chief
   components:
   - type: AccessReader
-    access: [["TribeChief"]]
+    access: [ [ "TribeChief" ] ]
   - type: Wires
     layoutId: AirlockService
 
 # Wastelander
-    
+
 - type: entity
   parent: N14DoorWoodSecure
   id: N14DoorWoodSecureLockedChaplain
   suffix: Locked, Chaplain
   components:
   - type: AccessReader
-    access: [["WastelandChaplain"]]
+    access: [ [ "WastelandChaplain" ] ]
   - type: Wires
     layoutId: AirlockService
-    
+
 - type: entity
   parent: N14DoorWoodSecure
   id: N14DoorWoodSecureLockedFarmer
   suffix: Locked, Farmer
   components:
   - type: AccessReader
-    access: [["WastelandFarmer"]]
+    access: [ [ "WastelandFarmer" ] ]
   - type: Wires
     layoutId: AirlockService
 
@@ -461,47 +491,47 @@
       board: [ DoorElectronicsVaultOverseer ]
   - type: Wires
     layoutId: HighSec
-    
+
 #MARK: Caravan Company
-- type: entity
-  parent: N14DoorWoodSecure
-  id: N14DoorWoodSecureLockedCaravanGuard
-  suffix: Caravan Guard, Locked
-  components:
-  - type: AccessReader
-    access: [["CaravanCompanyGuard"]]
-  - type: Wires
-    layoutId: AirlockService
-
-- type: entity
-  parent: N14DoorCellMetal
-  id: N14DoorCellMetalLockedCaravanGuard
-  suffix: Caravan Guard, Locked
-  components:
-  - type: AccessReader
-    access: [["CaravanCompanyGuard"]]
-  - type: Wires
-    layoutId: AirlockService
-
-- type: entity
-  parent: N14DoorWoodSecure
-  id: N14DoorWoodSecureLockedCaravanTrader
-  suffix: Caravan Trader, Locked
-  components:
-  - type: AccessReader
-    access: [["CaravanCompanyTrader"]]
-  - type: Wires
-    layoutId: AirlockService
-    
-- type: entity
-  parent: N14DoorWoodSecure
-  id: N14DoorWoodSecureLockedCaravanLeader
-  suffix: Caravan Leader, Locked
-  components:
-  - type: AccessReader
-    access: [["CaravanCompanyLeader"]]
-  - type: Wires
-    layoutId: AirlockService
+#- type: entity
+#  parent: N14DoorWoodSecure
+#  id: N14DoorWoodSecureLockedCaravanGuard
+#  suffix: Caravan Guard, Locked
+#  components:
+#  - type: AccessReader
+#    access: [["CaravanCompanyGuard"]]
+#  - type: Wires
+#    layoutId: AirlockService
+#
+#- type: entity
+#  parent: N14DoorCellMetal
+#  id: N14DoorCellMetalLockedCaravanGuard
+#  suffix: Caravan Guard, Locked
+#  components:
+#  - type: AccessReader
+#    access: [["CaravanCompanyGuard"]]
+#  - type: Wires
+#    layoutId: AirlockService
+#
+#- type: entity
+#  parent: N14DoorWoodSecure
+#  id: N14DoorWoodSecureLockedCaravanTrader
+#  suffix: Caravan Trader, Locked
+#  components:
+#  - type: AccessReader
+#    access: [["CaravanCompanyTrader"]]
+#  - type: Wires
+#    layoutId: AirlockService
+#
+#- type: entity
+#  parent: N14DoorWoodSecure
+#  id: N14DoorWoodSecureLockedCaravanLeader
+#  suffix: Caravan Leader, Locked
+#  components:
+#  - type: AccessReader
+#    access: [["CaravanCompanyLeader"]]
+#  - type: Wires
+#    layoutId: AirlockService
 
 #MARK: Keylocked
 
@@ -512,7 +542,7 @@
   suffix: Locked, IronKey
   components:
   - type: AccessReader
-    access: [["IronKey"]]
+    access: [ [ "IronKey" ] ]
   - type: Wires
     layoutId: AirlockCargo
 
@@ -522,7 +552,7 @@
   suffix: Locked, IronKey
   components:
   - type: AccessReader
-    access: [["IronKey"]]
+    access: [ [ "IronKey" ] ]
   - type: Wires
     layoutId: AirlockCargo
 
@@ -532,7 +562,7 @@
   suffix: Locked, IronKey
   components:
   - type: AccessReader
-    access: [["IronKey"]]
+    access: [ [ "IronKey" ] ]
   - type: Wires
     layoutId: AirlockCargo
 
@@ -543,7 +573,7 @@
   suffix: Locked, BronzeKey
   components:
   - type: AccessReader
-    access: [["BronzeKey"]]
+    access: [ [ "BronzeKey" ] ]
   - type: Wires
     layoutId: AirlockCargo
 
@@ -553,7 +583,7 @@
   suffix: Locked, BronzeKey
   components:
   - type: AccessReader
-    access: [["BronzeKey"]]
+    access: [ [ "BronzeKey" ] ]
   - type: Wires
     layoutId: AirlockCargo
 
@@ -563,7 +593,7 @@
   suffix: Locked, BronzeKey
   components:
   - type: AccessReader
-    access: [["BronzeKey"]]
+    access: [ [ "BronzeKey" ] ]
   - type: Wires
     layoutId: AirlockCargo
 
@@ -574,7 +604,7 @@
   suffix: Locked, BrassKey
   components:
   - type: AccessReader
-    access: [["BrassKey"]]
+    access: [ [ "BrassKey" ] ]
   - type: Wires
     layoutId: AirlockCargo
 
@@ -584,7 +614,7 @@
   suffix: Locked, BrassKey
   components:
   - type: AccessReader
-    access: [["BrassKey"]]
+    access: [ [ "BrassKey" ] ]
   - type: Wires
     layoutId: AirlockCargo
 
@@ -594,7 +624,7 @@
   suffix: Locked, BrassKey
   components:
   - type: AccessReader
-    access: [["BrassKey"]]
+    access: [ [ "BrassKey" ] ]
   - type: Wires
     layoutId: AirlockCargo
 
@@ -605,7 +635,7 @@
   suffix: Locked, SilverKey
   components:
   - type: AccessReader
-    access: [["SilverKey"]]
+    access: [ [ "SilverKey" ] ]
   - type: Wires
     layoutId: AirlockCargo
 
@@ -615,7 +645,7 @@
   suffix: Locked, SilverKey
   components:
   - type: AccessReader
-    access: [["SilverKey"]]
+    access: [ [ "SilverKey" ] ]
   - type: Wires
     layoutId: AirlockCargo
 
@@ -625,6 +655,18 @@
   suffix: Locked, SilverKey
   components:
   - type: AccessReader
-    access: [["SilverKey"]]
+    access: [ [ "SilverKey" ] ]
   - type: Wires
     layoutId: AirlockCargo
+
+# Misc ancient bunker airlock
+- type: entity
+  parent: N14DoorBunker
+  id: N14DoorBunkerLockedAncient
+  suffix: Locked, Ancient
+  components:
+  - type: ContainerFill
+    containers:
+      board: [ DoorElectronicsAncientBunker ]
+  - type: Wires
+    layoutId: HighSec

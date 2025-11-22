@@ -75,5 +75,7 @@
   name: SMG magazine (10mm)
   parent: N14BaseMagazine10mmSubMachineGun
   components:
+  - type: Sprite # Forge-Change
+    scale: 0.70, 0.70
   - type: BallisticAmmoProvider
     proto: N14CartridgePistol10
