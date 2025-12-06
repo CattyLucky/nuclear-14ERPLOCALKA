@@ -17,7 +17,7 @@
       min: 3600
   startingGear: NCRPisonerGear
   icon: "JobIconNCRPrisoner"
-  supervisors: job-supervisors-ncr
+  supervisors: job-supervisors-ncr-prisoners
   alwaysUseSpawner: true
   access:
   - NCR

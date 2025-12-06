@@ -47,6 +47,7 @@
   - NCRSoldier
   - NCRCadet
   - NCRPisoner
+  - NCRMPinvestigator
 
 #- type: department # Disabled until roles are implemented
 #  id: Rangers

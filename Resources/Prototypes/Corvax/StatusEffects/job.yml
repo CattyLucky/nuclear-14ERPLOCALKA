@@ -326,3 +326,10 @@
   icon:
     sprite: Corvax/Interface/Misc/job_icons.rsi
     state: Slave
+
+- type: jobIcon
+  parent: JobIcon
+  id: JobIconNCRMPInvestegator
+  icon:
+    sprite: Corvax/Interface/Misc/job_icons.rsi
+    state: investigator

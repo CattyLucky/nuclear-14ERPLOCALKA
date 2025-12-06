@@ -178,10 +178,10 @@
   - type: SpawnPoint
     job_id: NCRPisoner
   - type: Sprite
+    sprite: Corvax/Markers/jobs.rsi
     layers:
       - state: green
-      - sprite: Corvax/Markers/Jobs.rsi
-        state: Prisoner
+      - state: prisoner
 
 - type: entity
   id: SpawnPointCaesarLegionSlave
@@ -191,10 +191,10 @@
   - type: SpawnPoint
     job_id: CaesarLegionSlave
   - type: Sprite
+    sprite: Corvax/Markers/jobs.rsi
     layers:
       - state: green
-      - sprite: Corvax/Markers/Jobs.rsi
-        state: Slave
+      - state: slave
 
 - type: entity
   id: SpawnPointBoSMidSerf
@@ -204,7 +204,20 @@
   - type: SpawnPoint
     job_id: BoSMidSerf
   - type: Sprite
+    sprite: Corvax/Markers/jobs.rsi
     layers:
       - state: green
-      - sprite: Corvax/Markers/Jobs.rsi
-        state: Serf
+      - state: serf
+
+- type: entity
+  id: N14SpawnPointNCRMPinvestigator
+  parent: SpawnPointJobBase
+  name: NRCMP investigator spawner
+  components:
+  - type: SpawnPoint
+    job_id: NCRMPinvestigator
+  - type: Sprite
+    sprite: Corvax/Markers/jobs.rsi
+    layers:
+      - state: green
+      - state: investigator
