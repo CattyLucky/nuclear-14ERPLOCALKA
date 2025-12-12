@@ -56,6 +56,7 @@
           NCRSoldier: [ 3, 6 ]
           NCRCadet: [ 2, 5 ]
           NCRPisoner : [ 3, 3 ]
+          NCRMPinvestigator : [ 1, 1 ]
           # CaravanLeader: [ 1, 1 ]
           # CaravanTrader: [ 1, 1 ]
           # CaravanGuard: [ 2, 2 ]
