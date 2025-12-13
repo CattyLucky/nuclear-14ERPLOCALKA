@@ -205,7 +205,7 @@ undecided-loadout-category-lt-tactical-description =
 undecided-loadout-category-ranger-service-name = Стандартный набор рейнджера
 undecided-loadout-category-ranger-service-description =
     Ящик с продвинутым вооружением для рейнджеров.
-    Содержит: 1 пояс НКР, 1 служебную винтовку, 4 магазина 5.56,
+    Содержит: 1 пояс НКР, 1 автоматическую служебную винтовку, 4 магазина 5.56,
     1 коробка патронов 5.56, 1 стимпак, 1 сухпаёк типа C и боевой нож.
 
 undecided-loadout-category-ranger-rifleman-name = Набор рейнджера-стрелка
@@ -214,17 +214,17 @@ undecided-loadout-category-ranger-rifleman-description =
     Содержит: 1 пояс НКР, 1 штурмовой карабин, 3 магазина 5.56, 1 коробка патронов 5.56,
     1 стимпак, сухпаёк типа C и боевой нож.
 
-undecided-loadout-category-ranger-marksman-name = Набор рейнджера-снайпера
-undecided-loadout-category-ranger-marksman-description =
+undecided-loadout-category-ranger-sniper-name = Набор рейнджера-снайпера
+undecided-loadout-category-ranger-sniper-description =
     Ящик с продвинутым вооружением для рейнджеров.
-    Содержит: 1 пояс НКР, 1 снайперскую винтовку, 3 магазина 7.62,
-    1 коробка патронов 7.62, 1 стимпак, 1 сухпаёк типа C и боевой нож.
+    Содержит: 1 пояс НКР, 1 снайперскую винтовку, 3 магазина .308,
+    1 коробка патронов .308, 1 стимпак, 1 сухпаёк типа C и боевой нож.
 
 undecided-loadout-category-ranger-cqb-name = Набор рейнджера CQB
 undecided-loadout-category-ranger-cqb-description =
     Ящик с продвинутым вооружением для рейнджеров.
-    Содержит: 1 подсумок НКР, 1 дробовик для беспорядков, 3 барабанных магазина 20 калибра,
-    1 коробка патронов 20 калибра, 2 боевых ножа, 2 стимпака и сухпаёк типа C.
+    Содержит: 1 подсумок НКР, 1 боевой дробовик , 2 барабанных магазина 12 калибра,
+    1 коробка патронов 12 калибра, 2 боевых ножа, 2 стимпака и сухпаёк типа C.
 
 undecided-loadout-category-ranger-trailman-name = Набор следопыта-рейнджера
 undecided-loadout-category-ranger-trailman-description =
@@ -619,3 +619,4 @@ undecided-loadout-category-NCRMPinvestigatorBailif-description =
     Набор того, кто всегда готов исполнить решение суда, Судебного исполнителя.
     Набор включатает:  9мм пистолет-пулемет, 2 магазина, коробку патронов
     2 пары наручников, полицейскую дубинку, сухпаек и 2 стимпака
+
