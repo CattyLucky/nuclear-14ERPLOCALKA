@@ -69,20 +69,20 @@
 #   message: weather-fallout
 #   radioactive: true
 
-# - type: weather
-#   id: Hail
-#   sprite:
-#     sprite: /Textures/Effects/weather.rsi
-#     state: hail
-#   sound:
-#     path:
-#       /Audio/Effects/Weather/rain.ogg
-#     params:
-#       loop: true
-#       volume: -6
-#   temperature: 300
-#   duration: 500
-#   message: weather-hail
+- type: weather
+  id: Hail
+  sprite:
+    sprite: /Textures/Effects/weather.rsi
+    state: hail
+  sound:
+    path:
+      /Audio/Effects/Weather/rain.ogg
+    params:
+      loop: true
+      volume: -6
+  temperature: 300
+  duration: 500
+  message: weather-hail
 
 - type: weather
   id: Rain
@@ -139,50 +139,50 @@
 #   sender: weather-announcement
 #   message: weather-sandstorm-heavy
 
-# - type: weather
-#   id: SnowfallLight
-#   sprite:
-#     sprite: /Textures/Effects/weather.rsi
-#     state: snowfall_light
-#   sound:
-#     path: /Audio/Effects/Weather/snowstorm_weak.ogg
-#     params:
-#       loop: true
-#       volume: -6
-#   temperature: 280
-#   duration: 500
-#   message: weather-snowfall-light
+- type: weather
+  id: SnowfallLight
+  sprite:
+    sprite: /Textures/Effects/weather.rsi
+    state: snowfall_light
+  sound:
+    path: /Audio/Effects/Weather/snowstorm_weak.ogg
+    params:
+      loop: true
+      volume: -6
+  temperature: 280
+  duration: 500
+  message: weather-snowfall-light
 
-# - type: weather
-#   id: SnowfallMedium
-#   sprite:
-#     sprite: /Textures/Effects/weather.rsi
-#     state: snowfall_med
-#   sound:
-#     path: /Audio/Effects/Weather/snowstorm_weak.ogg
-#     params:
-#       loop: true
-#       volume: -6
-#   temperature: 270
-#   duration: 500
-#   message: weather-snowfall-medium
+- type: weather
+  id: SnowfallMedium
+  sprite:
+    sprite: /Textures/Effects/weather.rsi
+    state: snowfall_med
+  sound:
+    path: /Audio/Effects/Weather/snowstorm_weak.ogg
+    params:
+      loop: true
+      volume: -6
+  temperature: 270
+  duration: 500
+  message: weather-snowfall-medium
 
-# - type: weather
-#   id: SnowfallHeavy
-#   sprite:
-#     sprite: /Textures/Effects/weather.rsi
-#     state: snowfall_heavy
-#   sound:
-#     path: /Audio/Effects/Weather/snowstorm.ogg
-#     params:
-#       loop: true
-#       volume: -6
-#   temperature: 260
-#   duration: 500
-#   chance: 0
-#   showMessage: true
-#   sender: weather-announcement
-#   message: weather-snowfall-heavy
+- type: weather
+  id: SnowfallHeavy
+  sprite:
+    sprite: /Textures/Effects/weather.rsi
+    state: snowfall_heavy
+  sound:
+    path: /Audio/Effects/Weather/snowstorm.ogg
+    params:
+      loop: true
+      volume: -6
+  temperature: 260
+  duration: 500
+  chance: 0
+  showMessage: true
+  sender: weather-announcement
+  message: weather-snowfall-heavy
 
 - type: weather
   id: Storm
