@@ -53,8 +53,7 @@ public sealed partial class StoreStructuredSystem : EntitySystem
 
     private TimeSpan _nextAccelAllowed = TimeSpan.Zero;
     private TimeSpan _nextCheck = TimeSpan.Zero;
-
-    private TimeSpan _nextDynamicAllowed = TimeSpan.Zero;
+    private const int MaxDynamicUpdatesPerTick = 8;
 
     private DynamicScratch GetDynamicScratch(EntityUid storeUid)
     {
@@ -100,7 +99,7 @@ public sealed partial class StoreStructuredSystem : EntitySystem
 
     private void OnSetVisibleListings(EntityUid uid, NcStoreComponent comp, StoreSetVisibleListingsBoundUiMessage msg)
     {
-        if (!TryGetLockedUiUser(uid, comp, out _))
+        if (!TryGetLockedUiUser(uid, comp, out var user))
             return;
 
         var ids = msg.Ids;
@@ -118,8 +117,17 @@ public sealed partial class StoreStructuredSystem : EntitySystem
         }
 
         var scratch = GetDynamicScratch(uid);
-        if (scratch.UpdateVisibleIds(ids))
-            MarkDirty(uid);
+        if (!scratch.UpdateVisibleIds(ids))
+            return;
+        MarkDirty(uid);
+
+        var now = _timing.CurTime;
+        if (now >= scratch.NextDynamicAllowed)
+        {
+            _dirtyStores.Remove(uid);
+            UpdateDynamicState(uid, comp, user);
+            scratch.NextDynamicAllowed = now + TimeSpan.FromSeconds(MinDynamicInterval);
+        }
     }
 
     private void OnStorageOpen(EntityUid uid, EntityStorageComponent comp, ref StorageAfterOpenEvent args)
@@ -190,17 +198,38 @@ public sealed partial class StoreStructuredSystem : EntitySystem
             }
         }
 
-        if (_dirtyStores.Count > 0 && _timing.CurTime >= _nextDynamicAllowed)
+        if (_dirtyStores.Count > 0)
         {
+            var now = _timing.CurTime;
+
             _dirtyStoresScratch.Clear();
             _dirtyStoresScratch.AddRange(_dirtyStores);
-            _dirtyStores.Clear();
+
+            var processed = 0;
 
             foreach (var uid in _dirtyStoresScratch)
-                if (TryComp(uid, out NcStoreComponent? store) && store.CurrentUser is { } user)
-                    UpdateDynamicState(uid, store, user);
+            {
+                if (processed >= MaxDynamicUpdatesPerTick)
+                    break;
 
-            _nextDynamicAllowed = _timing.CurTime + TimeSpan.FromSeconds(MinDynamicInterval);
+                if (!TryComp(uid, out NcStoreComponent? store) || store.CurrentUser is not { } user)
+                {
+                    _dirtyStores.Remove(uid);
+                    continue;
+                }
+
+                var scratch = GetDynamicScratch(uid);
+
+                if (now < scratch.NextDynamicAllowed)
+                    continue;
+
+                UpdateDynamicState(uid, store, user);
+
+                scratch.NextDynamicAllowed = now + TimeSpan.FromSeconds(MinDynamicInterval);
+                _dirtyStores.Remove(uid);
+
+                processed++;
+            }
         }
 
         if (_timing.CurTime < _nextCheck)
@@ -669,6 +698,8 @@ public sealed partial class StoreStructuredSystem : EntitySystem
         private bool _hasSellTab;
         private bool _hasVisibleIds;
         private int _visibleSig;
+        public TimeSpan NextDynamicAllowed = TimeSpan.Zero;
+
 
         public DynamicStateBuffer GetReadBuffer() => _buffers[_activeIndex];
 
