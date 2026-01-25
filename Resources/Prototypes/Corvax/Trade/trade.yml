@@ -356,9 +356,9 @@
   name: "Пистолеты-пулеметы"
   entries:
   - proto: N14WeaponSMG9mm
-    price: 125
+    price: 130
   - proto: N14WeaponSMG45
-    price: 125
+    price: 150
   - proto: N14WeaponSMG12mmPipe
     price: 125
   - proto: N14WeaponSMG10mmPipe
@@ -410,6 +410,7 @@
     price: 300
   - proto: N14WeaponShotgunChinese
     price: 400
+    count: 4
   - proto: N14WeaponShotgunCanadian
     price: 500
     count: 4
@@ -450,7 +451,8 @@
   - proto: N14WeaponRifle762Fal
     price: 350
   - proto: N14WeaponRifle556Carbine
-    price: 400
+    price: 450
+    count: 8
   - proto: N14WeaponRifle762MarksmanCanadian
     price: 400
     count: 2
@@ -533,11 +535,13 @@
   name: "Патроны"
   entries:
   - proto: N14PowerCellSmall
-    price: 25
+    price: 75
   - proto: N14PowerCellHigh
-    price: 35
+    price: 125
+    count: 15
   - proto: N14PlasmaCartridge
-    price: 50
+    price: 150
+    count: 12
   - proto: 40mmGrenadeFrag
     price: 150
     count: 10
@@ -661,8 +665,6 @@
   - proto: N14ClothingOuterRaiderCombat1
     price: 250
   - proto: N14ClothingOuterCombatArmor
-    price: 250
-  - proto: N14ClothingOuterCombatArmorChinese
     price: 250
 
 - type: storeCategoryStructured

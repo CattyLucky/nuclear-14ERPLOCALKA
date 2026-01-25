@@ -69,11 +69,11 @@
   difficulty: Easy
   targets:
   - id: N14MaterialThread1
-    required: { min: 3, max: 6 }
+    required: { min: 10, max: 15 }
   rewards:
   - type: Currency
     id: Caps
-    amount: { min: 100, max: 150 }
+    amount: { min: 50, max: 90 }
   - type: Pool
     amount: { min: 1, max: 3 }
     options:
@@ -87,11 +87,11 @@
   difficulty: Easy
   targets:
   - id: N14FloraProduceWildBrocFlower
-    required: { min: 3, max: 5 }
+    required: { min: 5, max: 10 }
   rewards:
   - type: Currency
     id: Caps
-    amount: { min: 100, max: 150 }
+    amount: { min: 60, max: 100 }
   - type: Pool
     amount: { min: 1, max: 3 }
     options:
@@ -105,11 +105,11 @@
   difficulty: Easy
   targets:
   - id: MaterialCloth1
-    required: { min: 3, max: 6 }
+    required: { min: 10, max: 20 }
   rewards:
   - type: Currency
     id: Caps
-    amount: { min: 100, max: 150 }
+    amount: { min: 100, max: 120 }
   - type: Pool
     amount: { min: 1, max: 3 }
     options:
@@ -123,7 +123,7 @@
   difficulty: Easy
   targets:
   - id: N14FloraLogTimber
-    required: { min: 3, max: 6 }
+    required: { min: 6, max: 10 }
   rewards:
   - type: Currency
     id: Caps
@@ -141,11 +141,11 @@
   difficulty: Easy
   targets:
   - id: MaterialWoodPlank1
-    required: { min: 6, max: 15 }
+    required: { min: 15, max: 30 }
   rewards:
   - type: Currency
     id: Caps
-    amount: { min: 100, max: 150 }
+    amount: { min: 50, max: 80 }
   - type: Pool
     amount: { min: 1, max: 3 }
     options:
@@ -159,11 +159,11 @@
   difficulty: Easy
   targets:
   - id: N14FloraProduceWildCoyoteTobacco
-    required: { min: 2, max: 5 }
+    required: { min: 5, max: 10 }
   rewards:
   - type: Currency
     id: Caps
-    amount: { min: 100, max: 150 }
+    amount: { min: 50, max: 75 }
   - type: Pool
     amount: { min: 1, max: 3 }
     options:
@@ -178,11 +178,11 @@
   repeatable: false
   targets:
   - id: N14FoodDogfood
-    required: { min: 2, max: 3 }
+    required: { min: 2, max: 5 }
   rewards:
   - type: Currency
     id: Caps
-    amount: { min: 150, max: 200 }
+    amount: { min: 75, max: 100 }
   - type: Pool
     amount: { min: 1, max: 3 }
     options:
@@ -196,11 +196,11 @@
   difficulty: Easy
   targets:
   - id: N14WeaponSniper556VarmintRifle
-    required: { min: 1, max: 2 }
+    required: { min: 3, max: 5 }
   rewards:
   - type: Currency
     id: Caps
-    amount: { min: 100, max: 150 }
+    amount: { min: 100, max: 120 }
   - type: Pool
     amount: { min: 1, max: 3 }
     options:
@@ -214,11 +214,11 @@
   difficulty: Easy
   targets:
   - id: N14FoodMeatRadRaw
-    required: { min: 2, max: 4 }
+    required: { min: 5, max: 10 }
   rewards:
   - type: Currency
     id: Caps
-    amount: { min: 100, max: 150 }
+    amount: { min: 100, max: 120 }
   - type: Pool
     amount: { min: 1, max: 3 }
     options:
@@ -232,7 +232,7 @@
   difficulty: Easy
   targets:
   - id: N14Scrap1
-    required: { min: 2, max: 5 }
+    required: { min: 15, max: 30 }
   rewards:
   - type: Currency
     id: Caps
@@ -251,18 +251,18 @@
   targetCount: 1
   targets:
   - id: N14ScrapCopper1
-    required: { min: 2, max: 3 }
+    required: { min: 5, max: 10 }
     weight: 60
   - id: N14ScrapBrass1
-    required: { min: 2, max: 3 }
+    required: { min: 5, max: 10 }
     weight: 60
   - id: N14ScrapLead1
-    required: { min: 2, max: 3 }
+    required: { min: 5, max: 10 }
     weight: 60
   rewards:
   - type: Currency
     id: Caps
-    amount: { min: 100, max: 150 }
+    amount: { min: 100, max: 120}
   - type: Pool
     amount: { min: 1, max: 3 }
     options:
@@ -285,7 +285,7 @@
   rewards:
   - type: Currency
     id: Caps
-    amount: { min: 100, max: 150 }
+    amount: { min: 50, max: 75 }
   - type: Pool
     amount: { min: 1, max: 3 }
     options:
@@ -299,11 +299,11 @@
   difficulty: Easy
   targets:
   - id: N14MaterialLeather1
-    required: { min: 2, max: 5 }
+    required: { min: 5, max: 15 }
   rewards:
   - type: Currency
     id: Caps
-    amount: { min: 100, max: 150 }
+    amount: { min: 80, max: 120 }
   - type: Pool
     amount: { min: 1, max: 3 }
     options:
@@ -321,7 +321,7 @@
   rewards:
   - type: Currency
     id: Caps
-    amount: { min: 300, max: 450 }
+    amount: { min: 150, max: 250 }
   - type: Pool
     amount: { min: 1, max: 3 }
     options:
@@ -335,11 +335,11 @@
   difficulty: Medium
   targets:
   - id: N14MobRaiderPsycho
-    required: { min: 2, max: 3 }
+    required: { min: 2, max: 5 }
   rewards:
   - type: Currency
     id: Caps
-    amount: { min: 300, max: 450 }
+    amount: { min: 150, max: 250}
   - type: Pool
     amount: { min: 1, max: 3 }
     options:
@@ -374,7 +374,7 @@
   rewards:
   - type: Currency
     id: Caps
-    amount: { min: 300, max: 450 }
+    amount: { min: 100, max: 200 }
   - type: Pool
     amount: { min: 1, max: 3 }
     options:
@@ -388,12 +388,12 @@
   difficulty: Medium
   targets:
   - id: N14FloraProduceWildCarrot
-    required: { min: 2, max: 4 }
+    required: { min: 5, max: 10 }
     weight: 60
   rewards:
   - type: Currency
     id: Caps
-    amount: { min: 300, max: 450 }
+    amount: { min: 100, max: 150 }
   - type: Pool
     amount: { min: 1, max: 3 }
     options:
@@ -407,11 +407,11 @@
   difficulty: Medium
   targets:
   - id: N14BrassKnife
-    required: { min: 1, max: 2 }
+    required: { min: 1, max: 3 }
   rewards:
   - type: Currency
     id: Caps
-    amount: { min: 300, max: 450 }
+    amount: { min: 100, max: 175 }
   - type: Pool
     amount: { min: 1, max: 3 }
     options:
@@ -425,11 +425,11 @@
   difficulty: Medium
   targets:
   - id: N14FloraProduceWildCaveFungusRad
-    required: { min: 2, max: 4 }
+    required: { min: 3, max: 6 }
   rewards:
   - type: Currency
     id: Caps
-    amount: { min: 300, max: 450 }
+    amount: { min: 120, max: 150 }
   - type: Pool
     amount: { min: 1, max: 3 }
     options:
@@ -475,7 +475,7 @@
 - type: storeContract
   id: caravan_contract_N14MobCazadorWave
   name: "Казадор"
-  description: "Принеси три трупа казадора."
+  description: "Принеси  трупы казадоров."
   difficulty: Hard
   targets:
   - id: N14MobCazadorWave
@@ -485,7 +485,7 @@
     id: Caps
     amount: { min: 600, max: 1000 }
   - type: Pool
-    amount: { min: 1, max: 3 }
+    amount: { min: 3, max: 5 }
     options:
     - type: Pool
       id: caravan_hard
@@ -501,7 +501,7 @@
   rewards:
   - type: Currency
     id: Caps
-    amount: { min: 600, max: 1000 }
+    amount: { min: 250, max: 500 }
   - type: Pool
     amount: { min: 1, max: 3 }
     options:
