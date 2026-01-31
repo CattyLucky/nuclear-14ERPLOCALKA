@@ -1,0 +1,577 @@
+- type: entity
+  name: крабовые палочки
+  parent: FoodBakedBase
+  id: Crabstick
+  description: Имитация крабового мяса. В основном крахмал и рыбный ароматизатор.
+  components:
+  - type: Stack
+    stackType: Crabsticks
+    count: 1
+    composite: true
+    layerStates:
+    - crab_sticks1
+    - crab_sticks2
+    - crab_sticks3
+    - crab_sticks4
+    - crab_sticks5
+    - crab_sticks6
+    - crab_sticks7
+    - crab_sticks8
+    - crab_sticks9
+  - type: Sprite
+    sprite: Corvax/Objects/Consumable/Food/crab_sticks.rsi
+    layers:
+    - state: crab_sticks1
+      map: ["crab_sticks1"]
+      visible: true
+    - state: crab_sticks2
+      map: ["crab_sticks2"]
+      visible: false
+    - state: crab_sticks3
+      map: ["crab_sticks3"]
+      visible: false
+    - state: crab_sticks4
+      map: ["crab_sticks4"]
+      visible: false
+    - state: crab_sticks5
+      map: ["crab_sticks5"]
+      visible: false
+    - state: crab_sticks6
+      map: ["crab_sticks6"]
+      visible: false
+    - state: crab_sticks7
+      map: ["crab_sticks7"]
+      visible: false
+    - state: crab_sticks8
+      map: ["crab_sticks8"]
+      visible: false
+    - state: crab_sticks9
+      map: ["crab_sticks9"]
+      visible: false
+  - type: Appearance
+  - type: Tag
+    tags: [Crabsticks]
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 10
+        reagents:
+        - ReagentId: Nutriment
+          Quantity: 3
+        - ReagentId: Protein
+          Quantity: 1
+        - ReagentId: Sugar
+          Quantity: 1
+        - ReagentId: Omnizine
+          Quantity: 2
+
+- type: stack
+  id: Crabsticks
+  name: крабовые палочки
+  spawn: Crabstick
+  maxCount: 9
+  itemSize: 1
+
+- type: Tag
+  id: Crabsticks
+
+- type: entity
+  name: сырая красная рыба
+  parent: N14FoodMeatRadRaw
+  id: FoodMeatRedfishRaw
+  description: Жирный кусок сырой красной рыбы.
+  components:
+  - type: Sprite
+    scale: 1, 1
+    sprite: Corvax/Objects/Consumable/Food/fish.rsi
+    state: redfish
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        reagents:
+        - ReagentId: N14UncookedAnimalProteinsRad
+          Quantity: 5
+        - ReagentId: Vitamin
+          Quantity: 2 # В красной рыбе есть витамины даже в сыром виде
+  - type: Construction
+    graph: FoodMeatRedfish
+    node: start
+    defaultTarget: FoodMeatRedfishCooked
+  - type: StaticPrice
+    price: 5
+
+- type: entity
+  name: сырая белая рыба
+  parent: N14FoodMeatRadRaw
+  id: FoodMeatWhitefishRaw
+  description: Диетический кусок сырой белой рыбы.
+  components:
+  - type: Sprite
+    scale: 1, 1
+    sprite: Corvax/Objects/Consumable/Food/fish.rsi
+    state: whitefish
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        reagents:
+        - ReagentId: N14UncookedAnimalProteinsRad
+          Quantity: 6 # Белая рыба - это почти чистый белок
+  - type: Construction
+    graph: FoodMeatWhitefish
+    node: start
+    defaultTarget: FoodMeatWhitefishCooked
+  - type: StaticPrice
+    price: 4
+
+- type: entity
+  name: стейк из красной рыбы
+  parent: N14FoodMeatCooked
+  id: FoodMeatRedfishCooked
+  description: Идеально прожаренный, жирный стейк. Полезен для здоровья.
+  components:
+  - type: Sprite
+    scale: 1, 1
+    sprite: Corvax/Objects/Consumable/Food/fish.rsi
+    state: redfish-cooked
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 20
+        reagents:
+        - ReagentId: Nutriment
+          Quantity: 6
+        - ReagentId: Protein
+          Quantity: 6
+        - ReagentId: Vitamin
+          Quantity: 5
+        - ReagentId: Omnizine
+          Quantity: 5
+  - type: Construction
+    graph: FoodMeatRedfish
+    node: MeatCooked
+    defaultTarget: FoodMeatRedfishCooked
+  - type: StaticPrice
+    price: 10
+
+- type: entity
+  name: стейк из белой рыбы
+  parent: N14FoodMeatCooked
+  id: FoodMeatWhitefishCooked
+  description: Нежный, диетический стейк. Отличный источник чистого белка.
+  components:
+  - type: Sprite
+    scale: 1, 1
+    sprite: Corvax/Objects/Consumable/Food/fish.rsi
+    state: whitefish-cooked
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 20
+        reagents:
+        - ReagentId: Nutriment
+          Quantity: 5
+        - ReagentId: Protein
+          Quantity: 9 # Упор на протеин (для качков пустошей!)
+  - type: Construction
+    graph: FoodMeatWhitefish
+    node: MeatCooked
+    defaultTarget: FoodMeatWhitefishCooked
+  - type: StaticPrice
+    price: 8
+
+
+- type: constructionGraph
+  id: FoodMeatRedfish
+  start: start
+  graph:
+  - node: start
+    edges:
+    - to: MeatCooked
+      completed:
+      - !type:PlaySound
+        sound: /Audio/Effects/sizzle.ogg
+      steps:
+      - minTemperature: 305
+  - node: MeatCooked
+    entity: FoodMeatRedfishCooked
+
+- type: constructionGraph
+  id: FoodMeatWhitefish
+  start: start
+  graph:
+  - node: start
+    edges:
+    - to: MeatCooked
+      completed:
+      - !type:PlaySound
+        sound: /Audio/Effects/sizzle.ogg
+      steps:
+      - minTemperature: 305
+  - node: MeatCooked
+    entity: FoodMeatWhitefishCooked
+
+# --- СЛОЖНЫЕ БЛЮДА ---
+
+- type: entity
+  name: крабовый салат
+  parent: N14CookedFoodBowlBase
+  id: FoodCrabSalad
+  description: Сытный салат с овощами и яйцом. Сбалансированный обед.
+  components:
+  - type: Sprite
+    sprite: Corvax/Objects/Consumable/Food/bowl_food_fish.rsi
+    state: crab_salad
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 30
+        reagents:
+        - ReagentId: Nutriment
+          Quantity: 8
+        - ReagentId: Protein
+          Quantity: 3
+        - ReagentId: Vitamin
+          Quantity: 6
+        - ReagentId: Omnizine
+          Quantity: 5
+
+- type: entity
+  name: рыбный суп
+  parent: N14CookedFoodBowlBase
+  id: FoodFishSoup
+  description: Горячая уха. Отлично утоляет жажду и согревает.
+  components:
+  - type: Sprite
+    sprite: Corvax/Objects/Consumable/Food/bowl_food_fish.rsi
+    state: fish_soup
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 40
+        reagents:
+        - ReagentId: Water
+          Quantity: 15 # Самое главное в супе - вода!
+        - ReagentId: Nutriment
+          Quantity: 5
+        - ReagentId: Vitamin
+          Quantity: 4
+        - ReagentId: Omnizine
+          Quantity: 8 # Суп лечит лучше, чем сухомятка
+
+# --- ВЫПЕЧКА ---
+
+- type: entity
+  name: рыбный пирог
+  parent: FoodPieBase
+  id: FoodFishPie
+  description: Сытный пирог с рыбой. Одним таким можно наесться на весь день.
+  components:
+  - type: Sprite
+    sprite: Corvax/Objects/Consumable/Food/fish_pie.rsi
+    state: fish
+  - type: SliceableFood
+    count: 5
+    slice: FoodFishPieSlice
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 50
+        reagents:
+        - ReagentId: Nutriment
+          Quantity: 20 # Очень сытно (тесто + рыба)
+        - ReagentId: Protein
+          Quantity: 10
+        - ReagentId: Omnizine
+          Quantity: 10
+
+- type: entity
+  name: кусок рыбного пирога
+  parent: FoodPieSliceBase
+  id: FoodFishPieSlice
+  description: Аппетитный кусочек пирога.
+  components:
+  - type: Sprite
+    sprite: Corvax/Objects/Consumable/Food/fish_pie.rsi
+    state: fish-slice
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 10
+        reagents:
+        - ReagentId: Nutriment
+          Quantity: 4
+        - ReagentId: Protein
+          Quantity: 2
+        - ReagentId: Omnizine
+          Quantity: 2
+
+# --- ДЕЛИКАТЕСЫ (Икра) ---
+
+- type: entity
+  name: красная икра
+  parent: N14CookedFoodTacoBase
+  id: FoodRedCaviar
+  description: Баночка свежей красной икры. Соленая и питательная.
+  components:
+  - type: Sprite
+    sprite: Corvax/Objects/Consumable/Food/redcaviar.rsi
+    state: redcaviar
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 20
+        reagents:
+        - ReagentId: Nutriment
+          Quantity: 2
+        - ReagentId: Sodium
+          Quantity: 5 # Икра всегда соленая!
+        - ReagentId: Vitamin
+          Quantity: 8 # Концентрат пользы
+        - ReagentId: Omnizine
+          Quantity: 5
+        - ReagentId: Saline
+          Quantity: 15
+
+- type: entity
+  name: тартлетка с икрой
+  parent: N14CookedFoodBreadBase
+  id: FoodCaviarTartlet
+  description: Маленькая хрустящая закуска с икрой.
+  components:
+  - type: Sprite
+    sprite: Corvax/Objects/Consumable/Food/caviar_food.rsi
+    state: tartletredcaviar
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 10
+        reagents:
+        - ReagentId: Nutriment
+          Quantity: 3
+        - ReagentId: Sodium
+          Quantity: 2
+        - ReagentId: Vitamin
+          Quantity: 3
+        - ReagentId: Omnizine
+          Quantity: 3
+        - ReagentId: Saline
+          Quantity: 15
+
+- type: entity
+  name: тост с икрой
+  parent: N14CookedFoodBreadBase
+  id: FoodCaviarToast
+  description: Хрустящий тост с маслом и икрой. Вкус роскоши.
+  components:
+  - type: Sprite
+    sprite: Corvax/Objects/Consumable/Food/caviar_food.rsi
+    state: toastredcaviar
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 10
+        reagents:
+        - ReagentId: Nutriment
+          Quantity: 4
+        - ReagentId: Sodium
+          Quantity: 2
+        - ReagentId: Vitamin
+          Quantity: 3
+        - ReagentId: Omnizine
+          Quantity: 3
+        - ReagentId: Saline
+          Quantity: 15
+
+- type: entity
+  parent: [FoodTinBase, FoodMeatBase]
+  id: N14FoodCannedFish
+  name: рыбные консервы
+  description: Жестяная банка с консервированной рыбой. Внутри много масла.
+  components:
+  - type: Sprite
+    sprite: Corvax/Objects/Consumable/Food/canned_fish.rsi
+    state: icon
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 20
+        reagents:
+        - ReagentId: Nutriment
+          Quantity: 10
+        - ReagentId: Protein
+          Quantity: 5
+        - ReagentId: Sodium
+          Quantity: 3
+  - type: Construction
+    graph: FoodCannedFishHeat
+    node: start
+  - type: Food
+    trash:
+    - N14FoodCannedFishTrash
+  - type: Tag
+    tags:
+    - Meat
+    - Soup
+  - type: Temperature
+    currentTemperature: 290
+  - type: InternalTemperature
+    conductivity: 0.43
+    thickness: 0.1
+    area: 0.05
+
+# Горячая (Вкусная и лечебная)
+- type: entity
+  parent: FoodTinBase
+  id: N14FoodCannedFishHot
+  name: разогретые рыбные консервы
+  description: Горячая рыба в собственном соку. Отлично восстанавливает силы.
+  components:
+  - type: Sprite
+    sprite: Corvax/Objects/Consumable/Food/canned_fish_hot.rsi
+    state: icon
+  - type: Openable
+    opened: true
+    openableByHand: true
+  - type: Construction
+    graph: FoodCannedFishHeat
+    node: start
+    defaultTarget: N14FoodCannedFishHot
+  - type: Food
+    trash:
+    - N14FoodCannedFishTrash
+  - type: SolutionContainerManager
+    solutions:
+      food:
+        maxVol: 30
+        reagents:
+        - ReagentId: Nutriment
+          Quantity: 12 # Сытнее, чем холодная
+        - ReagentId: Protein
+          Quantity: 8
+        - ReagentId: Vitamin
+          Quantity: 3
+        - ReagentId: Omnizine
+          Quantity: 8 # Хорошо лечит
+  - type: FlavorProfile
+    flavors:
+    - fishy
+
+- type: entity
+  parent: FoodTinBaseTrash
+  id: N14FoodCannedFishTrash
+  name: пустая рыбная консерва
+  components:
+  - type: Sprite
+    sprite: Corvax/Objects/Consumable/Food/canned_fish.rsi
+    state: trash
+
+- type: constructionGraph
+  id: FoodCannedFishHeat
+  start: start
+  graph:
+  - node: start
+    edges:
+    - to: FoodCannedFishHot
+      completed:
+      - !type:PlaySound
+        sound: /Audio/Effects/sizzle.ogg
+      steps:
+      - minTemperature: 292
+  - node: FoodCannedFishHot
+    entity: N14FoodCannedFishHot
+
+- type: microwaveMealRecipe
+  id: N14RecipeFoodCrabSalad
+  name: crab salad (wasteland)
+  result: FoodCrabSalad
+  time: 10
+  solids:
+    Crabstick: 1
+    N14FloraProduceWildOnion: 1
+    N14FloraProduceWildTato: 1
+    N14FloraProduceWildTarberries: 1
+
+- type: microwaveMealRecipe
+  id: N14RecipeFoodFishSoupWhite
+  name: fish soup (whitefish)
+  result: FoodFishSoup
+  time: 10
+  solids:
+    FoodMeatWhitefishCooked: 1
+    N14FloraProduceWildOnion: 1
+    N14FloraProduceWildTato: 1
+
+- type: microwaveMealRecipe
+  id: N14RecipeFoodFishSoupRed
+  name: fish soup (redfish)
+  result: FoodFishSoup
+  time: 10
+  solids:
+    FoodMeatRedfishCooked: 1
+    N14FloraProduceWildOnion: 1
+    N14FloraProduceWildTato: 1
+
+- type: microwaveMealRecipe
+  id: N14RecipeFoodFishSoupStarlight
+  name: fish soup (starlight)
+  result: FoodFishSoup
+  time: 15
+  solids:
+    FoodMeatWhitefishCooked: 1
+    N14FloraProduceWildOnion: 1
+    N14FloraProduceWildTato: 1
+    N14FloraProduceWildStarlightBerries: 1
+
+- type: microwaveMealRecipe
+  id: N14RecipeFoodFishPieWhite
+  name: fish pie (whitefish)
+  result: FoodFishPie
+  time: 15
+  solids:
+    N14FloraProduceWildRazorgrain: 1
+    FoodMeatWhitefishCooked: 1
+    N14FloraProduceWildOnion: 1
+    N14FloraProduceWildTato: 1
+
+- type: microwaveMealRecipe
+  id: N14RecipeFoodFishPieRed
+  name: fish pie (redfish)
+  result: FoodFishPie
+  time: 15
+  solids:
+    N14FloraProduceWildRazorgrain: 1
+    FoodMeatRedfishCooked: 1
+    N14FloraProduceWildOnion: 1
+    N14FloraProduceWildTato: 1
+
+# Икра
+- type: microwaveMealRecipe
+  id: N14RecipeFoodCaviarTartlet
+  name: caviar tartlet (wasteland)
+  result: FoodCaviarTartlet
+  time: 5
+  solids:
+    FoodRedCaviar: 1
+    N14FloraProduceWildPricklyPearFruit: 1
+    N14FoodDoughTortillaFlat: 1
+
+- type: microwaveMealRecipe
+  id: N14RecipeFoodCaviarToast
+  name: caviar toast (wasteland)
+  result: FoodCaviarToast
+  time: 5
+  solids:
+    FoodRedCaviar: 1
+    N14FloraProduceWildPricklyPearFruit: 1
+    N14CookedFoodBreadPlainSlice: 1
+
+# Крабовые палочки (лучше из Cooked, как ты сделал)
+- type: microwaveMealRecipe
+  id: N14RecipeCrabstick
+  name: crab sticks
+  result: Crabstick
+  time: 5
+  solids:
+    FoodMeatWhitefishCooked: 1
+    N14FloraProduceWildRazorgrain: 1
+    N14FloraProduceWildTato: 1

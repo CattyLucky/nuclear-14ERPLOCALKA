@@ -1,0 +1,146 @@
+# SPDX-FileCopyrightText: 2025 GoobBot <uristmchands@proton.me>
+# SPDX-FileCopyrightText: 2025 Roudenn <romabond091@gmail.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# This should be on every other fishing table
+- type: entityTable
+  id: BasicFishingLootTable
+  table: !type:GroupSelector
+    children:
+    - !type:NestedSelector
+      tableId: WaterFishTable
+      weight: 100
+
+# All types of the rare and unique fishes
+
+# Таблица редкой/опасной рыбы (Для высокого уровня навыка или удачи)
+- type: entityTable
+  id: RareFishTable
+  table: !type:GroupSelector
+    children:
+    - !type:EntSelector { id: FishSvarka }       # Сом-сварщик
+    - !type:EntSelector { id: FishPowerArmor }   # Броне-рыба
+    - !type:EntSelector { id: FishAngler }       # Удильщик (Свет)
+    - !type:EntSelector { id: FishFugu }         # Фугу (Яд)
+    - !type:EntSelector { id: FishClown }        # Клоун (Смена пола)
+    - !type:EntSelector { id: FishLegion }       # Греза (Наркотики)
+    - !type:EntSelector { id: FishGun }          # Ган-фиш (Порох)
+    - !type:EntSelector { id: FishBomb }         # Пиро-щука (Взрывчатка)
+    - !type:EntSelector { id: FishGold }         # Золотой карп (Деньги)
+    - !type:EntSelector { id: FishExocoetidae }  # Аэро-акула (Пласталь)
+    - !type:EntSelector { id: FishOctopus }      # Осьминог (Чернила)
+    - !type:EntSelector { id: FishTropic }       # Кислотный угорь
+
+# Таблица обычной рыбы (Еда и базовые ресурсы)
+- type: entityTable
+  id: WaterFishTable
+  table: !type:GroupSelector # Меняем на Random, чтобы выбиралась ОДНА рыба
+    children:
+    - !type:EntSelector
+      id: FishSardina
+      weight: 20
+    - !type:EntSelector
+      id: FishCarp
+      weight: 20
+    - !type:EntSelector
+      id: FishShrimp
+      weight: 20
+    - !type:EntSelector
+      id: FishCrab
+      weight: 20
+    - !type:EntSelector
+      id: FishBone
+      weight: 20     # Скелеты падают часто (консервант)
+    - !type:EntSelector
+      id: FishStar
+      weight: 15     # Медицина
+    - !type:EntSelector
+      id: FishCarrot
+      weight: 15     # Глина
+    - !type:EntSelector
+      id: FishYorsh
+      weight: 15     # Слизь
+    - !type:EntSelector
+      id: FishSvarka
+      weight: 10     # Топливо
+    - !type:EntSelector
+      id: FishPowerArmor
+      weight: 10     # Броня
+    - !type:EntSelector
+      id: FishTropic
+      weight: 10     # Кислота
+    - !type:EntSelector
+      id: FishOctopus
+      weight: 8      # Чернила
+    - !type:EntSelector
+      id: FishFugu
+      weight: 5      # Яд
+    - !type:EntSelector
+      id: FishLegion
+      weight: 5      # Наркотики
+    - !type:EntSelector
+      id: FishClown
+      weight: 4      # Смена пола (чуть реже)
+    - !type:EntSelector
+      id: NF14FishAngler
+      weight: 5      # Свет
+    - !type:EntSelector
+      id: FishGun
+      weight: 2      # Оружие
+    - !type:EntSelector
+      id: FishBomb
+      weight: 2      # Взрывчатка
+    - !type:EntSelector
+      id: FishExocoetidae
+      weight: 1      # Пласталь (Очень редко)
+    - !type:EntSelector
+      id: FishGold
+      weight: 1      # Золото (Джекпот)
+
+
+# Items from Water
+- type: entityTable
+  id: WaterFishingLootTable
+  table: !type:GroupSelector
+    children:
+      - !type:NestedSelector
+        tableId: BasicFishingLootTable
+        weight: 70
+      - !type:NestedSelector
+        tableId: WaterFishTable
+        weight: 20
+      - !type:NestedSelector
+        tableId: RareFishTable
+        weight: 10
+
+# Items from Lava
+- type: entityTable
+  id: LavaFishingLootTable
+  table: !type:GroupSelector
+    children:
+      # TODO: lava/plasma fish
+      - !type:NestedSelector
+        tableId: BasicFishingLootTable
+
+# Items from Plasma
+- type: entityTable
+  id: PlasmaFishingLootTable
+  table: !type:GroupSelector
+    children:
+    # TODO: lava/plasma fish
+      - !type:NestedSelector
+        tableId: BasicFishingLootTable
+
+# Items from Toilets
+- type: entityTable
+  id: ToiletFishingLootTable
+  table: !type:GroupSelector
+    children:
+      # like water but no rare fishes
+      - !type:NestedSelector
+        tableId: BasicFishingLootTable
+        weight: 80
+      - !type:NestedSelector
+        tableId: WaterFishTable
+        weight: 20
