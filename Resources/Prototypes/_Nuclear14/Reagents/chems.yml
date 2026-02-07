@@ -144,10 +144,11 @@
   color: "#00e5ff"
   metabolisms:
     Medicine:
-      metabolismRate: 0.2 # Effectively once every 5 seconds.
+      metabolismRate: 0.067 # Forge-Change
       effects:
-      - !type:Jitter
-      # - !type:NightvisionHalf
+      - !type:NocturineNightVision # Forge-Change
+        durationSeconds: 5.0
+        color: "#F0FFFF" # Forge-Change
 
 - type: reagent
   id: Buffout
