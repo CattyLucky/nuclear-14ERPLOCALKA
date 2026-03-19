@@ -36,9 +36,5 @@
     gloves: N14ClothingHandsGlovesCloth
     bandage: NCClothingCollarBoSSerf
 
-
 - type: playTimeTracker
   id: BoSMidSerf
-
-
-
