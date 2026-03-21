@@ -17,7 +17,6 @@
   startingGear: TownMayorGear
   icon: "JobIconTownMayor" # Corvax-Change
   supervisors: job-supervisors-townsfolk
-  alwaysUseSpawner: true # Forge-Change
   accessGroups:
   - Townie
   special:
@@ -32,7 +31,7 @@
   id: TownMayorGear
   equipment:
     jumpsuit: N14ClothingUniformJumpsuitCheckered
-    back: N14ClothingBackpackExplorer # Forge-Change
+    back: N14ClothingBackpackExplorer # Corvax-Change
     shoes: N14ClothingShoesBrown
     id: N14IDBadgeTownMayor
     pocket1: RadioHandheld
@@ -40,7 +39,7 @@
   innerClothingSkirt: N14ClothingUniformJumpskirtFalloutBlack
   satchel: N14ClothingBackpackSatchelMayorFilled
   duffelbag: N14ClothingBackpackDuffelMayorFilled
-  storage: # Forge-Change
+  storage: # Corvax-Change
     back:
     - N14BoxPlasticFilledWastelander
 

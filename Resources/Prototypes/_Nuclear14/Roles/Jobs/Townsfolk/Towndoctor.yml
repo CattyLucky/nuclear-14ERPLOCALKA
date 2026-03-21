@@ -17,10 +17,9 @@
   startingGear: TownDoctorGear
   icon: "JobIconTownMedic" # Corvax-Change
   supervisors: job-supervisors-townsfolk
-  alwaysUseSpawner: true # Forge-Change
   access:
   - TownieDoctor
-  - TownsPerson # Forge-Change
+  - TownsPerson # Corvax-Change
   special:
   - !type:AddComponentSpecial
     components:
@@ -34,7 +33,7 @@
   id: TownDoctorGear
   equipment:
     jumpsuit: N14ClothingUniformJumpsuitWastelandDoc
-    back: N14ClothingBackpackExplorer # Forge-Change
+    back: N14ClothingBackpackExplorer # Corvax-Change
     shoes: N14ClothingShoesBlack
     gloves: N14ClothingHandsGlovesNitrile
     id: N14IDDoctorTown
@@ -42,7 +41,7 @@
   innerClothingSkirt: N14ClothingUniformJumpskirtFalloutBlack
   satchel: N14ClothingBackpackSatchelWastelanderFilled
   duffelbag: N14ClothingBackpackDuffelFilled  # N14TODO: Doctors Bag
-  storage: # Forge-Change
+  storage: # Corvax-Change
     back:
     - N14BoxPlasticFilledWastelander
 

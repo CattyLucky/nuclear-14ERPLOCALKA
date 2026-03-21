@@ -17,10 +17,9 @@
   startingGear: WastelandBartenderGear
   icon: "JobIconBartender"
   supervisors: job-supervisors-townsfolk
-  alwaysUseSpawner: true # Forge-Change
   access:
   - WastelandBartender
-  - TownsPerson # Forge-Change
+  - TownsPerson # Corvax-Change
   - InnRoomOne
   - InnRoomTwo
   - InnRoomThree
@@ -39,13 +38,13 @@
     head: ClothingHeadHatTophat
     jumpsuit: N14ClothingUniformJumpsuitBartenderAlt
     outerClothing: N14ClothingOuterLeatherArmor
-    back: N14ClothingBackpackExplorer # Forge-Change
+    back: N14ClothingBackpackExplorer # Corvax-Change
     shoes: N14ClothingBootsLeather
     id: N14IDBartenderTown
   innerClothingSkirt: N14ClothingUniformJumpsuitBartenderAlt #placeholder
   satchel: N14ClothingBackpackSatchelWastelanderFilled
   duffelbag: N14ClothingBackpackDuffelFilled
-  storage: # Forge-Change
+  storage: # Corvax-Change
     back:
     - N14BoxPlasticFilledWastelander
 

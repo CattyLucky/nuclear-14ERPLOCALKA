@@ -6,9 +6,8 @@ namespace Content.Shared.Mech;
 [Serializable, NetSerializable]
 public enum MechVisuals : byte
 {
-    Open,
-    Broken,
-    EngineOn  // Forge-Change
+    Open, //whether or not it's open and has a rider
+    Broken //if it broke and no longer works.
 }
 
 [Serializable, NetSerializable]

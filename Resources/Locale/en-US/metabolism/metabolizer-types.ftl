@@ -13,4 +13,3 @@ metabolizer-type-vampiric = Vampiric
 metabolizer-type-liquorlifeline = Liquor Lifeline
 metabolizer-type-shadowkin = Shadowkin
 metabolizer-type-plasmaman = Plasmaman
-metabolizer-type-supermutant = Supermutant

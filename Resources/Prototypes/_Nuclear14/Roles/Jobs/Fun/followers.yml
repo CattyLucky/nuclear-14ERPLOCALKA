@@ -10,7 +10,6 @@
     min: 18000 # 5 hour
   icon: "JobIconPassenger"
   supervisors: job-supervisors-followers
-  alwaysUseSpawner: true # # Forge-Change
   accessGroups:
   - FollowersApocalypse
   # Forge-Change-Start
