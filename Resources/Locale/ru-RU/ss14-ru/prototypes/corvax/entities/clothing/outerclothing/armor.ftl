@@ -5,6 +5,8 @@ ent-N14ClothingOuterLegateArmor = броня легата
     .desc = Броня с действительно хорошей защитой для важных персон.
 ent-N14ClothingOuterHeavyCenturionArmor = тяжелая броня центуриона
     .desc = Тяжелая броня, собранная из захваченных частей силовой брони поверженных врагов.
+ent-N14ClothingOuterConquerorCenturionArmor = броня завоевателя центуриона
+    .desc = Выплавленные доспехи выдаются только особо выдающимся центурионам.
 ent-N14ClothingOuterBaseCenturionArmor = броня центуриона
     .desc = Доспехи, собранные из захваченных частей силовой брони поверженных врагов.
 ent-N14ClothingOuterHeavyLegionnaireArmor = тяжелая броня легионера
@@ -49,8 +51,6 @@ ent-N14ClothingOuterNCRVeteranArmorKiltDesert = кожаный жилет вет
     .desc = { ent-N14ClothingOuterNCRVeteranArmorDesert.desc }
 ent-N14ClothingOuterNCRCombatVeteranArmorDesert = боевая броня ветерана НКР
     .desc = Старая довоенная боевая броня, перекрашенная в цвета Новой Калифорнийской Республики. Этот комплект прослужил не один год, и имеет дополнительные защитные вставки, которые правда не очень защищают от пуль.
-ent-N14ClothingOuterNCRCombatVeteranKiltArmorDesert = боевая броня ветерана нкр с кителе
-    .desc = { ent-N14ClothingOuterNCRCombatVeteranArmorDesert.desc }
 ent-N14ClothingOuterBOSInquisitorBattleArmor = боевая броня инквизитора СЗБС
     .desc = Усиленная броня чёрного цвета с гербами Братства Стали, созданная для защиты инквизиторов в ближнем бою и при штурмах.
 ent-N14ClothingOuterRangerArmorOld = старая патрульная броня рейнджера
@@ -61,3 +61,7 @@ ent-N14ClothingOuterRangerCoyote = комплект брони рейнджер�
     .desc = Лёгкий плащ, используемый разведчиками НКР во время дальних вылазок. Несмотря на отсутствие серьёзной брони, он обеспечивает достаточную защиту от песка, ветра и палящего солнца пустоши. Комплект украшен красной шейной повязкой с отличительным знаком рейнджеров, заметным даже издалека.
 ent-N14ClothingOuterRangerRedwood = комплект патрульной брони рейнджера "Редвуд"
     .desc = модифицированная версия патрульной боевой брони, поверх которой надета тёмно-коричневая кожаная куртка. Используется рейндерами НКР, патрулирующими густые районы и горные перевалы Калифорнии. Комплект обеспечивает хорошую защиту, при этом не ограничивая движения.
+
+#Спонсорские вещи
+ent-N14ClothingOuterNCRCombatVeteranKiltArmorDesert = боевая броня ветерана нкр с кителем
+    .desc = { ent-N14ClothingOuterNCRCombatVeteranArmorDesert.desc }

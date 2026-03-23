@@ -53,7 +53,7 @@
     price: 100
 
 - type: entity
-  name: M7 Spear Rifle 
+  name: M7 Spear Rifle
   parent: N14WeaponRifleM7SpearScope
   id: N14WeaponRifleM7Spear
   description: Prototype of a next-generation rifle that never made it into service with the US Army. Only a few units were delivered for special operations testing just days before the Great War began. Finding one in the wasteland is a real jackpot. It uses a unique caliber, so finding ammunition for it is an even greater stroke of luck.
@@ -124,6 +124,7 @@
         whitelist:
           tags:
             - Magazine545Rifle
+            - MagazineDrum545Rifle # Forge-change
       gun_chamber:
         name: Chamber
         startingItem: N14Cartridge545Rifle
@@ -146,6 +147,8 @@
     slots:
     - Back
     - suitStorage
+  - type: Item
+    size: Huge
   - type: Sprite
     sprite: Corvax/Objects/Weapons/Guns/Rifles/ak112pn.rsi
     layers:
@@ -177,6 +180,7 @@
         whitelist:
           tags:
             - MagazineDrum545Rifle
+            - Magazine545Rifle # Forge-change
       gun_chamber:
         name: Chamber
         startingItem: N14Cartridge545Rifle
@@ -207,10 +211,10 @@
         map: ["enum.GunVisualLayers.Mag"]
   - type: Gun
     minAngle: 21
-    maxAngle: 40
+    maxAngle: 46
     angleIncrease: 2
     angleDecay: 8
-    fireRate: 8
+    fireRate: 6
     soundGunshot:
       collection: N14CarbineGunshot
     selectedMode: Fullauto
@@ -237,5 +241,8 @@
             - N14Cartridge556Rifle
   - type: FollowDistance
     backStrength: 2
+  - type: ClothingSpeedModifier
+    walkModifier: 0.90
+    sprintModifier: 0.90
   - type: StaticPrice
     price: 500
