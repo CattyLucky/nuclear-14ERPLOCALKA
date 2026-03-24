@@ -1349,6 +1349,13 @@
   - proto: DrinkCognacBottleFull
     price: 3
 
+- type: storeCategoryStructured
+  id: CaravanSell2_WeaponGrenade
+  name: "Гранатомёты"
+  entries:
+  - proto: N14WeaponRifleGrenade
+    price: 1000
+
 - type: storePresetStructured
   id: caravan_sell2
   currency: Caps
@@ -1369,4 +1376,5 @@
   - CaravanSell2_MaterialsAndJunk
   - CaravanSell2_Ore
   - CaravanSell2_Alcohol
-  - CaravanSell2_Fish
+  - CaravanSell2_Fish 
+  - CaravanSell2_WeaponGrenade
