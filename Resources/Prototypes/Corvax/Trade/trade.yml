@@ -844,14 +844,14 @@
   - CaravanBuy2_Melee
   - CaravanBuy2_Headwear
   - CaravanBuy2_Armor
-  - CaravanBuy2_PowerArmor # Forge-Change
+  - CaravanBuy2_PowerArmor 
   - CaravanBuy2_Rigs
   - CaravanBuy2_Medical
   - CaravanBuy2_Materials
   - CaravanBuy2_Alcohol
   - CaravanBuy2_Misc
   - CaravanBuy2_Sprouts
-  - CaravanBuy2_WeaponGrenade # Forge-Change
+  - CaravanBuy2_WeaponGrenade 
 # ----------------------------
 # caravan_sell2 categories
 # ----------------------------
@@ -1354,7 +1354,7 @@
   name: "Гранатомёты"
   entries:
   - proto: N14WeaponRifleGrenade
-    price: 1000
+    price: 750
 
 - type: storePresetStructured
   id: caravan_sell2
