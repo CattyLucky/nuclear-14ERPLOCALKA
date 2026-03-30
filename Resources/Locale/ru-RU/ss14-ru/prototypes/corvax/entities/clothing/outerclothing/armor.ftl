@@ -39,18 +39,28 @@ ent-N14ClothingOuterLegionPaladinKiller = Броня "Убийца Палади�
     Это напоминание: всё, что они построили, будет разобрано и использовано против них.
     Искатели Старых Знаний… пусть увидят в ней своё грядущее.
     Просто смотрите, как я буду рвать их на части их же собственным оружием.
-ent-N14ClothingOuterNCRVestDesertCoat = кожаный жилет НКР с кителем
+ent-N14ClothingOuterNCRVestDesertCoat = баллистический жилет НКР с кителем
     .desc = Кожанный жилет, надетый поверх кителя, идеален для прохладных условий пустоши.
-ent-N14ClothingOuterNCRVestpaddedWebDesert = укреплённый жилет НКР
+ent-N14ClothingOuterNCRVestDesertCoatSnow = баллистический жилет НКР с кителем зимний
+    .desc = { ent-N14ClothingOuterNCRVestDesertCoat.desc }
+ent-N14ClothingOuterNCRVestpaddedWeb = укреплённый баллистический жилет НКР
     .desc = Лёгкая баллистическая броня, интегрированная в кожаный жилет, является экономически выгодным и простым в производстве решением для оснащения лёгкой пехоты. Броня выполнена в классическом пустынном камуфляже. Эта версия оборудована дополнительными наплечниками.
-ent-N14ClothingOuterNCRVestpaddedWebKiltDesert = укреплённый жилет НКР с кителем
-    .desc = { ent-N14ClothingOuterNCRVestpaddedWebDesert.desc }
-ent-N14ClothingOuterNCRVeteranArmorDesert = кожаный жилет ветерана НКР
+ent-N14ClothingOuterNCRVestpaddedWebSnow = укреплённый жилет НКР зимний
+    .desc = { ent-N14ClothingOuterNCRVestpaddedWeb.desc }
+ent-N14ClothingOuterNCRVestpaddedWebKilt = укреплённый баллистический жилет НКР с кителем
+    .desc = { ent-N14ClothingOuterNCRVestpaddedWeb.desc }
+ent-N14ClothingOuterNCRVestpaddedWebKiltSnow = укреплённый баллистический жилет НКР с кителем
+    .desc = { ent-N14ClothingOuterNCRVestpaddedWebKilt.desc }
+ent-N14ClothingOuterNCRVeteranArmor = баллистический жилет ветерана НКР
     .desc = Кожанный жилет, используемый ветеранами армии НКР, что уже достаточно времени провели в суровой пустоши. На ней видны следы ручных модификаций, показывающих - что она пережила на одну перестрелку.
-ent-N14ClothingOuterNCRVeteranArmorKiltDesert = кожаный жилет ветерана НКР с кителем
-    .desc = { ent-N14ClothingOuterNCRVeteranArmorDesert.desc }
-ent-N14ClothingOuterNCRCombatVeteranArmorDesert = боевая броня ветерана НКР
+ent-N14ClothingOuterNCRVeteranArmorKilt = баллистический жилет ветерана НКР с кителем
+    .desc = { ent-N14ClothingOuterNCRVeteranArmor.desc }
+ent-N14ClothingOuterNCRVeteranArmorKiltSnow = баллистический жилет ветерана НКР с кителем зимний
+    .desc = { ent-N14ClothingOuterNCRVeteranArmorKilt.desc }
+ent-N14ClothingOuterNCRCombatVeteranArmor = боевая броня ветерана НКР
     .desc = Старая довоенная боевая броня, перекрашенная в цвета Новой Калифорнийской Республики. Этот комплект прослужил не один год, и имеет дополнительные защитные вставки, которые правда не очень защищают от пуль.
+ent-N14ClothingOuterNCRCombatVeteranArmorSnow = боевая броня ветерана НКР зимняя
+    .desc = { ent-N14ClothingOuterNCRCombatVeteranArmor.desc }
 ent-N14ClothingOuterBOSInquisitorBattleArmor = боевая броня инквизитора СЗБС
     .desc = Усиленная броня чёрного цвета с гербами Братства Стали, созданная для защиты инквизиторов в ближнем бою и при штурмах.
 ent-N14ClothingOuterRangerArmorOld = старая патрульная броня рейнджера
@@ -69,7 +79,10 @@ ent-N14ClothingOuterWBoSReconBattleArmor = разведывательная бр
     .desc = Комплект разведывательной брони, что схожа с аналогом Среднезападного Братства Стали. Утеплена для холодного климата. Часто используется особо религиозными паладинами Вашингтонского Братства Стали которые разносят слово Бессмертного в племена, обращая их в культы.
 ent-N14ClothingOuterWBoSLordBattleArmor = доспех лорда ВБС
     .desc = Экспериментальная модель боевой брони МК3, что когда-то разрабатывалась для лучших штурмовиков армии США. Теперь же, доведённая до ума и сильно модифицированная, является признаком огромного влияния над жизнями тысяч людей в Каскадии и Аляске. По всей броне виднеются знаки отличия а левую руку закрывает рваный флаг "Сталкеров Сиэттла". Человек что носит его не будет сидеть в штабе, он лично поведёт за собой Братство для достижения целей Бессмертного.
+
 #Спонсорские вещи
-ent-N14ClothingOuterNCRCombatVeteranKiltArmorDesert = боевая броня ветерана нкр с кителем
-    .desc = { ent-N14ClothingOuterNCRCombatVeteranArmorDesert.desc }
+ent-N14ClothingOuterNCRCombatVeteranKiltArmor = боевая броня ветерана нкр с кителем
+    .desc = { ent-N14ClothingOuterNCRCombatVeteranArmor.desc }
+ent-N14ClothingOuterNCRCombatVeteranKiltArmorSnow = боевая броня ветерана нкр с кителем зимняя
+    .desc = { ent-N14ClothingOuterNCRCombatVeteranKiltArmor.desc }
 
