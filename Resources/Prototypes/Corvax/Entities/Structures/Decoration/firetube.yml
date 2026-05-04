@@ -4,7 +4,7 @@
   description: Industrial chimney from which different nasties come out.
   suffix: Mapping
   placement:
-    mode: PlaceFree
+    mode: SnapgridCenter
   components:
   - type: Transform
     anchored: true
