@@ -89,4 +89,10 @@
   id: TradeContractStructureDropoff
 
 - type: Tag
+  id: Candles
+
+- type: Tag
+  id: Lighter
+
+- type: Tag
   id: N14BoxCardboardMREBoxLegionFilled
