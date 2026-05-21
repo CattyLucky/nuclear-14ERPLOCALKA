@@ -757,9 +757,10 @@ namespace Content.Server.Database
         {
             await using var db = await GetDb();
 
-            var playerIdList = playerIds.ToList();
+            var playerIdsList = playerIds.ToList();
+
             var players = await db.DbContext.Player
-                .Where(player => playerIdList.Contains(player.UserId))
+                .Where(player => playerIdsList.Contains(player.UserId))
                 .ToListAsync();
 
             var round = new Round
@@ -790,11 +791,11 @@ namespace Content.Server.Database
         public async Task AddRoundPlayers(int id, Guid[] playerIds)
         {
             await using var db = await GetDb();
+            var playerIdsList = playerIds.ToList();
 
-            var playerIdList = playerIds.ToList();
             // ReSharper disable once SuggestVarOrType_Elsewhere
             Dictionary<Guid, int> players = await db.DbContext.Player
-                .Where(player => playerIdList.Contains(player.UserId))
+                .Where(player => playerIdsList.Contains(player.UserId))
                 .ToDictionaryAsync(player => player.UserId, player => player.Id);
 
             foreach (var player in playerIds)
@@ -916,17 +917,15 @@ INSERT INTO player_round (players_id, rounds_id) VALUES ({players[player]}, {id}
             {
                 if (filter.AnyPlayers != null)
                 {
-                    var anyPlayers = filter.AnyPlayers.ToList();
                     query = query.Where(log =>
-                        log.Players.Any(p => anyPlayers.Contains(p.PlayerUserId)) ||
+                        log.Players.Any(p => filter.AnyPlayers.Contains(p.PlayerUserId)) ||
                         log.Players.Count == 0 && filter.IncludeNonPlayers);
                 }
 
                 if (filter.AllPlayers != null)
                 {
-                    var allPlayers = filter.AllPlayers.ToList();
                     query = query.Where(log =>
-                        log.Players.All(p => allPlayers.Contains(p.PlayerUserId)) ||
+                        log.Players.All(p => filter.AllPlayers.Contains(p.PlayerUserId)) ||
                         log.Players.Count == 0 && filter.IncludeNonPlayers);
                 }
             }
