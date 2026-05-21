@@ -537,7 +537,7 @@ namespace Content.Server.Database
             // This allows us to semi-efficiently load all entities we need in a single DB query.
             // Then we can update & insert without further round-trips to the DB.
 
-            var players = updates.Select(u => u.User.UserId).Distinct().ToArray();
+            var players = updates.Select(u => u.User.UserId).Distinct().ToList();
             var dbTimes = (await db.DbContext.PlayTime
                     .Where(p => players.Contains(p.PlayerId))
                     .ToArrayAsync())
@@ -757,8 +757,9 @@ namespace Content.Server.Database
         {
             await using var db = await GetDb();
 
+            var playerIdList = playerIds.ToList();
             var players = await db.DbContext.Player
-                .Where(player => playerIds.Contains(player.UserId))
+                .Where(player => playerIdList.Contains(player.UserId))
                 .ToListAsync();
 
             var round = new Round
@@ -790,9 +791,10 @@ namespace Content.Server.Database
         {
             await using var db = await GetDb();
 
+            var playerIdList = playerIds.ToList();
             // ReSharper disable once SuggestVarOrType_Elsewhere
             Dictionary<Guid, int> players = await db.DbContext.Player
-                .Where(player => playerIds.Contains(player.UserId))
+                .Where(player => playerIdList.Contains(player.UserId))
                 .ToDictionaryAsync(player => player.UserId, player => player.Id);
 
             foreach (var player in playerIds)
@@ -914,15 +916,17 @@ INSERT INTO player_round (players_id, rounds_id) VALUES ({players[player]}, {id}
             {
                 if (filter.AnyPlayers != null)
                 {
+                    var anyPlayers = filter.AnyPlayers.ToList();
                     query = query.Where(log =>
-                        log.Players.Any(p => filter.AnyPlayers.Contains(p.PlayerUserId)) ||
+                        log.Players.Any(p => anyPlayers.Contains(p.PlayerUserId)) ||
                         log.Players.Count == 0 && filter.IncludeNonPlayers);
                 }
 
                 if (filter.AllPlayers != null)
                 {
+                    var allPlayers = filter.AllPlayers.ToList();
                     query = query.Where(log =>
-                        log.Players.All(p => filter.AllPlayers.Contains(p.PlayerUserId)) ||
+                        log.Players.All(p => allPlayers.Contains(p.PlayerUserId)) ||
                         log.Players.Count == 0 && filter.IncludeNonPlayers);
                 }
             }
