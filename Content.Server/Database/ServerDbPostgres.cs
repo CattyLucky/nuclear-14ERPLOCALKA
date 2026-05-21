@@ -198,9 +198,10 @@ namespace Content.Server.Database
 
             if (hwId != null && hwId.Value.Length > 0)
             {
+                var hwIdBytes = hwId.Value.ToArray();
                 var newQ = set
                     .Include(p => p.Unban)
-                    .Where(b => b.HWId!.Type == HwidType.Legacy && b.HWId!.Hwid.SequenceEqual(hwId.Value.ToArray()));
+                    .Where(b => b.HWId!.Type == HwidType.Legacy && b.HWId!.Hwid.SequenceEqual(hwIdBytes));
 
                 query = query == null ? newQ : query.Union(newQ);
             }
@@ -209,9 +210,10 @@ namespace Content.Server.Database
             {
                 foreach (var modernHwid in modernHWIds)
                 {
+                    var modernHwidBytes = modernHwid.ToArray();
                     var newQ = set
                         .Include(p => p.Unban)
-                        .Where(b => b.HWId!.Type == HwidType.Modern && b.HWId!.Hwid.SequenceEqual(modernHwid.ToArray()));
+                        .Where(b => b.HWId!.Type == HwidType.Modern && b.HWId!.Hwid.SequenceEqual(modernHwidBytes));
 
                     query = query == null ? newQ : query.Union(newQ);
                 }
